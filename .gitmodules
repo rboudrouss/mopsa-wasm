@@ -1,0 +1,3 @@
+[submodule "mopsa-analyzer-js"]
+	path = mopsa-analyzer-js
+	url = git@gitlab.com:rboudrouss/mopsa-analyzer-js.git
