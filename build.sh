@@ -4,7 +4,7 @@ rm -f build/*
 
 cd ocaml-wasm
 
-emconfigure ./configure
+CFLAGS="-fPIC -g0" emconfigure ./configure
 
 cd runtime
 
@@ -37,13 +37,13 @@ cp mopsa-analyzer-js/_build/default/utils/itvUtils/dllitvUtils_stubs.so build/
 
 emcc -o build/ocamlrun.html ocaml-wasm/runtime/prims.o ocaml-wasm/runtime/libcamlrun.a \
   -s WASM=1  -s ALLOW_MEMORY_GROWTH=1 \
-  -s EXPORTED_FUNCTIONS=['_malloc','_free','_dlopen','_dlsym','_dlclose', '_main'] \
   -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'FS', 'run']" \
   -s MAIN_MODULE=1 -s NO_EXIT_RUNTIME=1 \
-  -s FORCE_FILESYSTEM=1 -s NODERAWFS=1 \
+  -s FORCE_FILESYSTEM=1 \
   -s ENVIRONMENT='web'  --preload-file build/mopsa.bc \
-  --preload-file build/dllmopsa_c_parser_stubs.so \
-  --preload-file build/dllitvUtils_stubs.so \
-   --pre-js prejs.js 
+  --preload-file build/dllmopsa_c_parser_stubs.so@lib/dllmopsa_c_parser_stubs.so \
+  --preload-file build/dllitvUtils_stubs.so@lib/dllitvUtils_stubs.so \
+  --pre-js prejs.js 
+#  -s EXPORTED_FUNCTIONS="['_malloc','_free','_dlopen','_dlsym','_dlclose','_main']" \
 # -lpthreads
 
