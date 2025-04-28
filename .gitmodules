@@ -4,3 +4,9 @@
 [submodule "ocaml-wasm"]
 	path = ocaml-wasm
 	url = git@github.com:rboudrouss/ocaml.git
+[submodule "apron"]
+	path = apron
+	url = git@github.com:rboudrouss/apron.git
+[submodule "gmp"]
+	path = gmp
+	url = git@github.com:rboudrouss/gmp.git
