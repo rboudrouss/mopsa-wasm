@@ -86,7 +86,12 @@ cd ..
 
 cd apron
 
-emconfigure ./configure -no-cxx -no-java -no-ocaml -no-ppl -no-pplite
+GMP_PREFIX=${installFolder} MPFR_PREFIX=${installFolder} PREFIX=${installFolder} emconfigure ./configure -no-java -no-ocaml -no-ppl -no-pplite
+
+# you must edit the Makefile.config, change the APRON_PREFIX to ${installFolder}
+
+make
+make install
 
 cd ..
 
