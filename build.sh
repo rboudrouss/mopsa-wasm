@@ -128,6 +128,8 @@ emar rcs build/libitvUtils_stubs.a build/floats_round.o && emranlib build/libitv
 
 log "Building libmopsa_c_parser_stubs"
 
+mkdir -p includes
+
 cp -r /usr/include/llvm/ includes/llvm/
 cp -r /usr/include/clang/ includes/clang/
 cp -r /usr/include/llvm-c/ includes/llvm-c/
