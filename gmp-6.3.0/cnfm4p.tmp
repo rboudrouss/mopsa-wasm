@@ -1,3 +1,0 @@
-define_not_for_expansion(`HAVE_HOST_CPU_kabylake')
-define_not_for_expansion(`HAVE_ABI_x32')
-define_not_for_expansion(`HAVE_LIMB_LITTLE_ENDIAN')
