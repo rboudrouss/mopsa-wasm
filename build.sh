@@ -60,18 +60,19 @@ cd ../../..
 
 # Building GMP
 
-cd gmp-6.3.0
+log "Build GMP"
 
-emconfigure ./configure --enable-cxx --enable-shared
+installFolder=$(pwd)/libs
 
-emconfigure ./configure \
-  --host=none \
-  --disable-assembly \
-  --enable-cxx \
-  --enable-shared \
-  --prefix=./build
+cd gmp-6.1.2
 
+emconfigure ./configure --disable-assembly --host none --enable-cxx --prefix=${installFolder}
+make
+make install
 
+cd ..
+
+# Building 
 
 # Building Apron
 
