@@ -72,7 +72,15 @@ make install
 
 cd ..
 
-# Building 
+# Building mpfr
+
+cd mpfr-4.2.2
+
+emconfigure ./configure --host none --with-gmp=${installFolder} --prefix=${installFolder}
+make
+make install
+
+cd ..
 
 # Building Apron
 

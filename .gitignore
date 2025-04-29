@@ -1,3 +1,6 @@
 build/
 includes/
+
+# origin files already in git history, just ignore updates
 gmp-6.1.2/
+mpfr-4.2.2/
