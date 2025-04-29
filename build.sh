@@ -60,6 +60,17 @@ cd ../../..
 
 # Building GMP
 
+cd gmp-6.3.0
+
+emconfigure ./configure --enable-cxx --enable-shared
+
+emconfigure ./configure \
+  --host=none \
+  --disable-assembly \
+  --enable-cxx \
+  --enable-shared \
+  --prefix=./build
+
 
 
 # Building Apron
