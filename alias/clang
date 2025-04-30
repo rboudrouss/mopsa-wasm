@@ -1,2 +1,2 @@
-# usr/bin/sh
-emcc "$@" -I${pwd}/../libs/include -I${pwd}/../libs/lib
+#!/usr/bin/env bash
+gcc "$@"

@@ -121,8 +121,9 @@ cd mopsa-analyzer-js
 
 make clean
 
-./configure
+./configure --host=none
 
+# there will be one error, it's normal
 make all
 
 cd ..

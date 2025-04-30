@@ -1,2 +1,7 @@
-# usr/bin/sh
-emcc "$@" -I${pwd}/../libs/include -I${pwd}/../libs/lib
+#!/usr/bin/env bash
+# adding SIDE_MODULE & LINKABLE beacuse if this program is called it's probably by one of the ocaml wrappers, and we need partial libraries
+SYSROOT=/home/rboudrouss/Documents/emsdk/upstream/emscripten/cache/sysroot
+params="-nostdinc -nostdinc++ -I${PWD}/../libs/include -L${PWD}/../libs/lib -s SIDE_MODULE=1 -s LINKABLE=1 --sysroot=$SYSROOT -isystem $SYSROOT/include/compat -isystem $SYSROOT/include/compat -I/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include -I/usr/include $@"
+calling=$(echo "$params" | grep -q "\-x c++" && echo "em++ $params" || echo "emcc $params")
+>&2 echo "calling ${calling}"
+${calling}
