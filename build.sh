@@ -1,7 +1,11 @@
+#!/usr/bin/env bash
 # ocaml version: 4.12.0 needed
 # this was done with emscripten 4.0.5 but version >= 4 should work
-# You also need to install mopsa-analyzer dependencies, if not 
+# You also need to install mopsa-analyzer dependencies, if not
 # already installed, run: `opam install --deps-only .` inside the mopsa-analyzer-js directory
+
+# Exit on error
+set -e
 
 # we add alias/ folder to path to overwrite gcc, ar, ld, ranlib to gcc
 PATH=$(pwd)/alias:${PATH}
@@ -56,7 +60,7 @@ log "Building dllunix.so & libunix.a"
 cd otherlibs/unix
 
 # make will fail it's normal
-emmake make
+emmake make || true
 
 ocamlmklib -oc unix accept.o access.o addrofstr.o alarm.o bind.o channels.o chdir.o chmod.o chown.o chroot.o close.o fsync.o closedir.o connect.o cst2constr.o cstringv.o dup.o dup2.o envir.o errmsg.o execv.o execve.o execvp.o exit.o fchmod.o fchown.o fcntl.o fork.o ftruncate.o getaddrinfo.o getcwd.o getegid.o geteuid.o getgid.o getgr.o getgroups.o gethost.o gethostname.o getlogin.o getnameinfo.o getpeername.o getpid.o getppid.o getproto.o getpw.o gettimeofday.o getserv.o getsockname.o getuid.o gmtime.o initgroups.o isatty.o itimer.o kill.o link.o listen.o lockf.o lseek.o mkdir.o mkfifo.o mmap.o mmap_ba.o nice.o open.o opendir.o pipe.o putenv.o read.o readdir.o readlink.o rename.o rewinddir.o rmdir.o select.o sendrecv.o setgid.o setgroups.o setsid.o setuid.o shutdown.o signals.o sleep.o socket.o socketaddr.o socketpair.o sockopt.o spawn.o stat.o strofaddr.o symlink.o termios.o time.o times.o truncate.o umask.o unixsupport.o unlink.o utimes.o wait.o write.o -lm
 
@@ -139,7 +143,7 @@ mkdir -p build
 
 log "Building libitvUtils_stubs"
 
-emcc -c -s SIDE_MODULE=1 -fno-strict-aliasing -fwrapv -fPIC -D_FILE_OFFSET_BITS=64 -D_REENTRANT -fdiagnostics-color=always -I ~/.opam/4.12.0/lib/ocaml -I ~/.opam/4.12.0/lib/zarith -I mopsa-analyser-js/_build/default/utils/core -o build/floats_round.o mopsa-analyzer-js/utils/itvUtils/floats_round.c
+emcc -c -s SIDE_MODULE=1 -fno-strict-aliasing -fwrapv -fPIC -D_FILE_OFFSET_BITS=64 -D_REENTRANT -fdiagnostics-color=always -I ~/.opam/4.12.0/lib/ocaml -I ~/.opam/4.12.0/lib/zarith -I mopsa-analyzer-js/_build/default/utils/core -o build/floats_round.o mopsa-analyzer-js/utils/itvUtils/floats_round.c
 emcc -shared -s SIDE_MODULE=1 -o build/libitvUtils_stubs.so build/floats_round.o -lm
 emar rcs build/libitvUtils_stubs.a build/floats_round.o && emranlib build/libitvUtils_stubs.a
 
