@@ -1,9 +1,9 @@
-[submodule "mopsa-analyzer-js"]
-	path = mopsa-analyzer-js
-	url = git@gitlab.com:rboudrouss/mopsa-analyzer-js.git
 [submodule "ocaml-wasm"]
 	path = ocaml-wasm
 	url = git@github.com:rboudrouss/ocaml.git
 [submodule "apron"]
 	path = apron
 	url = git@github.com:rboudrouss/apron.git
+[submodule "mopsa-analyzer"]
+	path = mopsa-analyzer
+	url = git@gitlab.com:rboudrouss/mopsa-analyzer-ocaml-4.12.git
