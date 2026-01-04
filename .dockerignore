@@ -1,0 +1,39 @@
+# Build artifacts
+_build/
+*.o
+*.a
+*.so
+*.wasm
+*.bc
+*.cmi
+*.cmo
+*.cmx
+*.cmxa
+*.cma
+
+# Node modules
+node_modules/
+
+# Distribution
+dist/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
