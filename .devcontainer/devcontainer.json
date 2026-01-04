@@ -1,0 +1,28 @@
+{
+  "name": "MOPSA WASM Development",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ocamllabs.ocaml-platform",
+        "ms-vscode.cpptools",
+        "llvm-vs-code-extensions.vscode-clangd"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "ocaml.sandbox": {
+          "kind": "opam",
+          "switch": "4.12.0"
+        }
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "eval $(opam env) && pnpm install",
+  "features": {}
+}
+
