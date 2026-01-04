@@ -4,6 +4,9 @@
     "dockerfile": "../Dockerfile",
     "context": ".."
   },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -22,7 +25,7 @@
   },
   "remoteUser": "vscode",
   "workspaceFolder": "/workspace",
-  "postCreateCommand": "eval $(opam env) && pnpm install",
+  "postCreateCommand": "eval $(opam env)",
   "features": {}
 }
 
