@@ -1,0 +1,38 @@
+{
+  "name": "mopsa-wasm",
+  "version": "0.1.0",
+  "description": "MOPSA static analyzer compiled to WebAssembly",
+  "type": "module",
+  "main": "dist/mopsa_worker.js",
+  "packageManager": "pnpm@9.0.0",
+  "browser": {
+    "path": "path-browserify",
+    "stream": "stream-browserify",
+    "tty": false,
+    "url": false,
+    "worker_threads": false,
+    "fs": false,
+    "crypto": false
+  },
+  "scripts": {
+  },
+  "dependencies": {
+    "ocaml-wasm": "^4.12.0-0",
+    "wasi-kernel": "^0.1.6"
+  },
+  "devDependencies": {
+    "@types/events": "^3.0.3",
+    "@types/node": "^25.0.3",
+    "browser-or-node": "^3.0.0",
+    "buffer": "^4.9.2",
+    "esbuild": "^0.25.0",
+    "events": "^3.3.0",
+    "fflate": "^0.8.2",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
