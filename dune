@@ -1,0 +1,5 @@
+; Root dune file for MOPSA WASM
+; Ignore directories from the old build system
+
+(dirs :standard \ mopsa-analyzer ocaml-wasm gmp-6.1.2 mpfr-4.2.2 apron libs build alias includes)
+

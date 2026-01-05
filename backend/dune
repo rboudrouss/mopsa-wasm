@@ -1,0 +1,4 @@
+; Backend directory
+; Contains the WASM worker implementation
+(dirs wasm)
+

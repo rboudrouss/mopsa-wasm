@@ -1,0 +1,9 @@
+(lang dune 3.7)
+
+; Workspace configuration for MOPSA WASM
+; This tells dune to use the opam-installed version of MOPSA
+
+(context
+ (default
+  (name default)))
+
