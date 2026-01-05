@@ -10,16 +10,16 @@ services:
         USER_GID: 1000
     image: mopsa-wasm-dev:latest
     container_name: mopsa-wasm-dev
-    user: vscode
+    user: ubuntu
     working_dir: /workspace
     volumes:
       # Mount the entire project directory
-      - .:/workspace:cached
+      - .:/workspace
       # Persist opam packages across container restarts
-      - opam-cache:/home/vscode/.opam
+      - opam-cache:/home/ubuntu/.opam
     environment:
-      - OPAMROOT=/home/vscode/.opam
-      - PATH=/home/vscode/.opam/4.12.0/bin:/opt/emsdk:/opt/emsdk/upstream/emscripten:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - OPAMROOT=/home/ubuntu/.opam
+      - PATH=/home/ubuntu/.opam/4.12.0/bin:/opt/emsdk:/opt/emsdk/upstream/emscripten:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     stdin_open: true
     tty: true
     command: /bin/bash

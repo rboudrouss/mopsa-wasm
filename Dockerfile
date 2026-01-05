@@ -63,12 +63,15 @@ ENV PATH=/opt/emsdk:/opt/emsdk/upstream/emscripten:$PATH
 RUN wget https://github.com/ocaml/opam/releases/download/2.1.5/opam-2.1.5-x86_64-linux -O /usr/local/bin/opam && \
     chmod +x /usr/local/bin/opam
 
-# Create a non-root user for development
-RUN useradd -m -s /bin/bash -G sudo vscode && \
-    echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Create a non-root user for development with matching UID/GID
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN groupadd -g ${USER_GID} ubuntu || true && \
+    useradd -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash ubuntu || true && \
+    echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-USER vscode
-WORKDIR /home/vscode
+USER ubuntu
+WORKDIR /home/ubuntu
 
 # Configure emsdk in shell startup scripts
 RUN echo 'source "/opt/emsdk/emsdk_env.sh"' >> $HOME/.bashrc && \
@@ -80,14 +83,14 @@ RUN opam init --disable-sandboxing -y -c 4.12.0 && \
     eval $(opam env)
 
 # Set environment for opam
-ENV OPAMROOT=/home/vscode/.opam
-ENV PATH=/home/vscode/.opam/4.12.0/bin:$PATH
+ENV OPAMROOT=/home/ubuntu/.opam
+ENV PATH=/home/ubuntu/.opam/4.12.0/bin:$PATH
 
 # Copy mopsa-analyzer to install dependencies
-COPY --chown=vscode:vscode mopsa-analyzer /home/vscode/mopsa-analyzer
+COPY --chown=ubuntu:ubuntu mopsa-analyzer /home/ubuntu/mopsa-analyzer
 
 # Remove submodule git reference and initialize fresh git repo
-RUN cd /home/vscode/mopsa-analyzer && \
+RUN cd /home/ubuntu/mopsa-analyzer && \
     rm -rf .git && \
     git init && \
     git add . && \
@@ -97,11 +100,11 @@ RUN cd /home/vscode/mopsa-analyzer && \
 
 # Install mopsa dependencies and pin mopsa locally
 RUN eval $(opam env) && \
-    cd /home/vscode/mopsa-analyzer && \
+    cd /home/ubuntu/mopsa-analyzer && \
     opam install --deps-only --with-test --with-doc --assume-depexts . -y
 
 RUN eval $(opam env) && \
-    cd /home/vscode/mopsa-analyzer && \
+    cd /home/ubuntu/mopsa-analyzer && \
     LANG=C opam pin add mopsa . --with-doc --with-test --assume-depexts -y
 
 # Set working directory
