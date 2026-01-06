@@ -6,31 +6,3 @@
  (libraries mopsa.mopsa_analyzer)
  (ocamlc_flags -no-check-prims -w -a)
  (link_flags -linkall))
-
-; NOTE: Requires WASI SDK at /opt/wasi-sdk
-; Download from: https://github.com/WebAssembly/wasi-sdk/releases
-(rule
- (target dllmopsa_wasm_stubs.wasm)
- (deps (:c_source mopsa_wasm_stubs.c))
- (action
-  (bash
-   "/opt/wasi-sdk/bin/clang -target wasm32-unknown-emscripten -D__wasi__ -fPIC %{c_source} -o %{target} -nostdlib -Wl,--shared -Wl,--export-all -I%{ocaml-config:standard_library}")))
-
-; NOTE: WASM doesn't support FPU rounding mode control, so we use a modified version
-; that falls back to standard math operations
-(rule
- (target dllmopsa_utils_stubs.wasm)
- (deps (:c_source floats_round.c))
- (action
-  (bash
-   "source /opt/emsdk/emsdk_env.sh && emcc -s SIDE_MODULE=1 -fPIC %{c_source} -o %{target} -I%{ocaml-config:standard_library}")))
-
-; C parser stubs - provides stub implementations that raise exceptions
-; This allows MOPSA to load without the full Clang/LLVM C parser
-(rule
- (target dllmopsa_c_parser_stubs.wasm)
- (deps (:c_source c_parser_stubs.c))
- (action
-  (bash
-   "source /opt/emsdk/emsdk_env.sh && emcc -s SIDE_MODULE=1 -fPIC %{c_source} -o %{target} -I%{ocaml-config:standard_library}")))
-
