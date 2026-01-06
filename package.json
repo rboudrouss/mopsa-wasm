@@ -15,8 +15,11 @@
     "crypto": false
   },
   "scripts": {
+    "serve": "npx serve dist -p 8080"
   },
   "dependencies": {
+    "@ocaml-wasm/4.12--zarith": "1.13.0-0",
+    "gmp-wasm": "^1.3.2",
     "ocaml-wasm": "^4.12.0-0",
     "wasi-kernel": "^0.1.6"
   },
@@ -30,7 +33,8 @@
     "fflate": "^0.8.2",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "wabt": "^1.0.39"
   },
   "engines": {
     "node": ">=18.0.0"
