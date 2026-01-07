@@ -74,7 +74,7 @@ check-env:
 # Native dependencies (GMP, MPFR, Apron)
 #==============================================================================
 
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllapron_caml.wasm
+deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllapron.wasm
 
 # GMP library
 $(LIBS_DIR)/dllgmp.wasm: gmp-6.1.2/configure
@@ -118,7 +118,7 @@ $(LIBS_DIR)/dllmpfr.wasm: $(LIBS_DIR)/dllgmp.wasm mpfr-4.2.2/configure
 		-L$(LIBS_DIR) -lgmp
 
 # Apron library and domains
-$(LIBS_DIR)/dllapron_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
+$(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
 	@echo "Building Apron for WASM..."
 	cd apron && \
 		$(MAKE) clean 2>/dev/null || true && \
@@ -126,32 +126,33 @@ $(LIBS_DIR)/dllapron_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
 		GMP_PREFIX=$(CURDIR)/$(INSTALL_DIR) \
 		$(EMCONFIGURE) ./configure \
 			-no-java -no-cxx -no-ppl -no-pplite \
+			-no-ocaml-plugins -no-strip \
 			-prefix $(CURDIR)/$(INSTALL_DIR) && \
-		$(EMMAKE) $(MAKE) -i -j$(NPROC) CFLAGS_EXTRA="-fPIC" && \
-		$(EMMAKE) $(MAKE) install -i
+		$(EMMAKE) $(MAKE) -j$(NPROC) CFLAGS_EXTRA="-fPIC" && \
+		$(EMMAKE) $(MAKE) install
 	@echo "Creating Apron WASM modules..."
 	@if [ -f "$(LIBS_DIR)/libboxMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dllboxMPQ_caml.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/libboxMPQ_caml.a -Wl,--no-whole-archive \
+			-o $(LIBS_DIR)/dllboxMPQ.wasm \
+			-Wl,--whole-archive $(LIBS_DIR)/libboxMPQ.a -Wl,--no-whole-archive \
 			-L$(LIBS_DIR) -lboxMPQ -lapron -lmpfr -lgmp; \
 	fi
 	@if [ -f "$(LIBS_DIR)/liboctMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dlloctMPQ_caml.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/liboctMPQ_caml.a -Wl,--no-whole-archive \
+			-o $(LIBS_DIR)/dlloctMPQ.wasm \
+			-Wl,--whole-archive $(LIBS_DIR)/liboctMPQ.a -Wl,--no-whole-archive \
 			-L$(LIBS_DIR) -loctMPQ -lapron -lmpfr -lgmp; \
 	fi
 	@if [ -f "$(LIBS_DIR)/libpolkaMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dllpolkaMPQ_caml.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ_caml.a -Wl,--no-whole-archive \
+			-o $(LIBS_DIR)/dllpolkaMPQ.wasm \
+			-Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ.a -Wl,--no-whole-archive \
 			-L$(LIBS_DIR) -lpolkaMPQ -lapron -lmpfr -lgmp; \
 	fi
-	@if [ -f "$(LIBS_DIR)/libapron_caml.a" ]; then \
+	@if [ -f "$(LIBS_DIR)/libapron.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dllapron_caml.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/libapron_caml.a -Wl,--no-whole-archive \
+			-o $(LIBS_DIR)/dllapron.wasm \
+			-Wl,--whole-archive $(LIBS_DIR)/libapron.a -Wl,--no-whole-archive \
 			-L$(LIBS_DIR) -lapron -lmpfr -lgmp; \
 	fi
 
@@ -214,7 +215,7 @@ $(DIST_DIR)/dllgmp.wasm: $(LIBS_DIR)/dllgmp.wasm
 	@if [ -f "$(LIBS_DIR)/dllmpfr.wasm" ]; then \
 		cp $(LIBS_DIR)/dllmpfr.wasm $(DIST_DIR)/; \
 	fi
-	@for module in dllapron_caml dllboxMPQ_caml dlloctMPQ_caml dllpolkaMPQ_caml; do \
+	@for module in dllapron dllboxMPQ dlloctMPQ dllpolkaMPQ; do \
 		if [ -f "$(LIBS_DIR)/$${module}.wasm" ]; then \
 			cp $(LIBS_DIR)/$${module}.wasm $(DIST_DIR)/; \
 		fi; \
