@@ -159,23 +159,152 @@
     <div class="status" id="status">Initializing MOPSA...</div>
     
     <script type="module">
-        // This is a placeholder - actual implementation will use the MOPSA worker
+        // MOPSA WASM Worker Integration
         const output = document.getElementById('output');
         const status = document.getElementById('status');
         const analyzeBtn = document.getElementById('analyzeBtn');
         const clearBtn = document.getElementById('clearBtn');
         const codeInput = document.getElementById('code');
-        
-        status.textContent = 'MOPSA WASM worker not yet integrated. This is a UI demo.';
-        
-        analyzeBtn.addEventListener('click', () => {
-            output.textContent = 'Analysis functionality will be available once the MOPSA worker is integrated.';
+
+        let worker = null;
+        let isReady = false;
+        let isAnalyzing = false;
+
+        // Initialize the MOPSA worker
+        async function initWorker() {
+            try {
+                status.textContent = 'Loading MOPSA worker...';
+                status.className = 'status';
+
+                // Create the worker
+                worker = new Worker('./mopsa_worker.js', { type: 'module' });
+
+                // Handle messages from worker
+                worker.onmessage = (event) => {
+                    const [msgType, ...args] = event.data;
+                    handleWorkerMessage(msgType, args);
+                };
+
+                // Handle worker errors
+                worker.onerror = (error) => {
+                    console.error('Worker error:', error);
+                    status.textContent = `Worker error: ${error.message}`;
+                    status.className = 'status error';
+                    analyzeBtn.disabled = true;
+                };
+
+            } catch (error) {
+                console.error('Failed to initialize worker:', error);
+                status.textContent = `Failed to initialize: ${error.message}`;
+                status.className = 'status error';
+                analyzeBtn.disabled = true;
+            }
+        }
+
+        // Handle messages from the worker
+        function handleWorkerMessage(msgType, args) {
+            console.log('Worker message:', msgType, args);
+
+            switch (msgType) {
+                case 'Starting':
+                    status.textContent = 'Starting MOPSA...';
+                    status.className = 'status';
+                    break;
+
+                case 'Status':
+                    status.textContent = args[0];
+                    status.className = 'status';
+                    break;
+
+                case 'Ready':
+                    isReady = true;
+                    status.textContent = 'MOPSA ready! Enter C code and click Analyze.';
+                    status.className = 'status success';
+                    analyzeBtn.disabled = false;
+                    output.textContent = 'Ready. Click "Analyze" to start.';
+                    break;
+
+                case 'Stdout':
+                    // Append stdout to output
+                    if (output.textContent === 'Ready. Click "Analyze" to start.' ||
+                        output.textContent === 'Analyzing...') {
+                        output.textContent = args[0];
+                    } else {
+                        output.textContent += args[0];
+                    }
+                    break;
+
+                case 'AnalyzeResult':
+                    isAnalyzing = false;
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze';
+
+                    const result = args[0];
+                    if (result && result.success) {
+                        status.textContent = 'Analysis complete';
+                        status.className = 'status success';
+                        if (result.output) {
+                            output.textContent = result.output;
+                        }
+                    } else {
+                        status.textContent = 'Analysis failed';
+                        status.className = 'status error';
+                        output.textContent = result?.error || 'Unknown error';
+                    }
+                    break;
+
+                case 'Error':
+                    isAnalyzing = false;
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze';
+                    status.textContent = `Error: ${args[0]}`;
+                    status.className = 'status error';
+                    output.textContent = `Error: ${args[0]}`;
+                    break;
+
+                case 'Message':
+                    console.log('Worker message:', args[0]);
+                    break;
+
+                default:
+                    console.log('Unknown message type:', msgType, args);
+            }
+        }
+
+        // Analyze button click handler
+        analyzeBtn.addEventListener('click', async () => {
+            if (!isReady || isAnalyzing) {
+                return;
+            }
+
+            const code = codeInput.value.trim();
+            if (!code) {
+                output.textContent = 'Please enter some C code to analyze.';
+                return;
+            }
+
+            isAnalyzing = true;
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+            status.textContent = 'Running analysis...';
+            status.className = 'status';
+            output.textContent = 'Analyzing...';
+
+            // Send analyze command to worker
+            worker.postMessage(['Analyze', code]);
         });
-        
+
+        // Clear button click handler
         clearBtn.addEventListener('click', () => {
             codeInput.value = '';
             output.textContent = 'Ready. Click "Analyze" to start.';
+            status.textContent = isReady ? 'MOPSA ready! Enter C code and click Analyze.' : 'Initializing...';
+            status.className = isReady ? 'status success' : 'status';
         });
+
+        // Initialize on page load
+        analyzeBtn.disabled = true;
+        initWorker();
     </script>
 </body>
 </html>
