@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOPSA WASM Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: #252526;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #3e3e42;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        
+        .panel {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 0.75rem 1rem;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            font-weight: 600;
+        }
+        
+        .panel-content {
+            flex: 1;
+            overflow: auto;
+            padding: 1rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 1rem;
+            resize: none;
+            outline: none;
+        }
+        
+        .controls {
+            padding: 1rem;
+            background: #2d2d30;
+            border-top: 1px solid #3e3e42;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        button {
+            padding: 0.5rem 1.5rem;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background: #1177bb;
+        }
+        
+        button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+        
+        #output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .status {
+            padding: 0.5rem 1rem;
+            background: #2d2d30;
+            border-top: 1px solid #3e3e42;
+            font-size: 13px;
+            color: #858585;
+        }
+        
+        .error {
+            color: #f48771;
+        }
+        
+        .success {
+            color: #89d185;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MOPSA WASM Demo</h1>
+    </header>
+    
+    <main>
+        <div class="panel">
+            <div class="panel-header">C Code</div>
+            <div class="panel-content">
+                <textarea id="code" placeholder="Enter C code here...">int main() {
+    int x = 10;
+    int y = x / 0;  // Division by zero
+    return 0;
+}</textarea>
+            </div>
+            <div class="controls">
+                <button id="analyzeBtn">Analyze</button>
+                <button id="clearBtn">Clear</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">Analysis Output</div>
+            <div class="panel-content">
+                <div id="output">Ready. Click "Analyze" to start.</div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="status" id="status">Initializing MOPSA...</div>
+    
+    <script type="module">
+        // MOPSA WASM Worker Integration
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const codeInput = document.getElementById('code');
+
+        let worker = null;
+        let isReady = false;
+        let isAnalyzing = false;
+
+        // Initialize the MOPSA worker
+        async function initWorker() {
+            try {
+                status.textContent = 'Loading MOPSA worker...';
+                status.className = 'status';
+
+                // Create the worker
+                worker = new Worker('./mopsa_worker.js', { type: 'module' });
+
+                // Handle messages from worker
+                worker.onmessage = (event) => {
+                    const [msgType, ...args] = event.data;
+                    handleWorkerMessage(msgType, args);
+                };
+
+                // Handle worker errors
+                worker.onerror = (error) => {
+                    console.error('Worker error:', error);
+                    status.textContent = `Worker error: ${error.message}`;
+                    status.className = 'status error';
+                    analyzeBtn.disabled = true;
+                };
+
+            } catch (error) {
+                console.error('Failed to initialize worker:', error);
+                status.textContent = `Failed to initialize: ${error.message}`;
+                status.className = 'status error';
+                analyzeBtn.disabled = true;
+            }
+        }
+
+        // Handle messages from the worker
+        function handleWorkerMessage(msgType, args) {
+            console.log('Worker message:', msgType, args);
+
+            switch (msgType) {
+                case 'Starting':
+                    status.textContent = 'Starting MOPSA...';
+                    status.className = 'status';
+                    break;
+
+                case 'Status':
+                    status.textContent = args[0];
+                    status.className = 'status';
+                    break;
+
+                case 'Ready':
+                    isReady = true;
+                    status.textContent = 'MOPSA ready! Enter C code and click Analyze.';
+                    status.className = 'status success';
+                    analyzeBtn.disabled = false;
+                    output.textContent = 'Ready. Click "Analyze" to start.';
+                    break;
+
+                case 'Stdout':
+                    // Append stdout to output
+                    if (output.textContent === 'Ready. Click "Analyze" to start.' ||
+                        output.textContent === 'Analyzing...') {
+                        output.textContent = args[0];
+                    } else {
+                        output.textContent += args[0];
+                    }
+                    break;
+
+                case 'AnalyzeResult':
+                    isAnalyzing = false;
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze';
+
+                    const result = args[0];
+                    if (result && result.success) {
+                        status.textContent = 'Analysis complete';
+                        status.className = 'status success';
+                        if (result.output) {
+                            output.textContent = result.output;
+                        }
+                    } else {
+                        status.textContent = 'Analysis failed';
+                        status.className = 'status error';
+                        output.textContent = result?.error || 'Unknown error';
+                    }
+                    break;
+
+                case 'Error':
+                    isAnalyzing = false;
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze';
+                    status.textContent = `Error: ${args[0]}`;
+                    status.className = 'status error';
+                    output.textContent = `Error: ${args[0]}`;
+                    break;
+
+                case 'Message':
+                    console.log('Worker message:', args[0]);
+                    break;
+
+                default:
+                    console.log('Unknown message type:', msgType, args);
+            }
+        }
+
+        // Analyze button click handler
+        analyzeBtn.addEventListener('click', async () => {
+            if (!isReady || isAnalyzing) {
+                return;
+            }
+
+            const code = codeInput.value.trim();
+            if (!code) {
+                output.textContent = 'Please enter some C code to analyze.';
+                return;
+            }
+
+            isAnalyzing = true;
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+            status.textContent = 'Running analysis...';
+            status.className = 'status';
+            output.textContent = 'Analyzing...';
+
+            // Send analyze command to worker
+            worker.postMessage(['Analyze', code]);
+        });
+
+        // Clear button click handler
+        clearBtn.addEventListener('click', () => {
+            codeInput.value = '';
+            output.textContent = 'Ready. Click "Analyze" to start.';
+            status.textContent = isReady ? 'MOPSA ready! Enter C code and click Analyze.' : 'Initializing...';
+            status.className = isReady ? 'status success' : 'status';
+        });
+
+        // Initialize on page load
+        analyzeBtn.disabled = true;
+        initWorker();
+    </script>
+</body>
+</html>
+
