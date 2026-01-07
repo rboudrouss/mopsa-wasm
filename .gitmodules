@@ -4,3 +4,9 @@
 [submodule "mopsa-analyzer"]
 	path = mopsa-analyzer
 	url = git@gitlab.com:rboudrouss/mopsa-analyzer-ocaml-4.12.git
+[submodule "mlgmpidl"]
+	path = mlgmpidl
+	url = git@github.com:nberth/mlgmpidl.git
+[submodule "camlidl"]
+	path = camlidl
+	url = git@github.com:xavierleroy/camlidl.git
