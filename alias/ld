@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-emcc "$@" -I${pwd}/../libs/include -I${pwd}/../libs/lib
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+emcc "$@" -I"${SCRIPT_DIR}/../libs/include" -I"${SCRIPT_DIR}/../libs/lib"
