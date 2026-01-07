@@ -128,32 +128,32 @@ $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
 			-no-java -no-cxx -no-ppl -no-pplite \
 			-no-ocaml-plugins -no-strip \
 			-prefix $(CURDIR)/$(INSTALL_DIR) && \
-		$(EMMAKE) $(MAKE) -j$(NPROC) CFLAGS_EXTRA="-fPIC" && \
+		$(EMMAKE) $(MAKE) -j$(NPROC) CFLAGS_EXTRA="-fPIC" CXXFLAGS_EXTRA="-fPIC" && \
 		$(EMMAKE) $(MAKE) install
 	@echo "Creating Apron WASM modules..."
 	@if [ -f "$(LIBS_DIR)/libboxMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dllboxMPQ.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/libboxMPQ.a -Wl,--no-whole-archive \
-			-L$(LIBS_DIR) -lboxMPQ -lapron -lmpfr -lgmp; \
+			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 	@if [ -f "$(LIBS_DIR)/liboctMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dlloctMPQ.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/liboctMPQ.a -Wl,--no-whole-archive \
-			-L$(LIBS_DIR) -loctMPQ -lapron -lmpfr -lgmp; \
+			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 	@if [ -f "$(LIBS_DIR)/libpolkaMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dllpolkaMPQ.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ.a -Wl,--no-whole-archive \
-			-L$(LIBS_DIR) -lpolkaMPQ -lapron -lmpfr -lgmp; \
+			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 	@if [ -f "$(LIBS_DIR)/libapron.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dllapron.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/libapron.a -Wl,--no-whole-archive \
-			-L$(LIBS_DIR) -lapron -lmpfr -lgmp; \
+			$(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 
 #==============================================================================
