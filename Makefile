@@ -52,7 +52,7 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  all      - Build everything (default)"
-	@echo "  deps     - Build native dependencies (GMP, MPFR, Apron)"
+	@echo "  deps     - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
 	@echo "  ocaml    - Build OCaml bytecode"
 	@echo "  wasm     - Build WASM stubs"
 	@echo "  ts       - Build TypeScript"
@@ -71,10 +71,10 @@ check-env:
 	@emcc -v | head -1
 
 #==============================================================================
-# Native dependencies (GMP, MPFR, Apron)
+# Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
 #==============================================================================
 
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllapron.wasm
+deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron.wasm
 
 # GMP library
 $(LIBS_DIR)/dllgmp.wasm: gmp-6.1.2/configure
@@ -117,6 +117,22 @@ $(LIBS_DIR)/dllmpfr.wasm: $(LIBS_DIR)/dllgmp.wasm mpfr-4.2.2/configure
 		-Wl,--whole-archive $(LIBS_DIR)/libmpfr.a -Wl,--no-whole-archive \
 		-L$(LIBS_DIR) -lgmp
 
+# MLGMPIDL - OCaml bindings to GMP/MPFR
+$(LIBS_DIR)/dllgmp_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm mlgmpidl/configure
+	@echo "Building MLGMPIDL C stubs for WASM..."
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(LIBS_DIR)/dllgmp_caml.wasm \
+		-I$(OCAML_STDLIB) \
+		-I$(shell opam var lib)/camlidl \
+		-I$(CURDIR)/$(INSTALL_DIR)/include \
+		mlgmpidl/gmp_caml.c \
+		mlgmpidl/mpz_caml.c \
+		mlgmpidl/mpq_caml.c \
+		mlgmpidl/mpf_caml.c \
+		mlgmpidl/mpfr_caml.c \
+		mlgmpidl/gmp_random_caml.c \
+		-L$(LIBS_DIR) -lgmp -lmpfr
+
 # Apron library and domains
 $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
 	@echo "Building Apron for WASM..."
@@ -126,7 +142,7 @@ $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
 		GMP_PREFIX=$(CURDIR)/$(INSTALL_DIR) \
 		$(EMCONFIGURE) ./configure \
 			-no-java -no-cxx -no-ppl -no-pplite \
-			-no-ocaml-plugins -no-strip \
+			-no-ocaml -no-strip \
 			-prefix $(CURDIR)/$(INSTALL_DIR) && \
 		$(EMMAKE) $(MAKE) -j$(NPROC) CFLAGS_EXTRA="-fPIC" CXXFLAGS_EXTRA="-fPIC" && \
 		$(EMMAKE) $(MAKE) install
@@ -174,7 +190,7 @@ $(DIST_DIR)/mopsa_worker.bc: backend/wasm/mopsa_worker.ml
 #==============================================================================
 
 wasm: $(DIST_DIR)/dllmopsa_utils_stubs.wasm $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm
+      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp.wasm
 
 # Copy OCaml runtime stubs from ocaml-wasm package
 $(DIST_DIR)/dllcamlstr.wasm: node_modules/ocaml-wasm/bin/dllcamlstr.wasm
@@ -214,6 +230,9 @@ $(DIST_DIR)/dllgmp.wasm: $(LIBS_DIR)/dllgmp.wasm
 	@cp $(LIBS_DIR)/dllgmp.wasm $(DIST_DIR)/
 	@if [ -f "$(LIBS_DIR)/dllmpfr.wasm" ]; then \
 		cp $(LIBS_DIR)/dllmpfr.wasm $(DIST_DIR)/; \
+	fi
+	@if [ -f "$(LIBS_DIR)/dllgmp_caml.wasm" ]; then \
+		cp $(LIBS_DIR)/dllgmp_caml.wasm $(DIST_DIR)/; \
 	fi
 	@for module in dllapron dllboxMPQ dlloctMPQ dllpolkaMPQ; do \
 		if [ -f "$(LIBS_DIR)/$${module}.wasm" ]; then \
@@ -288,6 +307,7 @@ clean-deps:
 	@echo "Cleaning native dependencies..."
 	@cd gmp-6.1.2 && $(MAKE) clean 2>/dev/null || true
 	@cd mpfr-4.2.2 && $(MAKE) clean 2>/dev/null || true
+	@cd mlgmpidl && $(MAKE) clean 2>/dev/null || true
 	@cd apron && $(MAKE) clean 2>/dev/null || true
 	@rm -rf $(INSTALL_DIR)
 
