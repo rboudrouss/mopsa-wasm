@@ -2316,8 +2316,8 @@ enum
 };
 
 /* Define CC and CFLAGS which were used to build this version of GMP */
-#define __GMP_CC "/home/rboudrouss/Documents/emsdk/upstream/emscripten/emcc"
-#define __GMP_CFLAGS "-O2 -pedantic"
+#define __GMP_CC "/home/rboud/Documents/emsdk/upstream/emscripten/emcc"
+#define __GMP_CFLAGS "-fPIC"
 
 /* Major version number is the value of __GNU_MP__ too, above. */
 #define __GNU_MP_VERSION            6
