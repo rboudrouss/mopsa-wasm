@@ -78,7 +78,7 @@ class OCamlExecutable extends ExecCore {
             'dllmpfr',          // MPFR (required by Apron)
             'dllapron',          // APRON core
             'dllgmp_caml',       // mlgmpidl, gmp bindings to ocaml
-            // 'dllapron_caml',    // Apron core OCaml bindings
+            'dllapron_caml',    // Apron core OCaml bindings
             // 'dllboxMPQ_caml',   // Apron Box domain (intervals)
             // 'dlloctMPQ_caml',   // Apron Octagon domain
             // 'dllpolkaMPQ_caml'  // Apron Polyhedra domain
