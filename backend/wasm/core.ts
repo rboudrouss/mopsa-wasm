@@ -249,10 +249,11 @@ export class MopsaPod extends EventEmitter {
     }
 
     private async _preloadStubs(): Promise<void> {
+        // Preload mopsa_c_parser_stubs with JavaScript functions
         try {
             await this.core.proc.dyld.preload(
-                'dllfloats_stubs.so',
-                `${this.binDir}/dllfloats_stubs.wasm`,
+                'dllmopsa_c_parser_stubs.so',
+                `${this.binDir}/dllmopsa_c_parser_stubs.wasm`,
                 {
                     js: {
                         js_mopsa_emit: (s: i32) => this._handleEmit(s),
@@ -261,7 +262,7 @@ export class MopsaPod extends EventEmitter {
                 }
             );
         } catch (e) {
-            console.warn('Could not preload dllfloats_stubs.wasm:', e);
+            console.warn('Could not preload dllmopsa_c_parser_stubs.wasm:', e);
         }
     }
 
