@@ -118,28 +118,32 @@ $(LIBS_DIR)/dllmpfr.wasm: $(LIBS_DIR)/dllgmp.wasm mpfr-4.2.2/configure
 		-L$(LIBS_DIR) -lgmp
 
 # MLGMPIDL - OCaml bindings to GMP/MPFR (includes camlidl runtime)
+MLGMPIDL_MODULES := gmp_caml mpz_caml mpq_caml mpf_caml mpfr_caml gmp_random_caml
+MLGMPIDL_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/mlgmpidl
+
 $(LIBS_DIR)/dllgmp_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm mlgmpidl/configure camlidl/runtime/camlidlruntime.h
-	@echo "Building MLGMPIDL C stubs for WASM (with camlidl runtime)..."
+	@echo "Generating MLGMPIDL C stubs from IDL files..."
 	cd mlgmpidl && \
 		$(MAKE) clean 2>/dev/null || true && \
 		$(EMCONFIGURE) ./configure \
 			-prefix $(CURDIR)/$(INSTALL_DIR) \
 			-gmp-prefix $(CURDIR)/$(INSTALL_DIR) \
 			-mpfr-prefix $(CURDIR)/$(INSTALL_DIR) && \
-		$(EMMAKE) $(MAKE) -i
+		$(MAKE) mpz_caml.c mpq_caml.c mpf_caml.c mpfr_caml.c gmp_random_caml.c
+	@echo "Compiling MLGMPIDL C stubs with emcc..."
+	@for module in $(MLGMPIDL_MODULES); do \
+		echo "  Compiling $$module.c..."; \
+		$(EMCC) -c $(EMCC_SIDE_MODULE) $(MLGMPIDL_CFLAGS) \
+			-o mlgmpidl/$$module.o mlgmpidl/$$module.c; \
+	done
+	@echo "Linking dllgmp_caml.wasm..."
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(LIBS_DIR)/dllgmp_caml.wasm \
-		-I$(OCAML_STDLIB) \
-		-I$(shell opam var lib)/camlidl \
-		-I$(CURDIR)/$(INSTALL_DIR)/include \
+		$(MLGMPIDL_CFLAGS) \
 		camlidl/runtime/idlalloc.c \
-		mlgmpidl/gmp_caml.c \
-		mlgmpidl/mpz_caml.c \
-		mlgmpidl/mpq_caml.c \
-		mlgmpidl/mpf_caml.c \
-		mlgmpidl/mpfr_caml.c \
-		mlgmpidl/gmp_random_caml.c \
-		-L$(LIBS_DIR) -lgmp -lmpfr
+		$(MLGMPIDL_MODULES:%=mlgmpidl/%.o) \
+		-L$(LIBS_DIR) -lgmp -lmpfr \
+		-sERROR_ON_UNDEFINED_SYMBOLS=0
 
 # Apron library and domains
 $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
