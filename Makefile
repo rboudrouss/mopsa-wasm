@@ -74,7 +74,7 @@ check-env:
 # Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
 #==============================================================================
 
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron.wasm
+deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllapron.wasm
 
 # GMP library
 $(LIBS_DIR)/dllgmp.wasm: gmp-6.1.2/configure
@@ -145,9 +145,9 @@ $(LIBS_DIR)/dllgmp_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm mlgmpidl/configure camlid
 		-L$(LIBS_DIR) -lgmp -lmpfr \
 		-sERROR_ON_UNDEFINED_SYMBOLS=0
 
-# Apron library and domains
-$(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
-	@echo "Building Apron for WASM..."
+# Apron library and domains (C part only)
+$(LIBS_DIR)/libapron.a: $(LIBS_DIR)/dllmpfr.wasm apron/configure
+	@echo "Building Apron C libraries for WASM..."
 	cd apron && \
 		$(MAKE) clean 2>/dev/null || true && \
 		MPFR_PREFIX=$(CURDIR)/$(INSTALL_DIR) \
@@ -158,30 +158,63 @@ $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllmpfr.wasm apron/configure
 			-prefix $(CURDIR)/$(INSTALL_DIR) && \
 		$(EMMAKE) $(MAKE) -j$(NPROC) CFLAGS_EXTRA="-fPIC" CXXFLAGS_EXTRA="-fPIC" && \
 		$(EMMAKE) $(MAKE) install
-	@echo "Creating Apron WASM modules..."
+
+# MLAPRONIDL - OCaml bindings to Apron
+MLAPRONIDL_IDL := scalar interval coeff dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy disjunction version
+MLAPRONIDL_MODULES := $(MLAPRONIDL_IDL:%=%_caml) apron_caml
+MLAPRONIDL_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/mlgmpidl
+CAMLIDL := $(shell opam var bin)/camlidl
+PERL := /usr/bin/perl
+
+$(LIBS_DIR)/dllapron_caml.wasm: $(LIBS_DIR)/libapron.a apron/mlapronidl/Makefile
+	@echo "Generating MLAPRONIDL C stubs from IDL files..."
+	@cd apron/mlapronidl && \
+		for idl in $(MLAPRONIDL_IDL); do \
+			echo "  Generating $$idl from IDL..."; \
+			$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" $$idl.idl && \
+			$(PERL) perlscript_c.pl < $${idl}_stubs.c > $${idl}_caml.c && \
+			$(PERL) perlscript_caml.pl < $$idl.ml > $$idl.ml.tmp && mv $$idl.ml.tmp $$idl.ml && \
+			$(PERL) perlscript_caml.pl < $$idl.mli > $$idl.mli.tmp && mv $$idl.mli.tmp $$idl.mli; \
+		done
+	@echo "Compiling MLAPRONIDL C stubs with emcc..."
+	@for module in $(MLAPRONIDL_MODULES); do \
+		echo "  Compiling $$module.c..."; \
+		$(EMCC) -c $(EMCC_SIDE_MODULE) $(MLAPRONIDL_CFLAGS) \
+			-o apron/mlapronidl/$$module.o apron/mlapronidl/$$module.c; \
+	done
+	@echo "Linking dllapron_caml.wasm..."
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(LIBS_DIR)/dllapron_caml.wasm \
+		$(MLAPRONIDL_CFLAGS) \
+		$(MLAPRONIDL_MODULES:%=apron/mlapronidl/%.o) \
+		-L$(LIBS_DIR) -lapron
+
+# Apron WASM modules for domains
+$(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllapron_caml.wasm
+	@echo "Creating Apron domain WASM modules..."
 	@if [ -f "$(LIBS_DIR)/libboxMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dllboxMPQ.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/libboxMPQ.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
+			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
 	fi
 	@if [ -f "$(LIBS_DIR)/liboctMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dlloctMPQ.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/liboctMPQ.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
+			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
 	fi
 	@if [ -f "$(LIBS_DIR)/libpolkaMPQ.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dllpolkaMPQ.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
+			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
 	fi
 	@if [ -f "$(LIBS_DIR)/libapron.a" ]; then \
 		$(EMCC) $(EMCC_SIDE_MODULE) \
 			-o $(LIBS_DIR)/dllapron.wasm \
 			-Wl,--whole-archive $(LIBS_DIR)/libapron.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
+			$(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
 	fi
 
 #==============================================================================
