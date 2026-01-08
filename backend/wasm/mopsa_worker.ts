@@ -31,8 +31,16 @@ function handleMessage(event: WorkerMessage): void {
 
     case 'Analyze':
       if (pod) {
-        const result = pod.analyze(args[0] || '');
-        postMessage(['AnalyzeResult', result]);
+        try {
+          postMessage(['Status', 'Calling pod.analyze...']);
+          const resultStr = pod.analyze(args[0] || '');
+          postMessage(['Status', `Analyze returned: ${resultStr}`]);
+          // Parse the JSON result
+          const result = resultStr ? JSON.parse(resultStr) : { success: false, message: 'No result' };
+          postMessage(['AnalyzeResult', result]);
+        } catch (e: any) {
+          postMessage(['Error', `Analyze error: ${e.message}`]);
+        }
       }
       break;
 
@@ -82,7 +90,9 @@ async function main(): Promise<void> {
   pod = new MopsaPod({
     binDir: '.',
     nmDir: './node_modules',
-    debug: true
+    debug: true,
+    initialMemory: 256,  // 256 pages = 16MB
+    maximumMemory: 32768  // 32768 pages = 2GB
   });
 
   // Forward events to main thread
@@ -110,6 +120,19 @@ async function main(): Promise<void> {
 
   try {
     await pod.boot();
+
+    // Initialize MOPSA with default config
+    postMessage(['Status', 'Initializing MOPSA...']);
+    const initResult = pod.init('');
+    postMessage(['Status', `Init result: ${initResult}`]);
+    if (initResult) {
+      const result = JSON.parse(initResult);
+      if (!result.success) {
+        postMessage(['Error', `Init failed: ${result.message}`]);
+      } else {
+        postMessage(['Status', 'MOPSA initialized successfully']);
+      }
+    }
   } catch (error: any) {
     postMessage(['Error', `Boot failed: ${error.message}`]);
   }

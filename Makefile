@@ -296,7 +296,7 @@ $(DIST_DIR)/mopsa_worker.bc: backend/wasm/mopsa_worker.ml
 #==============================================================================
 
 wasm: $(DIST_DIR)/dllmopsa_utils_stubs.wasm $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp.wasm
+      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp_caml.wasm
 
 # Copy OCaml runtime stubs from ocaml-wasm package
 $(DIST_DIR)/dllcamlstr.wasm: node_modules/ocaml-wasm/bin/dllcamlstr.wasm
@@ -329,22 +329,25 @@ $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: backend/wasm/c_parser_stubs.c
 		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
 		-I$(OCAML_STDLIB)
 
-# Copy native library WASM modules to dist
-$(DIST_DIR)/dllgmp.wasm: $(LIBS_DIR)/dllgmp.wasm
-	@echo "Copying native library WASM modules..."
+# Build stub GMP/MPFR/Apron library for minimal MOPSA
+$(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
+	@echo "Building stub GMP/MPFR/Apron library..."
 	@mkdir -p $(DIST_DIR)
-	@cp $(LIBS_DIR)/dllgmp.wasm $(DIST_DIR)/
-	@if [ -f "$(LIBS_DIR)/dllmpfr.wasm" ]; then \
-		cp $(LIBS_DIR)/dllmpfr.wasm $(DIST_DIR)/; \
-	fi
-	@if [ -f "$(LIBS_DIR)/dllgmp_caml.wasm" ]; then \
-		cp $(LIBS_DIR)/dllgmp_caml.wasm $(DIST_DIR)/; \
-	fi
-	@for module in dllapron dllboxMPQ dlloctMPQ dllpolkaMPQ; do \
-		if [ -f "$(LIBS_DIR)/$${module}.wasm" ]; then \
-			cp $(LIBS_DIR)/$${module}.wasm $(DIST_DIR)/; \
-		fi; \
-	done
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		backend/wasm/gmp_all_stubs.c \
+		-o $(DIST_DIR)/dllgmp_caml.wasm \
+		-I$(OCAML_STDLIB) \
+		-I$(shell opam var lib)/camlidl \
+		-sERROR_ON_UNDEFINED_SYMBOLS=0
+	@echo "Creating symlinks for other numerical libraries..."
+	@cd $(DIST_DIR) && \
+		ln -sf dllgmp_caml.wasm dllgmp.wasm && \
+		ln -sf dllgmp_caml.wasm dllmpfr.wasm && \
+		ln -sf dllgmp_caml.wasm dllapron.wasm && \
+		ln -sf dllgmp_caml.wasm dllapron_caml.wasm && \
+		ln -sf dllgmp_caml.wasm dllboxMPQ_caml.wasm && \
+		ln -sf dllgmp_caml.wasm dlloctMPQ_caml.wasm && \
+		ln -sf dllgmp_caml.wasm dllpolkaMPQ_caml.wasm
 
 #==============================================================================
 # TypeScript

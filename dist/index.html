@@ -134,13 +134,20 @@
     
     <main>
         <div class="panel">
-            <div class="panel-header">C Code</div>
+            <div class="panel-header">Universal Code</div>
             <div class="panel-content">
-                <textarea id="code" placeholder="Enter C code here...">int main() {
-    int x = 10;
-    int y = x / 0;  // Division by zero
-    return 0;
-}</textarea>
+                <textarea id="code" placeholder="Enter Universal code here...">// Variable declarations
+int x = 10;
+int y = 0;
+int z;
+
+// Main code block
+if (y == 0) {
+    print();  // Print abstract state
+}
+
+z = x / y;  // Division by zero
+</textarea>
             </div>
             <div class="controls">
                 <button id="analyzeBtn">Analyze</button>

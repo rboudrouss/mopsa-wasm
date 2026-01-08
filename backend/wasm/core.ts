@@ -29,6 +29,8 @@ namespace OCamlCAPI {
 export interface MopsaPodOptions extends ExecCoreOptions {
     binDir?: string;
     nmDir?: string;
+    initialMemory?: number;  // Initial memory in pages (64KB each)
+    maximumMemory?: number;  // Maximum memory in pages
 }
 
 /**
@@ -68,23 +70,11 @@ class OCamlExecutable extends ExecCore {
 
     preloads(): Array<{ name: string; uri: string; reloc?: any }> {
         const bin = this.opts.binDir || '.';
-        // OCaml standard library stubs
-        const stdlibs = ['dllcamlstr', 'dllunix', 'dllthreads', 'dllzarith'];
-        // MOPSA-specific stubs
-        const mopsaStubs = ['dllmopsa_utils_stubs', 'dllmopsa_c_parser_stubs'];
-        // GMP, MPFR, and Apron libraries (TODO)
-        const nativeLibs = [
-            'dllgmp',           // GMP base library (required by MPFR and Apron)
-            'dllmpfr',          // MPFR (required by Apron)
-            'dllapron',          // APRON core
-            'dllgmp_caml',       // mlgmpidl, gmp bindings to ocaml
-            'dllapron_caml',    // Apron core OCaml bindings
-            'dllboxMPQ_caml',   // Apron Box domain (intervals)
-            'dlloctMPQ_caml',   // Apron Octagon domain
-            'dllpolkaMPQ_caml'  // Apron Polyhedra domain
-        ];
+        // Only load basic OCaml standard library stubs before runtime starts
+        // Following jsCoq's approach: load only dllcamlstr, dllunix, dllthreads
+        const stdlibs = ['dllcamlstr', 'dllunix', 'dllthreads'];
 
-        return [...stdlibs, ...mopsaStubs, ...nativeLibs].map(b => ({
+        return stdlibs.map(b => ({
             name: `${b}.so`,
             uri: `${bin}/${b}.wasm`,
             reloc: STDLIB_STUBS[b]
@@ -126,7 +116,86 @@ class OCamlExecutable extends ExecCore {
 const UNIX_STUBBED = ['fstat', 'fsync', 'strchr', 'fcntl', 'ftruncate',
     'getgrnam', 'gmtime', 'localtime', 'mktime', 'lockf', 'pwrite',
     'sysconf', 'mmap', 'munmap', 'putenv', 'rewinddir', 'select',
-    'nanosleep', 'tcgetattr', 'tcsetattr', 'time', 'truncate'];
+    'nanosleep', 'tcgetattr', 'tcsetattr', 'time', 'truncate',
+    'issetugid', 'cfgetospeed', 'cfgetispeed'];
+
+/**
+ * Stubs for C library functions not available in WASM
+ * These are needed by GMP, MPFR, and Apron libraries
+ */
+const C_LIBRARY_STUBS = {
+    // I/O functions - return error codes
+    'printf': () => 0,
+    'sprintf': () => 0,
+    'iprintf': () => 0,
+    'vsprintf': () => 0,
+    '__small_fprintf': () => 0,
+    'putchar': () => 0,
+    'putc': () => 0,
+    'getc': () => -1,  // EOF
+    'ungetc': () => -1,
+    'fread': () => 0,
+    'ferror': () => 0,
+    'feof': () => 0,
+
+    // String functions
+    'strchr': () => 0,
+    'strcat': () => 0,
+
+    // Character classification
+    'isascii': () => 0,
+    'isdigit': () => 0,
+    'islower': () => 0,
+    'isxdigit': () => 0,
+
+    // Locale functions
+    'nl_langinfo': () => 0,
+    'localeconv': () => 0,
+
+    // Search/sort
+    'bsearch': () => 0,
+
+    // Error handling
+    '__assert_fail': () => { throw new Error('Assertion failed'); },
+    '__errno_location': () => 0,
+
+    // Math functions - return 0 or NaN
+    'nextafterf': () => 0,
+    'nextafterl': () => 0,
+    'ldexpl': () => 0,
+    'floorl': () => 0,
+    'ceill': () => 0,
+    'truncl': () => 0,
+    'sqrtl': () => 0,
+    'fmaxl': () => 0,
+    'fminl': () => 0,
+    'fmodf': () => 0,
+    'llrint': () => 0,
+    'lrint': () => 0,
+
+    // 128-bit float operations (not supported in WASM32)
+    '__fpclassifyl': () => 0,
+    '__extenddftf2': () => 0,
+    '__extendsftf2': () => 0,
+    '__trunctfdf2': () => 0,
+    '__addtf3': () => 0,
+    '__subtf3': () => 0,
+    '__multf3': () => 0,
+    '__divtf3': () => 0,
+    '__netf2': () => 0,
+    '__eqtf2': () => 0,
+    '__gttf2': () => 0,
+    '__getf2': () => 0,
+    '__lttf2': () => 0,
+    '__letf2': () => 0,
+    '__fixtfsi': () => 0,
+    '__fixunstfsi': () => 0,
+    '__floatsitf': () => 0,
+    '__floatunsitf': () => 0,
+
+    // FPU control
+    'fesetround': () => 0,
+};
 
 const STDLIB_STUBS: { [lib: string]: any } = {
     'dllunix': {
@@ -175,16 +244,27 @@ export class MopsaPod extends EventEmitter {
 
             this.putFile('/lib/findlib.conf', 'path="/lib/ocaml"');
 
+            this.emit('status', 'Loading additional libraries...');
+
+            // Load additional libraries BEFORE starting the runtime (like jsCoQ)
             await this._preloadStubs();
 
             this.emit('status', 'Starting OCaml runtime...');
 
-            await this.core.run('/lib/mopsa.bc', [], ['mopsa_post']);
+            // Start the OCaml runtime (which will also preload basic stdlib modules)
+            try {
+                await this.core.run('/lib/mopsa.bc', [], ['mopsa_post']);
+            } catch (runError: any) {
+                console.error('Error during core.run():', runError);
+                console.error('Stack trace:', runError.stack);
+                throw new Error(`OCaml runtime failed: ${runError.message}`);
+            }
 
             this.emit('status', 'MOPSA ready');
             this.emit('ready');
 
-        } catch (error) {
+        } catch (error: any) {
+            console.error('Boot error:', error);
             this.emit('error', error);
             throw error;
         }
@@ -249,21 +329,86 @@ export class MopsaPod extends EventEmitter {
     }
 
     private async _preloadStubs(): Promise<void> {
-        // Preload mopsa_c_parser_stubs with JavaScript functions
+        // Load essential libraries + stub GMP/MPFR/Apron for minimal MOPSA
+
+        const bin = this.binDir;
+
+        console.log('Loading zarith...');
+        // Load zarith (required by many OCaml libraries)
+        try {
+            await this.core.proc.dyld.preload(
+                'dllzarith.so',
+                `${bin}/dllzarith.wasm`
+            );
+            console.log('zarith loaded');
+        } catch (e) {
+            console.error('Failed to load zarith:', e);
+            throw e;
+        }
+
+        console.log('Loading stub GMP/MPFR/Apron libraries...');
+        // Load stub implementations of GMP/MPFR/Apron
+        // All these libraries are actually the same stub file
+        // but we need to register them under different names
+        const stubLibs = [
+            'dllgmp_caml.so',
+            'dllapron_caml.so',
+            'dllboxMPQ_caml.so',
+            'dlloctMPQ_caml.so',
+            'dllpolkaMPQ_caml.so'
+        ];
+
+        for (const lib of stubLibs) {
+            try {
+                await this.core.proc.dyld.preload(
+                    lib,
+                    `${bin}/dllgmp_caml.wasm`  // All use the same stub file
+                );
+            } catch (e) {
+                console.error(`Failed to load ${lib}:`, e);
+                throw e;
+            }
+        }
+        console.log('GMP/MPFR/Apron stubs loaded');
+
+        console.log('Loading MOPSA utility stubs...');
+        // Load MOPSA utility stubs with C library stubs
+        try {
+            await this.core.proc.dyld.preload(
+                'dllmopsa_utils_stubs.so',
+                `${bin}/dllmopsa_utils_stubs.wasm`,
+                { js: C_LIBRARY_STUBS }
+            );
+            console.log('MOPSA utility stubs loaded');
+        } catch (e) {
+            console.error('Failed to load MOPSA utility stubs:', e);
+            throw e;
+        }
+
+        console.log('Loading mopsa_c_parser_stubs...');
+        // Load mopsa_c_parser_stubs with JavaScript functions
         try {
             await this.core.proc.dyld.preload(
                 'dllmopsa_c_parser_stubs.so',
-                `${this.binDir}/dllmopsa_c_parser_stubs.wasm`,
+                `${bin}/dllmopsa_c_parser_stubs.wasm`,
                 {
                     js: {
+                        ...C_LIBRARY_STUBS,
                         js_mopsa_emit: (s: i32) => this._handleEmit(s),
                         js_interrupt_pending: (_: i32) => this._interrupt_pending(),
                     }
                 }
             );
+            console.log('mopsa_c_parser_stubs loaded');
         } catch (e) {
-            console.warn('Could not preload dllmopsa_c_parser_stubs.wasm:', e);
+            console.error('Failed to load mopsa_c_parser_stubs:', e);
+            throw e;
         }
+
+        console.log('');
+        console.log('NOTE: This is a minimal MOPSA build with stub numerical libraries');
+        console.log('Full GMP/MPFR/Apron functionality is not available');
+        console.log('');
     }
 
     private _handleEmit(ptr: i32): void {
