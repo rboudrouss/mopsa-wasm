@@ -186,6 +186,7 @@ $(LIBS_DIR)/dllapron_caml.wasm: $(LIBS_DIR)/libapron.a apron/mlapronidl/Makefile
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(LIBS_DIR)/dllapron_caml.wasm \
 		$(MLAPRONIDL_CFLAGS) \
+		camlidl/runtime/idlalloc.c \
 		$(MLAPRONIDL_MODULES:%=apron/mlapronidl/%.o) \
 		-L$(LIBS_DIR) -lapron
 
@@ -209,6 +210,7 @@ $(LIBS_DIR)/dllboxMPQ_caml.wasm: $(LIBS_DIR)/libboxMPQ.a $(LIBS_DIR)/dllapron_ca
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(LIBS_DIR)/dllboxMPQ_caml.wasm \
 		$(BOX_CFLAGS) \
+		camlidl/runtime/idlalloc.c \
 		apron/box/box_caml.o \
 		-L$(LIBS_DIR) -l:libboxMPQ.a -l:libapron.a
 
@@ -232,6 +234,7 @@ $(LIBS_DIR)/dlloctMPQ_caml.wasm: $(LIBS_DIR)/liboctMPQ.a $(LIBS_DIR)/dllapron_ca
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(LIBS_DIR)/dlloctMPQ_caml.wasm \
 		$(OCT_CFLAGS) \
+		camlidl/runtime/idlalloc.c \
 		apron/octagons/oct_caml.o \
 		-L$(LIBS_DIR) -l:liboctMPQ.a -l:libapron.a
 
@@ -255,6 +258,7 @@ $(LIBS_DIR)/dllpolkaMPQ_caml.wasm: $(LIBS_DIR)/libpolkaMPQ.a $(LIBS_DIR)/dllapro
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(LIBS_DIR)/dllpolkaMPQ_caml.wasm \
 		$(POLKA_CFLAGS) \
+		camlidl/runtime/idlalloc.c \
 		apron/newpolka/polka_caml.o \
 		-L$(LIBS_DIR) -l:libpolkaMPQ.a -l:libapron.a
 
