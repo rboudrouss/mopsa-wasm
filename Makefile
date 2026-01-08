@@ -74,7 +74,7 @@ check-env:
 # Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
 #==============================================================================
 
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllapron.wasm
+deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dllapron.wasm
 
 # GMP library
 $(LIBS_DIR)/dllgmp.wasm: gmp-6.1.2/configure
@@ -189,32 +189,89 @@ $(LIBS_DIR)/dllapron_caml.wasm: $(LIBS_DIR)/libapron.a apron/mlapronidl/Makefile
 		$(MLAPRONIDL_MODULES:%=apron/mlapronidl/%.o) \
 		-L$(LIBS_DIR) -lapron
 
+# Box domain OCaml bindings
+BOX_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/apron/box -I$(CURDIR)/mlgmpidl
+
+$(LIBS_DIR)/dllboxMPQ_caml.wasm: $(LIBS_DIR)/libboxMPQ.a $(LIBS_DIR)/dllapron_caml.wasm
+	@echo "Generating Box domain OCaml bindings..."
+	@cd apron/box && \
+		mkdir -p tmp && \
+		cp box.idl ../mlapronidl/*.idl tmp/ && \
+		cd tmp && $(CAMLIDL) -no-include -nocpp -I . box.idl && \
+		cd .. && \
+		$(PERL) ../mlapronidl/perlscript_c.pl < tmp/box_stubs.c > box_caml.c && \
+		$(PERL) perlscript_caml.pl < tmp/box.ml > box.ml && \
+		$(PERL) perlscript_caml.pl < tmp/box.mli > box.mli
+	@echo "Compiling Box domain C stubs with emcc..."
+	$(EMCC) -c $(EMCC_SIDE_MODULE) $(BOX_CFLAGS) -DNUM_MPQ \
+		-o apron/box/box_caml.o apron/box/box_caml.c
+	@echo "Linking dllboxMPQ_caml.wasm..."
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(LIBS_DIR)/dllboxMPQ_caml.wasm \
+		$(BOX_CFLAGS) \
+		apron/box/box_caml.o \
+		-L$(LIBS_DIR) -l:libboxMPQ.a -l:libapron.a
+
+# Octagon domain OCaml bindings
+OCT_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/apron/octagons -I$(CURDIR)/mlgmpidl
+
+$(LIBS_DIR)/dlloctMPQ_caml.wasm: $(LIBS_DIR)/liboctMPQ.a $(LIBS_DIR)/dllapron_caml.wasm
+	@echo "Generating Octagon domain OCaml bindings..."
+	@cd apron/octagons && \
+		mkdir -p tmp && \
+		cp oct.idl ../mlapronidl/*.idl tmp/ && \
+		cd tmp && $(CAMLIDL) -no-include -nocpp -I . oct.idl && \
+		cd .. && \
+		$(PERL) perlscript_c.pl < tmp/oct_stubs.c > oct_caml.c && \
+		$(PERL) perlscript_caml.pl < tmp/oct.ml > oct.ml && \
+		$(PERL) perlscript_caml.pl < tmp/oct.mli > oct.mli
+	@echo "Compiling Octagon domain C stubs with emcc..."
+	$(EMCC) -c $(EMCC_SIDE_MODULE) $(OCT_CFLAGS) -DNUM_MPQ \
+		-o apron/octagons/oct_caml.o apron/octagons/oct_caml.c
+	@echo "Linking dlloctMPQ_caml.wasm..."
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(LIBS_DIR)/dlloctMPQ_caml.wasm \
+		$(OCT_CFLAGS) \
+		apron/octagons/oct_caml.o \
+		-L$(LIBS_DIR) -l:liboctMPQ.a -l:libapron.a
+
+# Polka domain OCaml bindings
+POLKA_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/apron/newpolka -I$(CURDIR)/mlgmpidl
+
+$(LIBS_DIR)/dllpolkaMPQ_caml.wasm: $(LIBS_DIR)/libpolkaMPQ.a $(LIBS_DIR)/dllapron_caml.wasm
+	@echo "Generating Polka domain OCaml bindings..."
+	@cd apron/newpolka && \
+		mkdir -p tmp && \
+		cp polka.idl ../mlapronidl/manager.idl tmp/ && \
+		cd tmp && $(CAMLIDL) -no-include -nocpp polka.idl && \
+		cd .. && \
+		cp tmp/polka_stubs.c polka_caml.c && \
+		$(PERL) perlscript_caml.pl < tmp/polka.ml > polka.ml && \
+		$(PERL) perlscript_caml.pl < tmp/polka.mli > polka.mli
+	@echo "Compiling Polka domain C stubs with emcc..."
+	$(EMCC) -c $(EMCC_SIDE_MODULE) $(POLKA_CFLAGS) -DNUM_MPQ \
+		-o apron/newpolka/polka_caml.o apron/newpolka/polka_caml.c
+	@echo "Linking dllpolkaMPQ_caml.wasm..."
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(LIBS_DIR)/dllpolkaMPQ_caml.wasm \
+		$(POLKA_CFLAGS) \
+		apron/newpolka/polka_caml.o \
+		-L$(LIBS_DIR) -l:libpolkaMPQ.a -l:libapron.a
+
 # Apron WASM modules for domains
 $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllapron_caml.wasm
 	@echo "Creating Apron domain WASM modules..."
 	@if [ -f "$(LIBS_DIR)/libboxMPQ.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dllboxMPQ.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/libboxMPQ.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
+		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dllboxMPQ.wasm -Wl,--whole-archive $(LIBS_DIR)/libboxMPQ.a -Wl,--no-whole-archive $(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 	@if [ -f "$(LIBS_DIR)/liboctMPQ.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dlloctMPQ.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/liboctMPQ.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
+		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dlloctMPQ.wasm -Wl,--whole-archive $(LIBS_DIR)/liboctMPQ.a -Wl,--no-whole-archive $(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 	@if [ -f "$(LIBS_DIR)/libpolkaMPQ.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dllpolkaMPQ.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
+		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dllpolkaMPQ.wasm -Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ.a -Wl,--no-whole-archive $(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 	@if [ -f "$(LIBS_DIR)/libapron.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) \
-			-o $(LIBS_DIR)/dllapron.wasm \
-			-Wl,--whole-archive $(LIBS_DIR)/libapron.a -Wl,--no-whole-archive \
-			$(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a \
+		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dllapron.wasm -Wl,--whole-archive $(LIBS_DIR)/libapron.a -Wl,--no-whole-archive $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
 	fi
 
 #==============================================================================

@@ -79,9 +79,9 @@ class OCamlExecutable extends ExecCore {
             'dllapron',          // APRON core
             'dllgmp_caml',       // mlgmpidl, gmp bindings to ocaml
             'dllapron_caml',    // Apron core OCaml bindings
-            // 'dllboxMPQ_caml',   // Apron Box domain (intervals)
-            // 'dlloctMPQ_caml',   // Apron Octagon domain
-            // 'dllpolkaMPQ_caml'  // Apron Polyhedra domain
+            'dllboxMPQ_caml',   // Apron Box domain (intervals)
+            'dlloctMPQ_caml',   // Apron Octagon domain
+            'dllpolkaMPQ_caml'  // Apron Polyhedra domain
         ];
 
         return [...stdlibs, ...mopsaStubs, ...nativeLibs].map(b => ({
