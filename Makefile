@@ -120,6 +120,13 @@ $(LIBS_DIR)/dllmpfr.wasm: $(LIBS_DIR)/dllgmp.wasm mpfr-4.2.2/configure
 # MLGMPIDL - OCaml bindings to GMP/MPFR (includes camlidl runtime)
 $(LIBS_DIR)/dllgmp_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm mlgmpidl/configure camlidl/runtime/camlidlruntime.h
 	@echo "Building MLGMPIDL C stubs for WASM (with camlidl runtime)..."
+	cd mlgmpidl && \
+		$(MAKE) clean 2>/dev/null || true && \
+		$(EMCONFIGURE) ./configure \
+			-prefix $(CURDIR)/$(INSTALL_DIR) \
+			-gmp-prefix $(CURDIR)/$(INSTALL_DIR) \
+			-mpfr-prefix $(CURDIR)/$(INSTALL_DIR) && \
+		$(EMMAKE) $(MAKE) -i
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(LIBS_DIR)/dllgmp_caml.wasm \
 		-I$(OCAML_STDLIB) \
