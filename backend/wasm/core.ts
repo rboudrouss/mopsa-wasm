@@ -37,6 +37,8 @@ namespace OCamlCAPI {
 export interface MopsaPodOptions extends ExecCoreOptions {
   binDir?: string;
   nmDir?: string;
+  initialMemory?: number;  // Initial memory in pages (64KB each)
+  maximumMemory?: number;  // Maximum memory in pages
 }
 
 /**
@@ -161,6 +163,9 @@ const UNIX_STUBBED = [
   "tcsetattr",
   "time",
   "truncate",
+  "issetugid",
+  "cfgetospeed",
+  "cfgetispeed",
 ];
 
 const STDLIB_STUBS: { [lib: string]: any } = {
@@ -216,11 +221,18 @@ export class MopsaPod extends EventEmitter {
 
       this.emit("status", "Starting OCaml runtime...");
 
-      await this.core.run("/lib/mopsa.bc", [], ["mopsa_post"]);
+      try {
+        await this.core.run("/lib/mopsa.bc", [], ["mopsa_post"]);
+      } catch (runError: any) {
+        console.error("Error during core.run():", runError);
+        console.error("Stack trace:", runError.stack);
+        throw new Error(`OCaml runtime failed: ${runError.message}`);
+      }
 
       this.emit("status", "MOPSA ready");
       this.emit("ready");
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Boot error:", error);
       this.emit("error", error);
       throw error;
     }
