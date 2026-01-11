@@ -40,6 +40,9 @@ let current_code = ref ""
 let current_config = ref ""
 let mopsa_output = ref ""
 
+(* Enable backtrace recording *)
+let () = Printexc.record_backtrace true
+
 (* Default configuration for universal language *)
 let default_config =
   "{\"language\": \"universal\",\"domain\": {\"switch\": [\"universal.iterators.program\",\"universal.iterators.intraproc\",\"universal.iterators.loops\",\"universal.iterators.interproc.inlining\",\"universal.iterators.unittest\",{\"nonrel\": {\"union\": [\"universal.numeric.values.intervals.integer\",\"universal.numeric.values.intervals.float\",\"universal.strings.powerset\"]}}]}}"
@@ -65,8 +68,13 @@ let append_stdout s =
 (* Initialize MOPSA *)
 let init_mopsa config =
   try
+    Printf.printf "init_mopsa called with config: '%s'\n" config;
+    Printf.printf "default_config: '%s'\n" default_config;
     current_config := (if config = "" then default_config else config);
+    Printf.printf "Writing config to %s\n" config_file;
+    Printf.printf "Config: %s\n" !current_config;
     write_file config_file !current_config;
+    Printf.printf "Config file written successfully\n";
     { success = true; message = "MOPSA initialized"; data = None }
   with e ->
     { success = false; message = Printexc.to_string e; data = None }
@@ -91,11 +99,24 @@ let run_mopsa_analysis options =
 
 (* Analyze code *)
 let analyze_code ?(options=[]) code =
+  Printf.printf "analyze_code called with code length: %d\n" (String.length code);
+  flush stdout;
   try
+    Printf.printf "Setting current_code\n";
+    flush stdout;
     current_code := code;
+
+    Printf.printf "Writing code to file\n";
+    flush stdout;
     write_file code_file code;
 
+    Printf.printf "Code written to %s\n" code_file;
+    Printf.printf "Config file: %s\n" config_file;
+    flush stdout;
+
     (* Run actual MOPSA analysis *)
+    Printf.printf "Running MOPSA analysis\n";
+    flush stdout;
     let (exit_code, output) = run_mopsa_analysis options in
 
     let escaped_output = String.escaped output in
@@ -108,67 +129,104 @@ let analyze_code ?(options=[]) code =
         message = Printf.sprintf "Analysis failed with exit code %d" exit_code;
         data = Some (Printf.sprintf "\"%s\"" escaped_output) }
   with e ->
+    Printf.printf "Exception in analyze_code: %s\n" (Printexc.to_string e);
+    Printf.printf "Backtrace: %s\n" (Printexc.get_backtrace ());
+    flush stdout;
     { success = false;
       message = Printexc.to_string e;
       data = Some (Printf.sprintf "\"%s\"" (String.escaped !mopsa_output)) }
 
 (* Parse command from JSON string *)
 let parse_command json_str : command option =
-  (* Simple JSON parsing - look for command patterns *)
-  if String.length json_str < 2 then None
-  else
-    let s = String.trim json_str in
-    (* Handle array format: ["CommandName", "arg"] or ["CommandName"] *)
-    if String.get s 0 = '[' then
-      let s = String.sub s 1 (String.length s - 2) in
-      let parts = String.split_on_char ',' s in
-      match parts with
-      | [cmd] -> 
-          let cmd = String.trim cmd in
-          let cmd = String.sub cmd 1 (String.length cmd - 2) in (* remove quotes *)
-          (match cmd with
-           | "Stop" -> Some Stop
-           | _ -> None)
-      | cmd :: arg :: _ ->
-          let cmd = String.trim cmd in
-          let cmd = String.sub cmd 1 (String.length cmd - 2) in
-          let arg = String.trim arg in
-          let arg = if String.length arg > 2 && String.get arg 0 = '"' 
-                    then String.sub arg 1 (String.length arg - 2) 
-                    else arg in
-          (match cmd with
-           | "Init" -> Some (Init arg)
-           | "Analyze" -> Some (Analyze arg)
-           | "SetConfig" -> Some (SetConfig arg)
-           | "SetCode" -> Some (SetCode arg)
-           | _ -> None)
-      | _ -> None
+  try
+    (* Simple JSON parsing - look for command patterns *)
+    if String.length json_str < 2 then None
     else
-      None
+      let s = String.trim json_str in
+      (* Handle array format: ["CommandName", "arg"] or ["CommandName"] *)
+      if String.get s 0 = '[' then
+        let s_len = String.length s in
+        if s_len < 2 then None
+        else
+          let s = String.sub s 1 (s_len - 2) in
+          let parts = String.split_on_char ',' s in
+          match parts with
+          | [cmd] ->
+              let cmd = String.trim cmd in
+              let cmd_len = String.length cmd in
+              if cmd_len < 2 then None
+              else
+                let cmd = String.sub cmd 1 (cmd_len - 2) in (* remove quotes *)
+                (match cmd with
+                 | "Stop" -> Some Stop
+                 | _ -> None)
+          | cmd :: arg :: _ ->
+              let cmd = String.trim cmd in
+              let cmd_len = String.length cmd in
+              if cmd_len < 2 then None
+              else
+                let cmd = String.sub cmd 1 (cmd_len - 2) in
+                let arg = String.trim arg in
+                let arg = if String.length arg >= 2 && String.get arg 0 = '"' && String.get arg (String.length arg - 1) = '"'
+                          then
+                            let arg_len = String.length arg in
+                            String.sub arg 1 (arg_len - 2)
+                          else arg in
+                (match cmd with
+                 | "Init" -> Some (Init arg)
+                 | "Analyze" -> Some (Analyze arg)
+                 | "SetConfig" -> Some (SetConfig arg)
+                 | "SetCode" -> Some (SetCode arg)
+                 | _ -> None)
+          | _ -> None
+      else
+        None
+  with
+  | Invalid_argument _ -> None
+  | _ -> None
 
 (* Handle a request from JavaScript *)
 let handle_request json_str =
   try
+    Printf.printf "handle_request called with: %s\n" json_str;
+    flush stdout;
     match parse_command json_str with
     | Some (Init config) ->
+        Printf.printf "Handling Init command\n";
+        flush stdout;
         serialize_response (init_mopsa config)
     | Some (Analyze code) ->
+        Printf.printf "Handling Analyze command\n";
+        flush stdout;
         serialize_response (analyze_code code)
     | Some (AnalyzeWithOptions (code, options)) ->
+        Printf.printf "Handling AnalyzeWithOptions command\n";
+        flush stdout;
         serialize_response (analyze_code ~options code)
     | Some (SetConfig config) ->
+        Printf.printf "Handling SetConfig command\n";
+        flush stdout;
         current_config := config;
         write_file config_file config;
         serialize_response { success = true; message = "Config set"; data = None }
     | Some (SetCode code) ->
+        Printf.printf "Handling SetCode command\n";
+        flush stdout;
         current_code := code;
         write_file code_file code;
         serialize_response { success = true; message = "Code set"; data = None }
     | Some Stop ->
+        Printf.printf "Handling Stop command\n";
+        flush stdout;
         serialize_response { success = true; message = "Stopped"; data = None }
     | None ->
+        Printf.printf "Unknown command\n";
+        flush stdout;
         serialize_response { success = false; message = "Unknown command: " ^ json_str; data = None }
   with e ->
+    Printf.printf "Exception in handle_request: %s\n" (Printexc.to_string e);
+    Printf.printf "Backtrace: %s\n" (Printexc.get_backtrace ());
+    flush stdout;
     serialize_response { success = false; message = "Error: " ^ Printexc.to_string e; data = None }
 
 (* Main entry point *)
