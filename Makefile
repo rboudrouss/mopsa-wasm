@@ -279,6 +279,85 @@ $(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllapron_caml.wasm
 	fi
 
 #==============================================================================
+# Merged Apron library (single module with all dependencies)
+# This solves the inter-library symbol resolution issue in wasi-kernel
+#==============================================================================
+
+# All include paths for the merged library
+APRON_MERGED_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl \
+	-I$(CURDIR)/$(INSTALL_DIR)/include \
+	-I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron \
+	-I$(CURDIR)/apron/box -I$(CURDIR)/apron/octagons -I$(CURDIR)/apron/newpolka \
+	-I$(CURDIR)/mlgmpidl
+
+# Source files for OCaml bindings
+MLGMPIDL_SRCS := $(wildcard mlgmpidl/*_caml.c)
+MLAPRONIDL_SRCS := $(wildcard apron/mlapronidl/*_caml.c)
+
+# Create a single merged WASM module containing:
+# - GMP (base math library)
+# - MPFR (multi-precision floats)
+# - Apron core (abstract interpretation framework)
+# - Box domain (intervals)
+# - Octagon domain
+# - Polka domain (polyhedra)
+# - All OCaml bindings (mlgmpidl, mlapronidl, domain bindings)
+# - compiler-rt builtins for long double (128-bit float) software emulation
+
+# Build PIC-compatible compiler-rt builtins for long double support
+COMPILER_RT_BUILTINS_DIR = $(EMSDK)/upstream/emscripten/system/lib/compiler-rt/lib/builtins
+# Long double (128-bit float) arithmetic/conversion + 128-bit integer operations
+COMPILER_RT_BUILTINS = addtf3 subtf3 multf3 divtf3 comparetf2 \
+	extenddftf2 extendsftf2 trunctfdf2 trunctfsf2 \
+	fixtfsi fixtfdi fixunstfsi fixunstfdi \
+	floatsitf floatunsitf \
+	ashlti3 lshrti3 ashrti3 multi3
+
+$(LIBS_DIR)/libcompiler_rt_pic.a:
+	@echo "Building PIC-compatible compiler-rt builtins..."
+	@mkdir -p $(LIBS_DIR)/compiler_rt_build
+	@for f in $(COMPILER_RT_BUILTINS); do \
+		if [ -f "$(COMPILER_RT_BUILTINS_DIR)/$$f.c" ]; then \
+			echo "  Compiling $$f.c..."; \
+			$(EMCC) -c -fPIC -O2 \
+				-I$(COMPILER_RT_BUILTINS_DIR) \
+				-o $(LIBS_DIR)/compiler_rt_build/$$f.o \
+				$(COMPILER_RT_BUILTINS_DIR)/$$f.c 2>/dev/null || true; \
+		fi; \
+	done
+	@emar rcs $(LIBS_DIR)/libcompiler_rt_pic.a $(LIBS_DIR)/compiler_rt_build/*.o
+	@rm -rf $(LIBS_DIR)/compiler_rt_build
+
+$(LIBS_DIR)/dllapron_merged.wasm: $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/libcompiler_rt_pic.a
+	@echo "Creating merged Apron WASM module with all dependencies..."
+	@echo "  MLGMPIDL sources: $(MLGMPIDL_SRCS)"
+	@echo "  MLAPRONIDL sources: $(MLAPRONIDL_SRCS)"
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(LIBS_DIR)/dllapron_merged.wasm \
+		$(APRON_MERGED_CFLAGS) \
+		-DNUM_MPQ \
+		camlidl/runtime/idlalloc.c \
+		$(MLGMPIDL_SRCS) \
+		$(MLAPRONIDL_SRCS) \
+		apron/box/box_caml.c \
+		apron/octagons/oct_caml.c \
+		apron/newpolka/polka_caml.c \
+		-Wl,--whole-archive \
+		$(LIBS_DIR)/libpolkaMPQ.a \
+		$(LIBS_DIR)/liboctMPQ.a \
+		$(LIBS_DIR)/libboxMPQ.a \
+		$(LIBS_DIR)/libapron.a \
+		$(LIBS_DIR)/libmpfr.a \
+		$(LIBS_DIR)/libgmp.a \
+		$(LIBS_DIR)/libcompiler_rt_pic.a \
+		-Wl,--no-whole-archive \
+		-sERROR_ON_UNDEFINED_SYMBOLS=0
+	@echo "Merged library size: $$(du -h $(LIBS_DIR)/dllapron_merged.wasm | cut -f1)"
+
+.PHONY: apron-merged
+apron-merged: $(LIBS_DIR)/dllapron_merged.wasm
+
+#==============================================================================
 # OCaml bytecode
 #==============================================================================
 
