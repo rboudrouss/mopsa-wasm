@@ -175,53 +175,27 @@ let analyze_code ?(options=[]) code =
       message = Printexc.to_string e;
       data = Some (Printf.sprintf "\"%s\"" (String.escaped !mopsa_output)) }
 
-(* Parse command from JSON string *)
+(* Parse command from JSON string using Yojson for proper escaping *)
 let parse_command json_str : command option =
   try
-    (* Simple JSON parsing - look for command patterns *)
-    if String.length json_str < 2 then None
-    else
-      let s = String.trim json_str in
-      (* Handle array format: ["CommandName", "arg"] or ["CommandName"] *)
-      if String.get s 0 = '[' then
-        let s_len = String.length s in
-        if s_len < 2 then None
-        else
-          let s = String.sub s 1 (s_len - 2) in
-          let parts = String.split_on_char ',' s in
-          match parts with
-          | [cmd] ->
-              let cmd = String.trim cmd in
-              let cmd_len = String.length cmd in
-              if cmd_len < 2 then None
-              else
-                let cmd = String.sub cmd 1 (cmd_len - 2) in (* remove quotes *)
-                (match cmd with
-                 | "Stop" -> Some Stop
-                 | _ -> None)
-          | cmd :: arg :: _ ->
-              let cmd = String.trim cmd in
-              let cmd_len = String.length cmd in
-              if cmd_len < 2 then None
-              else
-                let cmd = String.sub cmd 1 (cmd_len - 2) in
-                let arg = String.trim arg in
-                let arg = if String.length arg >= 2 && String.get arg 0 = '"' && String.get arg (String.length arg - 1) = '"'
-                          then
-                            let arg_len = String.length arg in
-                            String.sub arg 1 (arg_len - 2)
-                          else arg in
-                (match cmd with
-                 | "Init" -> Some (Init arg)
-                 | "Analyze" -> Some (Analyze arg)
-                 | "SetConfig" -> Some (SetConfig arg)
-                 | "SetCode" -> Some (SetCode arg)
-                 | _ -> None)
-          | _ -> None
-      else
-        None
+    match Yojson.Basic.from_string json_str with
+    | `List [`String cmd] ->
+        (match cmd with
+         | "Stop" -> Some Stop
+         | _ -> None)
+    | `List [`String cmd; `String arg] ->
+        (match cmd with
+         | "Init" -> Some (Init arg)
+         | "Analyze" -> Some (Analyze arg)
+         | "SetConfig" -> Some (SetConfig arg)
+         | "SetCode" -> Some (SetCode arg)
+         | _ -> None)
+    | `List [`String cmd; `String arg; `List options] when cmd = "AnalyzeWithOptions" ->
+        let opts = List.filter_map (function `String s -> Some s | _ -> None) options in
+        Some (AnalyzeWithOptions (arg, opts))
+    | _ -> None
   with
-  | Invalid_argument _ -> None
+  | Yojson.Json_error _ -> None
   | _ -> None
 
 (* Handle a request from JavaScript *)
