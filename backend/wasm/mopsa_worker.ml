@@ -48,7 +48,7 @@ let default_config =
   "{\"language\": \"universal\",\"domain\": {\"switch\": [\"universal.iterators.program\",\"universal.iterators.intraproc\",\"universal.iterators.loops\",\"universal.iterators.interproc.inlining\",\"universal.iterators.unittest\",{\"nonrel\": {\"union\": [\"universal.numeric.values.intervals.float\",\"universal.strings.powerset\"]}},\"universal.numeric.collecting\"]}}"
 
 (* File paths in virtual filesystem *)
-let code_file = "/code.u"
+let code_file = "/code.c"
 let config_file = "/config.json"
 let share_dir = "/share"
 
