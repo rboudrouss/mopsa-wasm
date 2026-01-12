@@ -24,6 +24,8 @@ INSTALL_DIR := libs
 LIBS_DIR := $(INSTALL_DIR)/lib
 DIST_DIR := dist
 BUILD_DIR := _build
+LLVM_BUILD_DIR := llvm-project/build
+LLVM_INSTALL_DIR := $(INSTALL_DIR)/llvm
 
 # Tools
 EMCC := emcc
@@ -40,6 +42,10 @@ EMCC_SIDE_MODULE := -s SIDE_MODULE=1 -fPIC
 
 # Number of parallel jobs
 NPROC := $(shell nproc 2>/dev/null || echo 4)
+
+# Clang version (LLVM 8.0.1)
+CLANG_VERSION := 8
+CLANG_RESOURCE_DIR := $(LLVM_INSTALL_DIR)/lib/clang/$(CLANG_VERSION)
 
 #==============================================================================
 # Main targets
@@ -74,7 +80,106 @@ check-env:
 # Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
 #==============================================================================
 
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dllapron.wasm
+deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dllapron.wasm $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(LLVM_INSTALL_DIR)/lib/libLLVMCore.a
+
+#==============================================================================
+# LLVM/Clang libraries
+#==============================================================================
+
+# Build LLVM and Clang libraries for WebAssembly
+# Two-stage build:
+# 1. Native build for llvm-tblgen and clang-tblgen
+# 2. Cross-compile with Emscripten using native tools
+
+LLVM_NATIVE_BUILD := $(LLVM_BUILD_DIR)/native
+CLANG_LIBS := clangBasic clangLex clangAST clangParse clangFrontend clangSema
+LLVM_CORE_LIBS := LLVMCore LLVMSupport
+
+# Stage 1: Build native tools (llvm-tblgen, clang-tblgen)
+# Use GCC 11 for compatibility with LLVM 8.0.1 (GCC 15 is too new)
+$(LLVM_NATIVE_BUILD)/bin/llvm-tblgen: llvm-project/llvm/CMakeLists.txt
+	@echo "Building native LLVM tools (llvm-tblgen, clang-tblgen)..."
+	@echo "Using GCC 11 for compatibility with LLVM 8.0.1..."
+	@mkdir -p $(LLVM_NATIVE_BUILD)
+	cd $(LLVM_NATIVE_BUILD) && \
+		CC=gcc-11 CXX=g++-11 cmake ../../llvm \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+			-DCMAKE_C_COMPILER=gcc-11 \
+			-DCMAKE_CXX_COMPILER=g++-11 \
+			-DLLVM_TARGETS_TO_BUILD="X86;WebAssembly" \
+			-DLLVM_ENABLE_PROJECTS="clang" \
+			-DLLVM_BUILD_TOOLS=ON \
+			-DLLVM_INCLUDE_TESTS=OFF \
+			-DLLVM_INCLUDE_EXAMPLES=OFF \
+			-DLLVM_INCLUDE_BENCHMARKS=OFF && \
+		$(MAKE) -j$(NPROC) llvm-tblgen clang-tblgen
+	@echo "Native tools built successfully"
+
+# Stage 2: Cross-compile LLVM/Clang with Emscripten
+$(LLVM_INSTALL_DIR)/lib/libclangBasic.a: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen llvm-project/llvm/CMakeLists.txt
+	@echo "Building LLVM/Clang for WebAssembly..."
+	@mkdir -p $(LLVM_BUILD_DIR)
+	cd $(LLVM_BUILD_DIR) && \
+		emcmake cmake ../llvm \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+			-DCMAKE_INSTALL_PREFIX=$(CURDIR)/$(LLVM_INSTALL_DIR) \
+			-DCMAKE_CROSSCOMPILING=True \
+			-DLLVM_TABLEGEN=$(CURDIR)/$(LLVM_NATIVE_BUILD)/bin/llvm-tblgen \
+			-DCLANG_TABLEGEN=$(CURDIR)/$(LLVM_NATIVE_BUILD)/bin/clang-tblgen \
+			-DLLVM_ENABLE_PROJECTS="clang" \
+			-DLLVM_TARGETS_TO_BUILD="WebAssembly" \
+			-DLLVM_DEFAULT_TARGET_TRIPLE=wasm32-unknown-emscripten \
+			-DLLVM_ENABLE_RTTI=ON \
+			-DLLVM_ENABLE_EH=ON \
+			-DLLVM_BUILD_TOOLS=OFF \
+			-DLLVM_INCLUDE_TESTS=OFF \
+			-DLLVM_INCLUDE_EXAMPLES=OFF \
+			-DLLVM_INCLUDE_BENCHMARKS=OFF \
+			-DLLVM_INCLUDE_UTILS=OFF \
+			-DLLVM_INCLUDE_GO_TESTS=OFF \
+			-DLLVM_ENABLE_BINDINGS=OFF \
+			-DLLVM_ENABLE_THREADS=OFF \
+			-DLLVM_ENABLE_BACKTRACES=OFF \
+			-DLLVM_ENABLE_UNWIND_TABLES=OFF \
+			-DLLVM_ENABLE_CRASH_OVERRIDES=OFF \
+			-DLLVM_ENABLE_TERMINFO=OFF \
+			-DLLVM_ENABLE_ZLIB=OFF \
+			-DLLVM_ENABLE_ZSTD=OFF \
+			-DLLVM_ENABLE_LIBXML2=OFF \
+			-DLLVM_ENABLE_LIBEDIT=OFF \
+			-DLLVM_ENABLE_LIBPFM=OFF \
+			-DLLVM_BUILD_STATIC=ON \
+			-DLLVM_ENABLE_PIC=ON \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DCLANG_ENABLE_ARCMT=OFF \
+			-DCLANG_ENABLE_STATIC_ANALYZER=OFF \
+			-DCLANG_BUILD_TOOLS=OFF \
+			-DCLANG_INCLUDE_TESTS=OFF
+	@echo "CMake configuration complete. Building libraries..."
+	cd $(LLVM_BUILD_DIR) && \
+		emmake $(MAKE) -j$(NPROC) $(CLANG_LIBS) $(LLVM_CORE_LIBS)
+	@echo "Copying libraries and headers to install directory..."
+	@mkdir -p $(LLVM_INSTALL_DIR)/lib
+	@mkdir -p $(LLVM_INSTALL_DIR)/include
+	@echo "  - Copying libraries..."
+	@cp -r $(LLVM_BUILD_DIR)/lib/*.a $(LLVM_INSTALL_DIR)/lib/ 2>/dev/null || true
+	@echo "  - Copying LLVM headers..."
+	@cp -r llvm-project/llvm/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
+	@echo "  - Copying Clang headers..."
+	@cp -r llvm-project/clang/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
+	@echo "  - Copying generated headers (LLVM)..."
+	@cp -r $(LLVM_BUILD_DIR)/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
+	@echo "  - Copying generated headers (Clang)..."
+	@cp -r $(LLVM_BUILD_DIR)/tools/clang/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
+	@echo "LLVM/Clang build complete"
+
+$(LLVM_INSTALL_DIR)/lib/libLLVMCore.a: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
+
+#==============================================================================
+# GMP, MPFR, and other dependencies
+#==============================================================================
 
 # GMP library
 $(LIBS_DIR)/dllgmp.wasm: gmp-6.1.2/configure
@@ -296,7 +401,8 @@ $(DIST_DIR)/mopsa_worker.bc: backend/wasm/mopsa_worker.ml
 #==============================================================================
 
 wasm: $(DIST_DIR)/dllmopsa_utils_stubs.wasm $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp_caml.wasm
+      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp_caml.wasm \
+      $(DIST_DIR)/dllclang_parser.wasm
 
 # Copy OCaml runtime stubs from ocaml-wasm package
 $(DIST_DIR)/dllcamlstr.wasm: node_modules/ocaml-wasm/bin/dllcamlstr.wasm
@@ -348,6 +454,42 @@ $(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
 		ln -sf dllgmp_caml.wasm dllboxMPQ_caml.wasm && \
 		ln -sf dllgmp_caml.wasm dlloctMPQ_caml.wasm && \
 		ln -sf dllgmp_caml.wasm dllpolkaMPQ_caml.wasm
+
+# Clang parser library (Clang_to_ml.cc + libclang-cpp + libLLVM)
+CLANG_TO_ML_SRC := mopsa-analyzer/parsers/c/lib/parser/Clang_to_ml.cc
+CLANG_TO_ML_OBJ := $(BUILD_DIR)/Clang_to_ml.o
+CLANG_CXXFLAGS := -std=c++17 -fno-exceptions -fno-rtti \
+	-I$(LLVM_INSTALL_DIR)/include \
+	-I$(OCAML_STDLIB) \
+	-I$(shell opam var lib)/zarith \
+	-DCLANG_VERSION_MAJOR=$(CLANG_VERSION) \
+	-DCLANGRESOURCE=\"$(CLANG_RESOURCE_DIR)\" \
+	-D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS \
+	-Wno-strict-aliasing -Wall -Wno-comment
+
+$(CLANG_TO_ML_OBJ): $(CLANG_TO_ML_SRC) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
+	@echo "Compiling Clang_to_ml.cc..."
+	@mkdir -p $(BUILD_DIR)
+	$(EMCC) -c $(EMCC_SIDE_MODULE) -x c++ $(CLANG_CXXFLAGS) \
+		-o $(CLANG_TO_ML_OBJ) $(CLANG_TO_ML_SRC)
+
+# Combined Clang parser library (includes Clang_to_ml + all Clang/LLVM dependencies)
+# Link all the Clang libraries we built
+$(DIST_DIR)/dllclang_parser.wasm: $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
+	@echo "Linking dllclang_parser.wasm (combined Clang library)..."
+	@mkdir -p $(DIST_DIR)
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		-o $(DIST_DIR)/dllclang_parser.wasm \
+		$(CLANG_TO_ML_OBJ) \
+		-L$(LLVM_INSTALL_DIR)/lib \
+		-Wl,--whole-archive \
+		-lclangFrontend -lclangParse -lclangSema -lclangAST -lclangLex -lclangBasic \
+		-lLLVMCore -lLLVMSupport \
+		-Wl,--no-whole-archive \
+		-lstdc++ \
+		-sERROR_ON_UNDEFINED_SYMBOLS=0 \
+		-sALLOW_MEMORY_GROWTH=1
+	@echo "Clang parser library built successfully"
 
 #==============================================================================
 # TypeScript
@@ -418,6 +560,8 @@ clean-deps:
 	@cd mpfr-4.2.2 && $(MAKE) clean 2>/dev/null || true
 	@cd mlgmpidl && $(MAKE) clean 2>/dev/null || true
 	@cd apron && $(MAKE) clean 2>/dev/null || true
+	@rm -rf $(LLVM_BUILD_DIR)
+	@rm -rf $(LLVM_NATIVE_BUILD)
 	@rm -rf $(INSTALL_DIR)
 
 clean-all: clean clean-deps

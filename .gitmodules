@@ -10,3 +10,6 @@
 [submodule "camlidl"]
 	path = camlidl
 	url = git@github.com:xavierleroy/camlidl.git
+[submodule "llvm-project"]
+	path = llvm-project
+	url = git@github.com:binji/llvm-project.git
