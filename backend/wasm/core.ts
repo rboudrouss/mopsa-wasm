@@ -385,12 +385,13 @@ export class MopsaPod extends EventEmitter {
             throw e;
         }
 
-        console.log('Loading mopsa_c_parser_stubs...');
-        // Load mopsa_c_parser_stubs with JavaScript functions
+        console.log('Loading Clang parser library...');
+        // Load Clang parser library (Clang_to_ml.cc + libclang-cpp + libLLVM)
+        // This also provides js_mopsa_emit and js_interrupt_pending functions
         try {
             await this.core.proc.dyld.preload(
-                'dllmopsa_c_parser_stubs.so',
-                `${bin}/dllmopsa_c_parser_stubs.wasm`,
+                'dllclang_parser.so',
+                `${bin}/dllclang_parser.wasm`,
                 {
                     js: {
                         ...C_LIBRARY_STUBS,
@@ -398,20 +399,6 @@ export class MopsaPod extends EventEmitter {
                         js_interrupt_pending: (_: i32) => this._interrupt_pending(),
                     }
                 }
-            );
-            console.log('mopsa_c_parser_stubs loaded');
-        } catch (e) {
-            console.error('Failed to load mopsa_c_parser_stubs:', e);
-            throw e;
-        }
-
-        console.log('Loading Clang parser library...');
-        // Load Clang parser library (Clang_to_ml.cc + libclang-cpp + libLLVM)
-        try {
-            await this.core.proc.dyld.preload(
-                'dllclang_parser.so',
-                `${bin}/dllclang_parser.wasm`,
-                { js: C_LIBRARY_STUBS }
             );
             console.log('Clang parser library loaded');
         } catch (e) {
