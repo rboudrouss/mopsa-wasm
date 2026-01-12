@@ -249,6 +249,14 @@ export class MopsaPod extends EventEmitter {
             // Load additional libraries BEFORE starting the runtime (like jsCoQ)
             await this._preloadStubs();
 
+            // Load share data (stubs, configs) into the virtual filesystem
+            this.emit('status', 'Loading share data...');
+            try {
+                await this.loadShareData(`${this.binDir}/share.json`);
+            } catch (e: any) {
+                console.warn('Failed to load share.json, MOPSA may not find stubs:', e.message);
+            }
+
             this.emit('status', 'Starting OCaml runtime...');
 
             // Start the OCaml runtime (which will also preload basic stdlib modules)
@@ -277,6 +285,33 @@ export class MopsaPod extends EventEmitter {
         }
         const content = new Uint8Array(await response.arrayBuffer());
         this.putFile(toPath, content);
+    }
+
+    /**
+     * Load share.json and write all files recursively to /share in the virtual FS
+     * This allows MOPSA to access stubs and configs synchronously
+     */
+    async loadShareData(shareJsonUri: string): Promise<void> {
+        const response = await fetch(shareJsonUri);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch share.json: ${response.statusText}`);
+        }
+        const shareData = await response.json();
+        this.writeShareRecursive('/share', shareData);
+    }
+
+    /**
+     * Recursively write share data to the virtual filesystem
+     */
+    private writeShareRecursive(basePath: string, data: any): void {
+        for (const [key, value] of Object.entries(data)) {
+            const path = `${basePath}/${key}`;
+            if (typeof value === 'string') {
+                this.putFile(path, value);
+            } else if (typeof value === 'object' && value !== null) {
+                this.writeShareRecursive(path, value);
+            }
+        }
     }
 
     putFile(filename: string, content: Uint8Array | string): void {

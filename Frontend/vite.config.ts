@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   build: {
     outDir: "../dist",
-    emptyOutDir: true,
+    emptyOutDir: false,
     rollupOptions: {
       output: {
         manualChunks(id) {

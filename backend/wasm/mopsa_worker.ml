@@ -93,6 +93,11 @@ let run_mopsa_analysis options =
   (* Set the config file path that analyze_files will read *)
   Mopsa_analyzer.Framework.Params.Config.Parser.opt_config := config_file;
 
+  (* Set the share directory path so MOPSA can find stubs *)
+  Printf.printf "Setting share directory to %s\n" share_dir;
+  flush stdout;
+  Mopsa_analyzer.Framework.Params.Paths.opt_share_dir := share_dir;
+
   Printf.printf "Calling analyze_files directly\n";
   flush stdout;
 

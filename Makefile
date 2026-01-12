@@ -16,7 +16,7 @@
 #   make clean        # Clean build artifacts
 #   make serve        # Start demo server
 
-.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend
+.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend share
 .SILENT: check-env
 
 # Directories
@@ -510,15 +510,9 @@ $(FRONTEND_DIR)/node_modules/.package-lock.json: $(FRONTEND_DIR)/package.json
 	@touch $(FRONTEND_DIR)/node_modules/.package-lock.json
 
 # Build frontend
-frontend: frontend-deps ts $(DIST_DIR)/mopsa_worker.bc
+frontend: frontend-deps ts $(DIST_DIR)/mopsa_worker.bc share
 	@echo "Building frontend..."
 	cd $(FRONTEND_DIR) && $(PNPM) run build
-	@echo "  - Copying MOPSA runtime files to dist..."
-	@cp $(DIST_DIR)/mopsa_worker.js dist/
-	@cp $(DIST_DIR)/mopsa_worker.bc dist/
-	@cp $(DIST_DIR)/ocamlrun.wasm dist/
-	@cp $(DIST_DIR)/*.wasm dist/
-	@echo "Frontend build complete - output in ./dist"
 
 #==============================================================================
 # Distribution
@@ -531,6 +525,14 @@ $(DIST_DIR)/index.html: backend/wasm/index.html
 $(DIST_DIR)/ocamlrun.wasm: node_modules/ocaml-wasm/bin/ocamlrun.wasm
 	@mkdir -p $(DIST_DIR)
 	@cp node_modules/ocaml-wasm/bin/ocamlrun.wasm $(DIST_DIR)/
+
+# Generate share.json from share/mopsa directory for WASM virtual filesystem
+$(DIST_DIR)/share.json: $(shell find share/mopsa -type f 2>/dev/null)
+	@echo "Generating share.json..."
+	@mkdir -p $(DIST_DIR)
+	@node $(FRONTEND_DIR)/folderToJson.cjs mopsa-analyzer/share/mopsa -o $(DIST_DIR)/share.json
+
+share: $(DIST_DIR)/share.json
 
 #==============================================================================
 # Summary and utilities
