@@ -7,6 +7,7 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from "./resizable";
+import type { shareData } from "../mopsaJs.d";
 
 export default function ConfigEditor({
   setLang,
@@ -14,7 +15,7 @@ export default function ConfigEditor({
   setLang: (lang: SupportedLanguage) => void;
 }) {
   const [value, setValue] = useState<string | undefined>(
-    MopsaJs.getConfig() || mopsaJs.configUni
+    MopsaJs.getConfig() || MopsaJs.defaultConfigs.universal
   );
 
   const [showPannel, setShowPannel] = useState<boolean>(false);
@@ -41,9 +42,9 @@ export default function ConfigEditor({
           width="100%"
           defaultLanguage="json"
           value={value}
-          onChange={(value, _) => {
-            setValue(value);
-            mopsaJs.setConfig(value ?? mopsaJs.configUni);
+          onChange={(newValue) => {
+            setValue(newValue);
+            MopsaJs.setConfig(newValue ?? MopsaJs.defaultConfigs.universal);
           }}
           onMount={(editor) => {
             editor.updateOptions({
@@ -71,17 +72,17 @@ export default function ConfigEditor({
                   >
                     {config}
                   </p>
-                  {Object.keys(configs[config]).map((file, i) => (
+                  {Object.keys(configs[config]).map((file, j) => (
                     <p
                       style={{
                         fontSize: "0.8rem",
                         cursor: "pointer",
                         borderBottom: "1px solid black",
                       }}
-                      key={config + file + i}
+                      key={config + file + j}
                       onClick={() => {
-                        let newconfig = configs[config][file];
-                        mopsaJs.setConfig(newconfig ?? mopsaJs.configUni);
+                        const newconfig = configs[config][file];
+                        MopsaJs.setConfig(newconfig ?? MopsaJs.defaultConfigs.universal);
                         setValue(newconfig);
                         setLang(config === "cfg" ? "c" : config);
                       }}

@@ -6,6 +6,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   build: {
+    outDir: "../dist",
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -21,6 +23,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Worker configuration for MOPSA WASM worker
+  worker: {
+    format: 'es',
+  },
   plugins: [
     VitePWA({
       registerType: "autoUpdate",
@@ -28,7 +34,23 @@ export default defineConfig({
         enabled: process.env.NODE_ENV === "development",
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5000000,
+        // Increase limit to handle large WASM files (e.g., dllclang_parser.wasm is 15+ MB)
+        maximumFileSizeToCacheInBytes: 20000000,
+        // Exclude large WASM files from precaching to speed up initial load
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,woff,woff2}'],
+        // WASM files will be fetched on demand and cached at runtime
+        runtimeCaching: [
+          {
+            urlPattern: /\.wasm$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'wasm-cache',
+              expiration: {
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+        ],
       },
       includeAssets: [
         "web-app-manifest-192x192.png",

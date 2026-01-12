@@ -16,7 +16,7 @@
 #   make clean        # Clean build artifacts
 #   make serve        # Start demo server
 
-.PHONY: all clean deps ocaml wasm ts serve check-env help
+.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend
 .SILENT: check-env
 
 # Directories
@@ -51,19 +51,21 @@ CLANG_RESOURCE_DIR := $(LLVM_INSTALL_DIR)/lib/clang/$(CLANG_VERSION)
 # Main targets
 #==============================================================================
 
-all: deps ocaml wasm ts summary
+all: deps ocaml wasm ts frontend summary
 
 help:
 	@echo "MOPSA WASM Build System"
 	@echo ""
 	@echo "Targets:"
-	@echo "  all      - Build everything (default)"
-	@echo "  deps     - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
-	@echo "  ocaml    - Build OCaml bytecode"
-	@echo "  wasm     - Build WASM stubs"
-	@echo "  ts       - Build TypeScript"
-	@echo "  clean    - Clean build artifacts"
-	@echo "  serve    - Start demo server on port 8080"
+	@echo "  all           - Build everything (default)"
+	@echo "  deps          - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
+	@echo "  ocaml         - Build OCaml bytecode"
+	@echo "  wasm          - Build WASM stubs"
+	@echo "  ts            - Build TypeScript worker"
+	@echo "  frontend      - Build React frontend"
+	@echo "  frontend-deps - Install frontend dependencies"
+	@echo "  clean         - Clean build artifacts"
+	@echo "  serve         - Start demo server on port 8080"
 
 #==============================================================================
 # Environment check (optional)
@@ -502,6 +504,31 @@ $(DIST_DIR)/mopsa_worker.js: backend/wasm/mopsa_worker.ts backend/wasm/core.ts e
 	@node esbuild.mjs
 
 #==============================================================================
+# Frontend (React application)
+#==============================================================================
+
+FRONTEND_DIR := Frontend
+
+# Install frontend dependencies
+frontend-deps: $(FRONTEND_DIR)/node_modules/.package-lock.json
+
+$(FRONTEND_DIR)/node_modules/.package-lock.json: $(FRONTEND_DIR)/package.json
+	@echo "Installing frontend dependencies..."
+	cd $(FRONTEND_DIR) && $(PNPM) install
+	@touch $(FRONTEND_DIR)/node_modules/.package-lock.json
+
+# Build frontend
+frontend: frontend-deps ts $(DIST_DIR)/mopsa_worker.bc
+	@echo "Building frontend..."
+	cd $(FRONTEND_DIR) && $(PNPM) run build
+	@echo "  - Copying MOPSA runtime files to dist..."
+	@cp $(DIST_DIR)/mopsa_worker.js dist/
+	@cp $(DIST_DIR)/mopsa_worker.bc dist/
+	@cp $(DIST_DIR)/ocamlrun.wasm dist/
+	@cp $(DIST_DIR)/*.wasm dist/
+	@echo "Frontend build complete - output in ./dist"
+
+#==============================================================================
 # Distribution
 #==============================================================================
 
@@ -517,7 +544,7 @@ $(DIST_DIR)/ocamlrun.wasm: node_modules/ocaml-wasm/bin/ocamlrun.wasm
 # Summary and utilities
 #==============================================================================
 
-summary: $(DIST_DIR)/index.html $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp.wasm
+summary: $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp.wasm
 	@echo ""
 	@echo "========================================="
 	@echo "Build Summary"
@@ -531,6 +558,9 @@ summary: $(DIST_DIR)/index.html $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp.was
 	@if [ -f "$(DIST_DIR)/ocamlrun.wasm" ]; then \
 		echo "ocamlrun.wasm: $$(du -h $(DIST_DIR)/ocamlrun.wasm | cut -f1)"; \
 	fi
+	@if [ -f "$(DIST_DIR)/index.html" ]; then \
+		echo "Frontend: Built (index.html present)"; \
+	fi
 	@echo ""
 	@echo "WASM stubs:"
 	@ls -lh $(DIST_DIR)/*.wasm 2>/dev/null | awk '{print "  " $$9 " (" $$5 ")"}' || echo "  (none)"
@@ -541,7 +571,8 @@ summary: $(DIST_DIR)/index.html $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp.was
 
 serve:
 	@echo "Starting demo server on http://localhost:8080"
-	$(PNPM) run serve
+	@echo "Serving from ./dist directory..."
+	cd $(DIST_DIR) && python3 -m http.server 8080
 
 #==============================================================================
 # Clean
@@ -551,8 +582,14 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(DIST_DIR)
+	@rm -rf dist
 	@rm -f backend/wasm/mopsa_worker.bc
 	@rm -f backend/wasm/*.wasm
+
+clean-frontend:
+	@echo "Cleaning frontend..."
+	@rm -rf $(FRONTEND_DIR)/node_modules
+	@rm -rf $(FRONTEND_DIR)/dist
 
 clean-deps:
 	@echo "Cleaning native dependencies..."

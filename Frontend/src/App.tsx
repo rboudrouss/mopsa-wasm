@@ -14,19 +14,40 @@ function App() {
   const [lang, setLang] = useState<SupportedLanguage>("c");
   const [output, setOutput] = useState<string>("");
   const [showConfig, setShowConfig] = useState<boolean>(false);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
   const optionsRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAnalyze = async () => {
+    if (!MopsaJs.getConfig()) {
+      MopsaJs.setConfig(MopsaJs.defaultConfigs.universal);
+    }
+    const options = parseCommandLineOptions(optionsRef.current?.value);
+
+    setShowConfig(false);
+    setOutput("Running...");
+    setIsAnalyzing(true);
+
+    try {
+      const result = await MopsaJs.analyzeAsync(options);
+      setOutput(result);
+    } catch (error: any) {
+      setOutput(`Error: ${error.message}`);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div style={{ height: "100%", width: "100%" }}>
       <Header
         onLanguageChange={(language) => {
-          let codeFilePath = MopsaJs.getCodeFilePath();
-          let destination = changeFileExtension(codeFilePath, language);
+          const codeFilePath = MopsaJs.getCodeFilePath();
+          const destination = changeFileExtension(codeFilePath, language);
           MopsaJs.moveFile(
             codeFilePath,
             changeFileExtension(codeFilePath, language)
-          )
+          );
           MopsaJs.changeCodeFilePath(destination);
 
           setLang(language);
@@ -34,20 +55,14 @@ function App() {
             "Please note that changing the language resets the config."
           );
         }}
-        onRunClick={() => {
-          if (!MopsaJs.getConfig()) MopsaJs.setConfig(mopsaJs.configUni);
-          let options = parseCommandLineOptions(optionsRef.current?.value);
-
-          setShowConfig(false);
-          setOutput("Running...");
-          setOutput(MopsaJs.analyze(options));
-        }}
+        onRunClick={handleAnalyze}
         onShowConfigClick={(b) => {
           if (typeof b === "boolean") setShowConfig(b);
           else setShowConfig(!showConfig);
         }}
         showConfig={showConfig}
         optionsRef={optionsRef}
+        isAnalyzing={isAnalyzing}
       />
       <ResizablePanelGroup
         direction={

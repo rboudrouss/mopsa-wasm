@@ -7,12 +7,14 @@ export default function Header({
   onShowConfigClick,
   showConfig,
   optionsRef,
+  isAnalyzing = false,
 }: {
   onLanguageChange: (language: SupportedLanguage) => void;
   onRunClick: () => void;
   onShowConfigClick: (bool?: boolean) => void;
   optionsRef: React.RefObject<HTMLInputElement | null>;
   showConfig: boolean;
+  isAnalyzing?: boolean;
 }) {
   return (
     <header
@@ -27,12 +29,15 @@ export default function Header({
     >
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <h1>Mopsa</h1>
-        <button onClick={onRunClick}>Run</button>
+        <button onClick={onRunClick} disabled={isAnalyzing}>
+          {isAnalyzing ? "Analyzing..." : "Run"}
+        </button>
         <select
           name="language"
           id="language"
+          disabled={isAnalyzing}
           onChange={(e) => {
-            let value = e.target.value as SupportedLanguage;
+            const value = e.target.value as SupportedLanguage;
             onShowConfigClick(false);
             MopsaJs.setConfig(MopsaJs.defaultConfigs[value]);
             onLanguageChange(value);
@@ -44,10 +49,10 @@ export default function Header({
             </option>
           ))}
         </select>
-        <button onClick={() => onShowConfigClick()}>
+        <button onClick={() => onShowConfigClick()} disabled={isAnalyzing}>
           {showConfig ? "Show Mopsa Output" : "Show Config"}
         </button>
-        <input type="text" ref={optionsRef} placeholder="Options" />
+        <input type="text" ref={optionsRef} placeholder="Options" disabled={isAnalyzing} />
       </div>
     </header>
   );

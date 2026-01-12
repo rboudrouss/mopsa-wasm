@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "./getMopsaJs.sh && vite --clearScreen false",
-    "build": "./getMopsaJs.sh -f && tsc -b && vite build",
+    "dev": "vite --clearScreen false",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
