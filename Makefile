@@ -272,8 +272,7 @@ $(LIBS_DIR)/dllgmp_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm mlgmpidl/configure camlid
 		$(MLGMPIDL_CFLAGS) \
 		camlidl/runtime/idlalloc.c \
 		$(MLGMPIDL_MODULES:%=mlgmpidl/%.o) \
-		-L$(LIBS_DIR) -lgmp -lmpfr \
-		-sERROR_ON_UNDEFINED_SYMBOLS=0
+		-L$(LIBS_DIR) -lgmp -lmpfr
 
 # Apron library and domains (C part only)
 $(LIBS_DIR)/libapron.a: $(LIBS_DIR)/dllmpfr.wasm apron/configure
@@ -468,8 +467,7 @@ $(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
 		backend/wasm/gmp_all_stubs.c \
 		-o $(DIST_DIR)/dllgmp_caml.wasm \
 		-I$(OCAML_STDLIB) \
-		-I$(shell opam var lib)/camlidl \
-		-sERROR_ON_UNDEFINED_SYMBOLS=0
+		-I$(shell opam var lib)/camlidl
 	@echo "Creating symlinks for other numerical libraries..."
 	@cd $(DIST_DIR) && \
 		ln -sf dllgmp_caml.wasm dllgmp.wasm && \
@@ -512,7 +510,6 @@ $(DIST_DIR)/dllclang_parser.wasm: $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/lib
 		-lLLVMCore -lLLVMSupport \
 		-Wl,--no-whole-archive \
 		-lstdc++ \
-		-sERROR_ON_UNDEFINED_SYMBOLS=0 \
 		-sALLOW_MEMORY_GROWTH=1
 	@echo "Clang parser library built successfully"
 
