@@ -451,14 +451,6 @@ $(DIST_DIR)/dllmopsa_utils_stubs.wasm: mopsa-analyzer/utils/itvUtils/floats_roun
 		-o $(DIST_DIR)/dllmopsa_utils_stubs.wasm \
 		-I$(OCAML_STDLIB)
 
-$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: backend/wasm/c_parser_stubs.c
-	@echo "Building dllmopsa_c_parser_stubs.wasm..."
-	@mkdir -p $(DIST_DIR)
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		backend/wasm/c_parser_stubs.c \
-		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-		-I$(OCAML_STDLIB)
-
 # Build stub GMP/MPFR/Apron library for minimal MOPSA
 $(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
 	@echo "Building stub GMP/MPFR/Apron library..."
@@ -478,10 +470,16 @@ $(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
 		ln -sf dllgmp_caml.wasm dlloctMPQ_caml.wasm && \
 		ln -sf dllgmp_caml.wasm dllpolkaMPQ_caml.wasm
 
-# Clang parser library (Clang_to_ml.cc + libclang-cpp + libLLVM)
+# Clang parser library sources
 CLANG_TO_ML_SRC := mopsa-analyzer/parsers/c/lib/parser/Clang_to_ml.cc
 CLANG_TO_ML_OBJ := $(BUILD_DIR)/Clang_to_ml.o
-CLANG_CXXFLAGS := -std=c++17 -fno-exceptions -fno-rtti \
+C_PARSER_STUBS_SRC := backend/wasm/c_parser_stubs.c
+C_PARSER_STUBS_OBJ := $(BUILD_DIR)/c_parser_stubs.o
+
+# Note: We use -fno-inline to force inline functions from Clang headers to be
+# emitted in the object file. Without this, SIDE_MODULE linking fails because
+# inline methods like SourceLocation::getRawEncoding() are not found.
+CLANG_CXXFLAGS := -std=c++17 -fno-exceptions -fno-rtti -fno-inline \
 	-I$(LLVM_INSTALL_DIR)/include \
 	-I$(OCAML_STDLIB) \
 	-I$(shell opam var lib)/zarith \
@@ -496,13 +494,21 @@ $(CLANG_TO_ML_OBJ): $(CLANG_TO_ML_SRC) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
 	$(EMCC) -c $(EMCC_SIDE_MODULE) -x c++ $(CLANG_CXXFLAGS) \
 		-o $(CLANG_TO_ML_OBJ) $(CLANG_TO_ML_SRC)
 
-# Combined Clang parser library (includes Clang_to_ml + all Clang/LLVM dependencies)
-# Link all the Clang libraries we built
-$(DIST_DIR)/dllclang_parser.wasm: $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
-	@echo "Linking dllclang_parser.wasm (combined Clang library)..."
+$(C_PARSER_STUBS_OBJ): $(C_PARSER_STUBS_SRC)
+	@echo "Compiling c_parser_stubs.c..."
+	@mkdir -p $(BUILD_DIR)
+	$(EMCC) -c $(EMCC_SIDE_MODULE) \
+		-I$(OCAML_STDLIB) \
+		-o $(C_PARSER_STUBS_OBJ) $(C_PARSER_STUBS_SRC)
+
+# Combined C parser library (includes c_parser_stubs + Clang_to_ml + all Clang/LLVM dependencies)
+# This is what OCaml bytecode expects as dllmopsa_c_parser_stubs
+$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
+	@echo "Linking dllmopsa_c_parser_stubs.wasm (combined C parser + Clang library)..."
 	@mkdir -p $(DIST_DIR)
 	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(DIST_DIR)/dllclang_parser.wasm \
+		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
+		$(C_PARSER_STUBS_OBJ) \
 		$(CLANG_TO_ML_OBJ) \
 		-L$(LLVM_INSTALL_DIR)/lib \
 		-Wl,--whole-archive \
@@ -511,7 +517,9 @@ $(DIST_DIR)/dllclang_parser.wasm: $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/lib
 		-Wl,--no-whole-archive \
 		-lstdc++ \
 		-sALLOW_MEMORY_GROWTH=1
-	@echo "Clang parser library built successfully"
+	@echo "C parser library built successfully"
+	@# Create symlink for backward compatibility
+	@cd $(DIST_DIR) && ln -sf dllmopsa_c_parser_stubs.wasm dllclang_parser.wasm
 
 #==============================================================================
 # TypeScript

@@ -1,7 +1,3 @@
-/*
- * Dummy stubs for C parser functions
- */
-
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

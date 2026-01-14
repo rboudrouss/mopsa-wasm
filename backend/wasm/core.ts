@@ -435,8 +435,9 @@ export class MopsaPod extends EventEmitter {
             throw e;
         }
 
-        console.log('Loading mopsa_c_parser_stubs...');
+        console.log('Loading mopsa_c_parser_stubs (includes Clang parser)...');
         // Load mopsa_c_parser_stubs with JavaScript functions
+        // This library now includes both mopsa_emit and the Clang parser (mlclang_*)
         const mopsaCParserReloc = {
             js: {
                 ...C_LIBRARY_STUBS,
@@ -455,36 +456,12 @@ export class MopsaPod extends EventEmitter {
                 `${bin}/dllmopsa_c_parser_stubs.wasm`,
                 mopsaCParserReloc
             );
-            console.log('mopsa_c_parser_stubs loaded');
+            console.log('mopsa_c_parser_stubs loaded (with Clang parser)');
         } catch (e) {
             console.error('Failed to load mopsa_c_parser_stubs:', e);
             throw e;
         }
 
-        console.log('Loading Clang parser library...');
-        // Load Clang parser library (Clang_to_ml.cc + libclang-cpp + libLLVM)
-        try {
-            await this.core.proc.dyld.preload(
-                'dllclang_parser',
-                `${bin}/dllclang_parser.wasm`,
-                { js: C_LIBRARY_STUBS }
-            );
-            await this.core.proc.dyld.preload(
-                'dllclang_parser.so',
-                `${bin}/dllclang_parser.wasm`,
-                { js: C_LIBRARY_STUBS }
-            );
-            console.log('Clang parser library loaded');
-        } catch (e) {
-            console.error('Failed to load Clang parser library:', e);
-            console.warn('C parsing with Clang will not be available');
-            // Don't throw - allow MOPSA to run without Clang if needed
-        }
-
-        console.log('');
-        console.log('NOTE: This is a minimal MOPSA build with stub numerical libraries');
-        console.log('Full GMP/MPFR/Apron functionality is not available');
-        console.log('');
     }
 
     private _handleEmit(ptr: i32): void {
