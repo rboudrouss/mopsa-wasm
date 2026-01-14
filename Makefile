@@ -16,7 +16,7 @@
 #   make clean        # Clean build artifacts
 #   make serve        # Start demo server
 
-.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend share
+.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend share clang llvm-patch
 .SILENT: check-env
 
 # Directories
@@ -88,18 +88,41 @@ deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.w
 # LLVM/Clang libraries
 #==============================================================================
 
+# Convenience target for building Clang libraries
+clang: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(LLVM_INSTALL_DIR)/lib/libLLVMCore.a
+	@echo "Clang/LLVM libraries built successfully"
+
 # Build LLVM and Clang libraries for WebAssembly
 # Two-stage build:
-# 1. Native build for llvm-tblgen and clang-tblgen
-# 2. Cross-compile with Emscripten using native tools
+# 1. Apply patches for GCC 11 / Emscripten compatibility
+# 2. Native build for llvm-tblgen and clang-tblgen
+# 3. Cross-compile with Emscripten using native tools
 
 LLVM_NATIVE_BUILD := $(LLVM_BUILD_DIR)/native
 CLANG_LIBS := clangBasic clangLex clangAST clangParse clangFrontend clangSema
 LLVM_CORE_LIBS := LLVMCore LLVMSupport
+LLVM_PATCH := gcc_11_llvm_patch.diff
+LLVM_PATCH_MARKER := llvm-project/.patched
+
+# Apply GCC 11 / Emscripten compatibility patches to LLVM
+$(LLVM_PATCH_MARKER): $(LLVM_PATCH)
+	@echo "Checking if LLVM patch needs to be applied..."
+	@cd llvm-project && \
+		if git apply --check ../$(LLVM_PATCH) 2>/dev/null; then \
+			echo "Applying GCC 11 / Emscripten compatibility patch..."; \
+			git apply ../$(LLVM_PATCH); \
+			echo "Patch applied successfully"; \
+		else \
+			echo "Patch already applied or not needed"; \
+		fi
+	@touch $(LLVM_PATCH_MARKER)
+
+# Convenience target to apply LLVM patch manually
+llvm-patch: $(LLVM_PATCH_MARKER)
 
 # Stage 1: Build native tools (llvm-tblgen, clang-tblgen)
 # Use GCC 11 for compatibility with LLVM 8.0.1 (GCC 15 is too new)
-$(LLVM_NATIVE_BUILD)/bin/llvm-tblgen: llvm-project/llvm/CMakeLists.txt
+$(LLVM_NATIVE_BUILD)/bin/llvm-tblgen: llvm-project/llvm/CMakeLists.txt $(LLVM_PATCH_MARKER)
 	@echo "Building native LLVM tools (llvm-tblgen, clang-tblgen)..."
 	@echo "Using GCC 11 for compatibility with LLVM 8.0.1..."
 	@mkdir -p $(LLVM_NATIVE_BUILD)

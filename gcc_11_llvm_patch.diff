@@ -1,0 +1,35 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 00000000000..d16386367f7
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1 @@
++build/
+\ No newline at end of file
+diff --git a/llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h b/llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
+index 9e3478e9fd2..efd55339418 100644
+--- a/llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
++++ b/llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
+@@ -4,6 +4,8 @@
+ #include "llvm/Demangle/Compiler.h"
+ #include "llvm/Demangle/StringView.h"
+ #include <array>
++#include <cstdint>
++#include <string>
+ 
+ class OutputStream;
+ 
+diff --git a/llvm/lib/Support/Unix/Path.inc b/llvm/lib/Support/Unix/Path.inc
+index de79d06dc9f..0152df4d803 100644
+--- a/llvm/lib/Support/Unix/Path.inc
++++ b/llvm/lib/Support/Unix/Path.inc
+@@ -445,6 +445,9 @@ static bool is_local_impl(struct STATVFS &Vfs) {
+ #elif defined(__HAIKU__)
+   // Haiku doesn't expose this information.
+   return false;
++#elif defined(__EMSCRIPTEN__)
++  // Emscripten doesn't have real filesystem mount info.
++  return true;
+ #elif defined(__sun)
+   // statvfs::f_basetype contains a null-terminated FSType name of the mounted target
+   StringRef fstype(Vfs.f_basetype);
