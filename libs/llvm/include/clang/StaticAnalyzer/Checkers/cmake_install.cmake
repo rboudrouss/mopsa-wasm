@@ -1,8 +1,8 @@
-# Install script for directory: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/StaticAnalyzer/Checkers
+# Install script for directory: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/StaticAnalyzer/Checkers
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/rboudrouss/Documents/mopsa-wasm/libs/llvm")
+  set(CMAKE_INSTALL_PREFIX "/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/libs/llvm")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,6 +40,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/StaticAnalyzer/Checkers/install_local_manifest.txt"
+  file(WRITE "/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/StaticAnalyzer/Checkers/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

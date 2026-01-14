@@ -1,8 +1,8 @@
-# Install script for directory: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang
+# Install script for directory: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/rboudrouss/Documents/mopsa-wasm/libs/llvm")
+  set(CMAKE_INSTALL_PREFIX "/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/libs/llvm")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -39,19 +39,19 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/AST/cmake_install.cmake")
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Basic/cmake_install.cmake")
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver/cmake_install.cmake")
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Parse/cmake_install.cmake")
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Sema/cmake_install.cmake")
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Serialization/cmake_install.cmake")
-  include("/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/StaticAnalyzer/Checkers/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/AST/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Basic/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Parse/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Sema/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Serialization/cmake_install.cmake")
+  include("/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/StaticAnalyzer/Checkers/cmake_install.cmake")
 
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/tools/clang/include/clang/install_local_manifest.txt"
+  file(WRITE "/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
