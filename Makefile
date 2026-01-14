@@ -402,7 +402,7 @@ $(DIST_DIR)/mopsa_worker.bc: backend/wasm/mopsa_worker.ml
 # WASM stubs
 #==============================================================================
 
-wasm: $(DIST_DIR)/dllmopsa_utils_stubs.wasm \
+wasm: $(DIST_DIR)/dllmopsa_utils_stubs.wasm $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
       $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp_caml.wasm \
       $(DIST_DIR)/dllclang_parser.wasm
 
@@ -427,6 +427,14 @@ $(DIST_DIR)/dllmopsa_utils_stubs.wasm: mopsa-analyzer/utils/itvUtils/floats_roun
 	$(EMCC) $(EMCC_SIDE_MODULE) \
 		mopsa-analyzer/utils/itvUtils/floats_round.c \
 		-o $(DIST_DIR)/dllmopsa_utils_stubs.wasm \
+		-I$(OCAML_STDLIB)
+
+$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: backend/wasm/c_parser_stubs.c
+	@echo "Building dllmopsa_c_parser_stubs.wasm..."
+	@mkdir -p $(DIST_DIR)
+	$(EMCC) $(EMCC_SIDE_MODULE) \
+		backend/wasm/c_parser_stubs.c \
+		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
 		-I$(OCAML_STDLIB)
 
 # Build stub GMP/MPFR/Apron library for minimal MOPSA
