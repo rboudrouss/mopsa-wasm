@@ -370,7 +370,12 @@ export class MopsaPod extends EventEmitter {
 
         console.log('Loading zarith...');
         // Load zarith (required by many OCaml libraries)
+        // OCaml runtime looks up libraries without .so extension
         try {
+            await this.core.proc.dyld.preload(
+                'dllzarith',
+                `${bin}/dllzarith.wasm`
+            );
             await this.core.proc.dyld.preload(
                 'dllzarith.so',
                 `${bin}/dllzarith.wasm`
@@ -385,22 +390,27 @@ export class MopsaPod extends EventEmitter {
         // Load stub implementations of GMP/MPFR/Apron
         // All these libraries are actually the same stub file
         // but we need to register them under different names
-        const stubLibs = [
-            'dllgmp_caml.so',
-            'dllapron_caml.so',
-            'dllboxMPQ_caml.so',
-            'dlloctMPQ_caml.so',
-            'dllpolkaMPQ_caml.so'
+        // OCaml runtime looks up libraries without .so extension
+        const stubLibNames = [
+            'dllgmp_caml',
+            'dllapron_caml',
+            'dllboxMPQ_caml',
+            'dlloctMPQ_caml',
+            'dllpolkaMPQ_caml'
         ];
 
-        for (const lib of stubLibs) {
+        for (const libName of stubLibNames) {
             try {
                 await this.core.proc.dyld.preload(
-                    lib,
+                    libName,
+                    `${bin}/dllgmp_caml.wasm`  // All use the same stub file
+                );
+                await this.core.proc.dyld.preload(
+                    `${libName}.so`,
                     `${bin}/dllgmp_caml.wasm`  // All use the same stub file
                 );
             } catch (e) {
-                console.error(`Failed to load ${lib}:`, e);
+                console.error(`Failed to load ${libName}:`, e);
                 throw e;
             }
         }
@@ -409,6 +419,11 @@ export class MopsaPod extends EventEmitter {
         console.log('Loading MOPSA utility stubs...');
         // Load MOPSA utility stubs with C library stubs
         try {
+            await this.core.proc.dyld.preload(
+                'dllmopsa_utils_stubs',
+                `${bin}/dllmopsa_utils_stubs.wasm`,
+                { js: C_LIBRARY_STUBS }
+            );
             await this.core.proc.dyld.preload(
                 'dllmopsa_utils_stubs.so',
                 `${bin}/dllmopsa_utils_stubs.wasm`,
@@ -422,17 +437,23 @@ export class MopsaPod extends EventEmitter {
 
         console.log('Loading mopsa_c_parser_stubs...');
         // Load mopsa_c_parser_stubs with JavaScript functions
+        const mopsaCParserReloc = {
+            js: {
+                ...C_LIBRARY_STUBS,
+                js_mopsa_emit: (s: i32) => this._handleEmit(s),
+                js_interrupt_pending: (_: i32) => this._interrupt_pending(),
+            }
+        };
         try {
+            await this.core.proc.dyld.preload(
+                'dllmopsa_c_parser_stubs',
+                `${bin}/dllmopsa_c_parser_stubs.wasm`,
+                mopsaCParserReloc
+            );
             await this.core.proc.dyld.preload(
                 'dllmopsa_c_parser_stubs.so',
                 `${bin}/dllmopsa_c_parser_stubs.wasm`,
-                {
-                    js: {
-                        ...C_LIBRARY_STUBS,
-                        js_mopsa_emit: (s: i32) => this._handleEmit(s),
-                        js_interrupt_pending: (_: i32) => this._interrupt_pending(),
-                    }
-                }
+                mopsaCParserReloc
             );
             console.log('mopsa_c_parser_stubs loaded');
         } catch (e) {
@@ -443,6 +464,11 @@ export class MopsaPod extends EventEmitter {
         console.log('Loading Clang parser library...');
         // Load Clang parser library (Clang_to_ml.cc + libclang-cpp + libLLVM)
         try {
+            await this.core.proc.dyld.preload(
+                'dllclang_parser',
+                `${bin}/dllclang_parser.wasm`,
+                { js: C_LIBRARY_STUBS }
+            );
             await this.core.proc.dyld.preload(
                 'dllclang_parser.so',
                 `${bin}/dllclang_parser.wasm`,
