@@ -446,7 +446,7 @@ export class MopsaPod extends EventEmitter {
                 js_interrupt_pending: (_: i32) => this._interrupt_pending(),
             },
             // Provide WASI imports for modules compiled with WASI-SDK
-            wasi_snapshot_preview1: this.core.proc.wasi.wasiImport
+            wasi_snapshot_preview1: this.core.wasi.wasiImport
         };
         try {
             await this.core.proc.dyld.preload(
