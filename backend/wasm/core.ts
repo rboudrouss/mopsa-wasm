@@ -438,12 +438,15 @@ export class MopsaPod extends EventEmitter {
         console.log('Loading mopsa_c_parser_stubs (includes Clang parser)...');
         // Load mopsa_c_parser_stubs with JavaScript functions
         // This library now includes both mopsa_emit and the Clang parser (mlclang_*)
+        // Since this module is compiled with WASI-SDK, it needs WASI imports
         const mopsaCParserReloc = {
             js: {
                 ...C_LIBRARY_STUBS,
                 js_mopsa_emit: (s: i32) => this._handleEmit(s),
                 js_interrupt_pending: (_: i32) => this._interrupt_pending(),
-            }
+            },
+            // Provide WASI imports for modules compiled with WASI-SDK
+            wasi_snapshot_preview1: this.core.proc.wasi.wasiImport
         };
         try {
             await this.core.proc.dyld.preload(
