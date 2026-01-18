@@ -12,4 +12,4 @@
 	url = git@github.com:xavierleroy/camlidl.git
 [submodule "llvm-project"]
 	path = llvm-project
-	url = git@github.com:binji/llvm-project.git
+	url = git@github.com:rboudrouss/llvm-project-wasm.git
