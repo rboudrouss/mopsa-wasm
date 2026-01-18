@@ -439,11 +439,57 @@ export class MopsaPod extends EventEmitter {
         // Load mopsa_c_parser_stubs with JavaScript functions
         // This library now includes both mopsa_emit and the Clang parser (mlclang_*)
         // Since this module is compiled with WASI-SDK, it needs WASI imports
+        //
+        // IMPORTANT: dllmopsa_c_parser_stubs.wasm imports ml_z_of_substring_base from zarith.
+        // The dyld doesn't automatically resolve symbols from previously loaded libraries,
+        // so we need to provide a JS stub that forwards to the zarith instance.
+        // The zarith instance is lazily resolved when the function is called.
+        const getZarithExport = (name: string): Function => {
+            const dylibTable = (this.core.proc.dyld as any).dylibTable;
+            if (!dylibTable) {
+                console.error('dyld table not initialized');
+                return () => 0;
+            }
+
+            // First, check if zarith is already instantiated
+            for (const [, ref] of dylibTable.ref.entries()) {
+                if (ref.def?.metadata?.path?.includes('zarith') && ref.instance) {
+                    const exp = ref.instance.exports[name];
+                    if (exp instanceof Function) {
+                        return exp;
+                    }
+                }
+            }
+
+            // Zarith not instantiated yet - force instantiation
+            // Find the zarith definition and instantiate it
+            const zarithDef = dylibTable.def.get('dllzarith') || dylibTable.def.get('dllzarith.so');
+            if (zarithDef) {
+                console.log('Force-instantiating zarith for ml_z_of_substring_base');
+                const instance = zarithDef.instantiate(this.core);
+                const handle = dylibTable.ref.size + 1;
+                dylibTable.ref.set(handle, { def: zarithDef, instance });
+                const exp = instance.exports[name];
+                if (exp instanceof Function) {
+                    return exp;
+                }
+            }
+
+            console.error(`Zarith export ${name} not found`);
+            return () => 0;
+        };
+
         const mopsaCParserReloc = {
             js: {
                 ...C_LIBRARY_STUBS,
                 js_mopsa_emit: (s: i32) => this._handleEmit(s),
                 js_interrupt_pending: (_: i32) => this._interrupt_pending(),
+                // Forward zarith function calls to the zarith instance
+                // These are called at runtime, after zarith has been instantiated
+                ml_z_of_substring_base: (b: i32, v: i32, offset: i32, length: i32) => {
+                    const fn = getZarithExport('ml_z_of_substring_base') as Function;
+                    return fn(b, v, offset, length);
+                },
             },
             // Provide WASI imports for modules compiled with WASI-SDK
             wasi_snapshot_preview1: this.core.wasi.wasiImport
