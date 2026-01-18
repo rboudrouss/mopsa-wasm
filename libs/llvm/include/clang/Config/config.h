@@ -78,6 +78,6 @@
 /* Enable each functionality of modules */
 #define CLANG_ENABLE_ARCMT 0
 #define CLANG_ENABLE_OBJC_REWRITER 0
-#define CLANG_ENABLE_STATIC_ANALYZER 0
+#define CLANG_ENABLE_STATIC_ANALYZER 1
 
 #endif
