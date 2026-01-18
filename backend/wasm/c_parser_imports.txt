@@ -1,0 +1,32 @@
+# Symbols that will be provided at runtime for dllmopsa_c_parser_stubs.wasm
+# This file is used with wasm-ld --allow-undefined-file to catch missing symbols at link time
+
+# JavaScript-provided functions
+js_mopsa_emit
+
+# OCaml runtime functions (provided by ocamlrun.wasm)
+caml_alloc
+caml_alloc_string
+caml_alloc_tuple
+caml_copy_int32
+caml_copy_int64
+caml_copy_string
+caml_failwith
+caml_modify
+caml_modify_generational_global_root
+caml_register_generational_global_root
+caml_register_global_root
+caml_remove_generational_global_root
+caml_remove_global_root
+caml_string_length
+Caml_state
+caml_atom_table
+
+# Zarith function (provided by dllzarith.wasm)
+ml_z_of_substring_base
+
+# Compiler builtins (provided by runtime or need to be linked)
+__multi3
+__udivti3
+__lttf2
+

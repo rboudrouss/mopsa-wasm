@@ -121,8 +121,16 @@ clang: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(LLVM_INSTALL_DIR)/lib/libLLVMCo
 
 LLVM_NATIVE_BUILD := $(LLVM_BUILD_DIR)/native
 LLVM_WASI_BUILD := $(LLVM_BUILD_DIR)/wasi
-CLANG_LIBS := clangBasic clangLex clangAST clangParse clangFrontend clangSema
-LLVM_CORE_LIBS := LLVMCore LLVMSupport
+# Clang libraries needed by Clang_to_ml.cc
+# Order matters for static linking - dependencies must come after dependents
+# Note: We include clangStaticAnalyzerCore because clang::ento symbols are referenced
+CLANG_LIBS := clangFrontend clangDriver clangSerialization clangParse clangSema \
+              clangAnalysis clangEdit clangStaticAnalyzerCore clangAST clangLex clangBasic
+# LLVM libraries needed by Clang libraries
+# Note: LLVMBitReader provides BitstreamCursor in LLVM 8.x
+# Include extra libs for common dependencies
+LLVM_LIBS := LLVMOption LLVMProfileData LLVMMCParser LLVMMC LLVMBitReader \
+             LLVMBinaryFormat LLVMDemangle LLVMCore LLVMSupport
 
 # Stage 1: Build native tools (llvm-tblgen, clang-tblgen)
 # Use GCC 11 for compatibility with LLVM 8.0.1 (GCC 15 is too new)
@@ -199,12 +207,12 @@ $(LLVM_INSTALL_DIR)/lib/libclangBasic.a: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen $(
 			-DCMAKE_SKIP_RPATH=ON \
 			-DCMAKE_SKIP_INSTALL_RPATH=ON \
 			-DCLANG_ENABLE_ARCMT=OFF \
-			-DCLANG_ENABLE_STATIC_ANALYZER=OFF \
+			-DCLANG_ENABLE_STATIC_ANALYZER=ON \
 			-DCLANG_BUILD_TOOLS=OFF \
 			-DCLANG_INCLUDE_TESTS=OFF
 	@echo "CMake configuration complete. Building libraries..."
 	cd $(LLVM_WASI_BUILD) && \
-		$(MAKE) -j$(NPROC) $(CLANG_LIBS) $(LLVM_CORE_LIBS)
+		$(MAKE) -j$(NPROC) $(CLANG_LIBS) $(LLVM_LIBS)
 	@echo "Copying libraries and headers to install directory..."
 	@mkdir -p $(LLVM_INSTALL_DIR)/lib
 	@mkdir -p $(LLVM_INSTALL_DIR)/include
@@ -533,13 +541,17 @@ $(C_PARSER_STUBS_OBJ): $(C_PARSER_STUBS_SRC)
 # This is what OCaml bytecode expects as dllmopsa_c_parser_stubs
 # Note: We use --export for each mlclang_* function because --export-dynamic alone
 # doesn't prevent dead code elimination for unreferenced symbols from object files.
-$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
+# Library order matters for static linking - dependencies must come after dependents.
+# Imports file lists symbols provided at runtime (OCaml runtime, JS, zarith)
+C_PARSER_IMPORTS := backend/wasm/c_parser_imports.txt
+
+$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(C_PARSER_IMPORTS)
 	@echo "Linking dllmopsa_c_parser_stubs.wasm with wasi-sdk..."
 	@mkdir -p $(DIST_DIR)
 	$(WASI_SDK_PATH)/bin/wasm-ld \
 		--no-entry \
 		--export-dynamic \
-		--allow-undefined \
+		--allow-undefined-file=$(C_PARSER_IMPORTS) \
 		--export=mlclang_parse \
 		--export=mlclang_get_target_info \
 		--export=mlclang_get_default_target_options \
@@ -551,9 +563,11 @@ $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OB
 		$(C_PARSER_STUBS_OBJ) \
 		$(CLANG_TO_ML_OBJ) \
 		--whole-archive \
-		-lclangFrontend -lclangParse -lclangSema -lclangAST -lclangLex -lclangBasic \
-		-lLLVMCore -lLLVMSupport \
-		--no-whole-archive \
+		-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema \
+		-lclangAnalysis -lclangEdit -lclangStaticAnalyzerCore -lclangAST -lclangLex -lclangBasic \
+		-lLLVMOption -lLLVMProfileData -lLLVMMCParser -lLLVMMC -lLLVMBitReader \
+		-lLLVMBinaryFormat -lLLVMDemangle -lLLVMCore -lLLVMSupport \
+		--no-whole-archive --error-limit=0 \
 		-lc++ -lc++abi -lc -lm
 	@echo "C parser library built successfully (WASI)"
 	@# Create symlink for backward compatibility
