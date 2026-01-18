@@ -531,6 +531,8 @@ $(C_PARSER_STUBS_OBJ): $(C_PARSER_STUBS_SRC)
 # Combined C parser library (includes c_parser_stubs + Clang_to_ml + all Clang/LLVM dependencies)
 # Built with wasi-sdk for WASI compatibility
 # This is what OCaml bytecode expects as dllmopsa_c_parser_stubs
+# Note: We use --export for each mlclang_* function because --export-dynamic alone
+# doesn't prevent dead code elimination for unreferenced symbols from object files.
 $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
 	@echo "Linking dllmopsa_c_parser_stubs.wasm with wasi-sdk..."
 	@mkdir -p $(DIST_DIR)
@@ -538,6 +540,11 @@ $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OB
 		--no-entry \
 		--export-dynamic \
 		--allow-undefined \
+		--export=mlclang_parse \
+		--export=mlclang_get_target_info \
+		--export=mlclang_get_default_target_options \
+		--export=mlclang_dump_block \
+		--export=mopsa_emit \
 		-L$(WASI_SYSROOT)/lib/wasm32-wasi \
 		-L$(LLVM_INSTALL_DIR)/lib \
 		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
