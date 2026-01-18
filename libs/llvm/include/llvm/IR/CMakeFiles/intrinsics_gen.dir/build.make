@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm
+CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/llvm
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build
+CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi
 
 # Utility rule file for intrinsics_gen.
 
@@ -70,158 +70,158 @@ include/llvm/IR/CMakeFiles/intrinsics_gen: include/llvm/IR/Attributes.inc
 include/llvm/IR/CMakeFiles/intrinsics_gen: include/llvm/IR/IntrinsicEnums.inc
 include/llvm/IR/CMakeFiles/intrinsics_gen: include/llvm/IR/IntrinsicImpl.inc
 
-include/llvm/IR/Attributes.inc: native/bin/llvm-tblgen
-include/llvm/IR/Attributes.inc: native/bin/llvm-tblgen
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
-include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building Attributes.inc..."
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR && ../../../native/bin/llvm-tblgen -gen-attrs -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td -o /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR/Attributes.inc
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
+include/llvm/IR/Attributes.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building Attributes.inc..."
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR && /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen -gen-attrs -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td -o /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR/Attributes.inc
 
-include/llvm/IR/IntrinsicEnums.inc: native/bin/llvm-tblgen
-include/llvm/IR/IntrinsicEnums.inc: native/bin/llvm-tblgen
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
-include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building IntrinsicEnums.inc..."
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR && ../../../native/bin/llvm-tblgen -gen-intrinsic-enums -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td -o /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR/IntrinsicEnums.inc
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
+include/llvm/IR/IntrinsicEnums.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building IntrinsicEnums.inc..."
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR && /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen -gen-intrinsic-enums -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td -o /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR/IntrinsicEnums.inc
 
-include/llvm/IR/IntrinsicImpl.inc: native/bin/llvm-tblgen
-include/llvm/IR/IntrinsicImpl.inc: native/bin/llvm-tblgen
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
-include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building IntrinsicImpl.inc..."
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR && ../../../native/bin/llvm-tblgen -gen-intrinsic-impl -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td -o /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR/IntrinsicImpl.inc
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
+include/llvm/IR/IntrinsicImpl.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building IntrinsicImpl.inc..."
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR && /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen -gen-intrinsic-impl -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td -o /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR/IntrinsicImpl.inc
 
 include/llvm/IR/CMakeFiles/intrinsics_gen.dir/codegen:
 .PHONY : include/llvm/IR/CMakeFiles/intrinsics_gen.dir/codegen
@@ -238,10 +238,10 @@ include/llvm/IR/CMakeFiles/intrinsics_gen.dir/build: intrinsics_gen
 .PHONY : include/llvm/IR/CMakeFiles/intrinsics_gen.dir/build
 
 include/llvm/IR/CMakeFiles/intrinsics_gen.dir/clean:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR && $(CMAKE_COMMAND) -P CMakeFiles/intrinsics_gen.dir/cmake_clean.cmake
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR && $(CMAKE_COMMAND) -P CMakeFiles/intrinsics_gen.dir/cmake_clean.cmake
 .PHONY : include/llvm/IR/CMakeFiles/intrinsics_gen.dir/clean
 
 include/llvm/IR/CMakeFiles/intrinsics_gen.dir/depend:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/include/llvm/IR/CMakeFiles/intrinsics_gen.dir/DependInfo.cmake "--color=$(COLOR)" intrinsics_gen
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboud/Documents/mopsa-wasm/llvm-project/llvm /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/IR/CMakeFiles/intrinsics_gen.dir/DependInfo.cmake "--color=$(COLOR)" intrinsics_gen
 .PHONY : include/llvm/IR/CMakeFiles/intrinsics_gen.dir/depend
 

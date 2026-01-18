@@ -21,7 +21,7 @@
 /* #undef LINK_POLLY_INTO_TOOLS */
 
 /* Target triple LLVM will generate code for by default */
-#define LLVM_DEFAULT_TARGET_TRIPLE "wasm32-unknown-emscripten"
+#define LLVM_DEFAULT_TARGET_TRIPLE "wasm32-wasi"
 
 /* Define if threads enabled */
 #define LLVM_ENABLE_THREADS 0

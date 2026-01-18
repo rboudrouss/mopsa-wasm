@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm
+CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/llvm
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build
+CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/bui
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool..."
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool for source..."
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && /usr/bin/cpack --config ./CPackSourceConfig.cmake
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && /usr/bin/cpack --config ./CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -107,7 +107,7 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target list_install_components
 list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"LLVMAggressiveInstCombine\" \"LLVMAnalysis\" \"LLVMAsmParser\" \"LLVMAsmPrinter\" \"LLVMBinaryFormat\" \"LLVMBitReader\" \"LLVMBitWriter\" \"LLVMCodeGen\" \"LLVMCore\" \"LLVMCoroutines\" \"LLVMCoverage\" \"LLVMDebugInfoCodeView\" \"LLVMDebugInfoDWARF\" \"LLVMDebugInfoMSF\" \"LLVMDebugInfoPDB\" \"LLVMDemangle\" \"LLVMDlltoolDriver\" \"LLVMExecutionEngine\" \"LLVMFuzzMutate\" \"LLVMGlobalISel\" \"LLVMIRReader\" \"LLVMInstCombine\" \"LLVMInstrumentation\" \"LLVMInterpreter\" \"LLVMLTO\" \"LLVMLibDriver\" \"LLVMLineEditor\" \"LLVMLinker\" \"LLVMMC\" \"LLVMMCA\" \"LLVMMCDisassembler\" \"LLVMMCJIT\" \"LLVMMCParser\" \"LLVMMIRParser\" \"LLVMObjCARCOpts\" \"LLVMObject\" \"LLVMObjectYAML\" \"LLVMOptRemarks\" \"LLVMOption\" \"LLVMOrcJIT\" \"LLVMPasses\" \"LLVMProfileData\" \"LLVMRuntimeDyld\" \"LLVMScalarOpts\" \"LLVMSelectionDAG\" \"LLVMSupport\" \"LLVMSymbolize\" \"LLVMTableGen\" \"LLVMTarget\" \"LLVMTextAPI\" \"LLVMTransformUtils\" \"LLVMVectorize\" \"LLVMWebAssemblyAsmParser\" \"LLVMWebAssemblyAsmPrinter\" \"LLVMWebAssemblyCodeGen\" \"LLVMWebAssemblyDesc\" \"LLVMWebAssemblyDisassembler\" \"LLVMWebAssemblyInfo\" \"LLVMWindowsManifest\" \"LLVMXRay\" \"LLVMipo\" \"LTO\" \"OptRemarks\" \"Unspecified\" \"c-index-test\" \"clang\" \"clang-extras\" \"clang-format\" \"clang-headers\" \"clang-include-fixer\" \"clang-rename\" \"clang-tidy\" \"clangAST\" \"clangASTMatchers\" \"clangAnalysis\" \"clangApplyReplacements\" \"clangBasic\" \"clangChangeNamespace\" \"clangCodeGen\" \"clangCrossTU\" \"clangDaemon\" \"clangDoc\" \"clangDriver\" \"clangDynamicASTMatchers\" \"clangEdit\" \"clangFormat\" \"clangFrontend\" \"clangFrontendTool\" \"clangHandleCXX\" \"clangHandleLLVM\" \"clangIncludeFixer\" \"clangIncludeFixerPlugin\" \"clangIndex\" \"clangLex\" \"clangMove\" \"clangParse\" \"clangQuery\" \"clangReorderFields\" \"clangRewrite\" \"clangRewriteFrontend\" \"clangSema\" \"clangSerialization\" \"clangTidy\" \"clangTidyAbseilModule\" \"clangTidyAndroidModule\" \"clangTidyBoostModule\" \"clangTidyBugproneModule\" \"clangTidyCERTModule\" \"clangTidyCppCoreGuidelinesModule\" \"clangTidyFuchsiaModule\" \"clangTidyGoogleModule\" \"clangTidyHICPPModule\" \"clangTidyLLVMModule\" \"clangTidyMiscModule\" \"clangTidyModernizeModule\" \"clangTidyObjCModule\" \"clangTidyPerformanceModule\" \"clangTidyPlugin\" \"clangTidyPortabilityModule\" \"clangTidyReadabilityModule\" \"clangTidyUtils\" \"clangTidyZirconModule\" \"clangTooling\" \"clangToolingASTDiff\" \"clangToolingCore\" \"clangToolingInclusions\" \"clangToolingRefactor\" \"cmake-exports\" \"diagtool\" \"find-all-symbols\" \"findAllSymbols\" \"libclang\" \"libclang-headers\" \"llvm-headers\" \"opt-viewer\""
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"LLVMAggressiveInstCombine\" \"LLVMAnalysis\" \"LLVMAsmParser\" \"LLVMAsmPrinter\" \"LLVMBinaryFormat\" \"LLVMBitReader\" \"LLVMBitWriter\" \"LLVMCodeGen\" \"LLVMCore\" \"LLVMCoroutines\" \"LLVMCoverage\" \"LLVMDebugInfoCodeView\" \"LLVMDebugInfoDWARF\" \"LLVMDebugInfoMSF\" \"LLVMDebugInfoPDB\" \"LLVMDemangle\" \"LLVMDlltoolDriver\" \"LLVMExecutionEngine\" \"LLVMFuzzMutate\" \"LLVMGlobalISel\" \"LLVMIRReader\" \"LLVMInstCombine\" \"LLVMInstrumentation\" \"LLVMInterpreter\" \"LLVMLTO\" \"LLVMLibDriver\" \"LLVMLineEditor\" \"LLVMLinker\" \"LLVMMC\" \"LLVMMCA\" \"LLVMMCDisassembler\" \"LLVMMCJIT\" \"LLVMMCParser\" \"LLVMMIRParser\" \"LLVMObjCARCOpts\" \"LLVMObject\" \"LLVMObjectYAML\" \"LLVMOptRemarks\" \"LLVMOption\" \"LLVMOrcJIT\" \"LLVMPasses\" \"LLVMProfileData\" \"LLVMRuntimeDyld\" \"LLVMScalarOpts\" \"LLVMSelectionDAG\" \"LLVMSupport\" \"LLVMSymbolize\" \"LLVMTableGen\" \"LLVMTarget\" \"LLVMTextAPI\" \"LLVMTransformUtils\" \"LLVMVectorize\" \"LLVMWebAssemblyAsmParser\" \"LLVMWebAssemblyAsmPrinter\" \"LLVMWebAssemblyCodeGen\" \"LLVMWebAssemblyDesc\" \"LLVMWebAssemblyDisassembler\" \"LLVMWebAssemblyInfo\" \"LLVMWindowsManifest\" \"LLVMXRay\" \"LLVMipo\" \"OptRemarks\" \"Unspecified\" \"c-index-test\" \"clang\" \"clang-extras\" \"clang-format\" \"clang-headers\" \"clang-include-fixer\" \"clang-rename\" \"clang-tidy\" \"clangAST\" \"clangASTMatchers\" \"clangAnalysis\" \"clangApplyReplacements\" \"clangBasic\" \"clangChangeNamespace\" \"clangCodeGen\" \"clangCrossTU\" \"clangDaemon\" \"clangDoc\" \"clangDriver\" \"clangDynamicASTMatchers\" \"clangEdit\" \"clangFormat\" \"clangFrontend\" \"clangFrontendTool\" \"clangHandleCXX\" \"clangHandleLLVM\" \"clangIncludeFixer\" \"clangIncludeFixerPlugin\" \"clangIndex\" \"clangLex\" \"clangMove\" \"clangParse\" \"clangQuery\" \"clangReorderFields\" \"clangRewrite\" \"clangRewriteFrontend\" \"clangSema\" \"clangSerialization\" \"clangTidy\" \"clangTidyAbseilModule\" \"clangTidyAndroidModule\" \"clangTidyBoostModule\" \"clangTidyBugproneModule\" \"clangTidyCERTModule\" \"clangTidyCppCoreGuidelinesModule\" \"clangTidyFuchsiaModule\" \"clangTidyGoogleModule\" \"clangTidyHICPPModule\" \"clangTidyLLVMModule\" \"clangTidyMiscModule\" \"clangTidyModernizeModule\" \"clangTidyObjCModule\" \"clangTidyPerformanceModule\" \"clangTidyPlugin\" \"clangTidyPortabilityModule\" \"clangTidyReadabilityModule\" \"clangTidyUtils\" \"clangTidyZirconModule\" \"clangTooling\" \"clangToolingASTDiff\" \"clangToolingCore\" \"clangToolingInclusions\" \"clangToolingRefactor\" \"cmake-exports\" \"diagtool\" \"find-all-symbols\" \"findAllSymbols\" \"libclang\" \"libclang-headers\" \"llvm-headers\" \"opt-viewer\""
 .PHONY : list_install_components
 
 # Special rule for the target list_install_components
@@ -152,14 +152,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/CMakeFiles /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Serialization//CMakeFiles/progress.marks
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/CMakeFiles 0
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -E cmake_progress_start /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Serialization//CMakeFiles/progress.marks
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/clean
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/clean
 .PHONY : clean
 
 # The main clean target
@@ -168,22 +168,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/preinstall
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/preinstall
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/rule:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/rule
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/rule
 .PHONY : tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/rule
 
 # Convenience name for target.
@@ -192,12 +192,12 @@ ClangAttrPCHRead: tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPC
 
 # fast build rule for target.
 ClangAttrPCHRead/fast:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/build.make tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/build
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/build.make tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHRead.dir/build
 .PHONY : ClangAttrPCHRead/fast
 
 # Convenience name for target.
 tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/rule:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/rule
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/rule
 .PHONY : tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/rule
 
 # Convenience name for target.
@@ -206,7 +206,7 @@ ClangAttrPCHWrite: tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrP
 
 # fast build rule for target.
 ClangAttrPCHWrite/fast:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(MAKE) $(MAKESILENT) -f tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/build.make tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/build
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(MAKE) $(MAKESILENT) -f tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/build.make tools/clang/include/clang/Serialization/CMakeFiles/ClangAttrPCHWrite.dir/build
 .PHONY : ClangAttrPCHWrite/fast
 
 # Help Target
@@ -236,6 +236,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

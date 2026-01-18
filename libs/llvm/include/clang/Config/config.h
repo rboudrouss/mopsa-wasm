@@ -58,7 +58,7 @@
 /* #undef CLANG_ANALYZER_WITH_Z3 */
 
 /* Define if we have sys/resource.h (rlimits) */
-#define CLANG_HAVE_RLIMITS 1
+/* #undef CLANG_HAVE_RLIMITS */
 
 /* The LLVM product name and version */
 #define BACKEND_PACKAGE_STRING "LLVM 8.0.1"

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm
+CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/llvm
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build
+CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi
 
 # Utility rule file for ClangDriverOptions.
 
@@ -68,45 +68,45 @@ include tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/progr
 
 tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions: tools/clang/include/clang/Driver/Options.inc
 
-tools/clang/include/clang/Driver/Options.inc: native/bin/llvm-tblgen
-tools/clang/include/clang/Driver/Options.inc: native/bin/llvm-tblgen
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver/CC1Options.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver/CLCompatOptions.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver/ClangOptionDocs.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver/Options.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
-tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver/Options.td
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building Options.inc..."
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver && ../../../../../native/bin/llvm-tblgen -gen-opt-parser-defs -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver -I /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver/Options.td -o /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver/Options.inc
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver/CC1Options.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver/CLCompatOptions.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver/ClangOptionDocs.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver/Options.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
+tools/clang/include/clang/Driver/Options.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver/Options.td
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building Options.inc..."
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Driver && /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/llvm-tblgen -gen-opt-parser-defs -I /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver/Options.td -o /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Driver/Options.inc
 
 tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/codegen:
 .PHONY : tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/codegen
@@ -121,10 +121,10 @@ tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/build: ClangD
 .PHONY : tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/build
 
 tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/clean:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver && $(CMAKE_COMMAND) -P CMakeFiles/ClangDriverOptions.dir/cmake_clean.cmake
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Driver && $(CMAKE_COMMAND) -P CMakeFiles/ClangDriverOptions.dir/cmake_clean.cmake
 .PHONY : tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/clean
 
 tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/depend:
-	cd /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/llvm /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/clang/include/clang/Driver /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver /home/rboud/Documents/mopsa-wasm2/mopsa-wasm/llvm-project/build/tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/DependInfo.cmake "--color=$(COLOR)" ClangDriverOptions
+	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboud/Documents/mopsa-wasm/llvm-project/llvm /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Driver /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Driver /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/DependInfo.cmake "--color=$(COLOR)" ClangDriverOptions
 .PHONY : tools/clang/include/clang/Driver/CMakeFiles/ClangDriverOptions.dir/depend
 

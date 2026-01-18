@@ -19,7 +19,7 @@
 /* Define to 1 if you have the `backtrace' function. */
 /* #undef HAVE_BACKTRACE */
 
-#define BACKTRACE_HEADER <backtrace.h>
+#define BACKTRACE_HEADER <execinfo.h>
 
 /* Define to 1 if you have the <CrashReporterClient.h> header file. */
 /* #undef HAVE_CRASHREPORTERCLIENT_H */
@@ -29,7 +29,7 @@
 
 /* Define to 1 if you have the declaration of `arc4random', and to 0 if you
    don't. */
-#define HAVE_DECL_ARC4RANDOM 0
+#define HAVE_DECL_ARC4RANDOM 1
 
 /* Define to 1 if you have the declaration of `FE_ALL_EXCEPT', and to 0 if you
    don't. */
@@ -53,7 +53,7 @@
 #define HAVE_DLOPEN 1
 
 /* Define if dladdr() is available on this platform. */
-#define HAVE_DLADDR 1
+/* #undef HAVE_DLADDR */
 
 /* Define to 1 if you have the <errno.h> header file. */
 #define HAVE_ERRNO_H 1
@@ -83,10 +83,10 @@
 #define HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `getrlimit' function. */
-#define HAVE_GETRLIMIT 1
+/* #undef HAVE_GETRLIMIT */
 
 /* Define to 1 if you have the `getrusage' function. */
-#define HAVE_GETRUSAGE 1
+/* #undef HAVE_GETRUSAGE */
 
 /* Define to 1 if you have the `isatty' function. */
 #define HAVE_ISATTY 1
@@ -113,7 +113,7 @@
 /* #undef HAVE_LIBZ */
 
 /* Define to 1 if you have the <link.h> header file. */
-#define HAVE_LINK_H 1
+/* #undef HAVE_LINK_H */
 
 /* Define to 1 if you have the `lseek64' function. */
 #define HAVE_LSEEK64 1
@@ -125,7 +125,7 @@
 /* #undef HAVE_MALLCTL */
 
 /* Define to 1 if you have the `mallinfo' function. */
-#define HAVE_MALLINFO 1
+/* #undef HAVE_MALLINFO */
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #define HAVE_MALLOC_H 1
@@ -140,7 +140,7 @@
 #define HAVE_POSIX_FALLOCATE 1
 
 /* Define to 1 if you have the `posix_spawn' function. */
-#define HAVE_POSIX_SPAWN 1
+/* #undef HAVE_POSIX_SPAWN */
 
 /* Define to 1 if you have the `pread' function. */
 #define HAVE_PREAD 1
@@ -173,13 +173,13 @@
 /* #undef HAVE_CPU_COUNT */
 
 /* Define to 1 if you have the `setrlimit' function. */
-#define HAVE_SETRLIMIT 1
+/* #undef HAVE_SETRLIMIT */
 
 /* Define to 1 if you have the `sigaltstack' function. */
-#define HAVE_SIGALTSTACK 1
+/* #undef HAVE_SIGALTSTACK */
 
 /* Define to 1 if you have the <signal.h> header file. */
-#define HAVE_SIGNAL_H 1
+/* #undef HAVE_SIGNAL_H */
 
 /* Define to 1 if you have the `strerror' function. */
 #define HAVE_STRERROR 1
@@ -194,13 +194,13 @@
 #define HAVE_SYS_IOCTL_H 1
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
-#define HAVE_SYS_MMAN_H 1
+/* #undef HAVE_SYS_MMAN_H */
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #define HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
-#define HAVE_SYS_RESOURCE_H 1
+/* #undef HAVE_SYS_RESOURCE_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -224,7 +224,7 @@
 /* #undef HAVE_LIBXAR */
 
 /* Define to 1 if you have the <termios.h> header file. */
-#define HAVE_TERMIOS_H 1
+/* #undef HAVE_TERMIOS_H */
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
@@ -242,7 +242,7 @@
 /* #undef HAVE__CHSIZE_S */
 
 /* Define to 1 if you have the `_Unwind_Backtrace' function. */
-#define HAVE__UNWIND_BACKTRACE 1
+/* #undef HAVE__UNWIND_BACKTRACE */
 
 /* Have host's __alloca */
 /* #undef HAVE___ALLOCA */
@@ -300,7 +300,7 @@
 
 /* Target triple LLVM will generate code for by default */
 /* Doesn't use `cmakedefine` because it is allowed to be empty. */
-#define LLVM_DEFAULT_TARGET_TRIPLE "wasm32-unknown-emscripten"
+#define LLVM_DEFAULT_TARGET_TRIPLE "wasm32-wasi"
 
 /* Define if zlib compression is available */
 #define LLVM_ENABLE_ZLIB 0
