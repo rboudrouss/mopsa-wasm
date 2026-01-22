@@ -17,7 +17,8 @@
 #   make clean        # Clean build artifacts
 #   make serve        # Start demo server
 
-.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend share clang llvm-patch
+.PHONY: all clean deps ocaml wasm ts serve check-env help frontend frontend-deps clean-frontend share clang llvm-patch clang-headers
+.DELETE_ON_ERROR:
 .SILENT: check-env
 
 # Directories
@@ -56,6 +57,7 @@ NPROC := $(shell nproc 2>/dev/null || echo 4)
 # Clang version (LLVM 8.0.1)
 CLANG_VERSION := 8
 CLANG_RESOURCE_DIR := $(LLVM_INSTALL_DIR)/lib/clang/$(CLANG_VERSION)
+CLANG_BUILTIN_HEADERS := llvm-project/clang/lib/Headers
 
 #==============================================================================
 # Main targets
@@ -66,16 +68,32 @@ all: deps ocaml wasm ts frontend summary
 help:
 	@echo "MOPSA WASM Build System"
 	@echo ""
-	@echo "Targets:"
+	@echo "Main targets:"
 	@echo "  all           - Build everything (default)"
-	@echo "  deps          - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
+	@echo "  deps          - Build stub libraries for GMP/MPFR/Apron (minimal)"
 	@echo "  ocaml         - Build OCaml bytecode"
-	@echo "  wasm          - Build WASM stubs"
+	@echo "  wasm          - Build all WASM modules (stubs + Clang parser)"
 	@echo "  ts            - Build TypeScript worker"
 	@echo "  frontend      - Build React frontend"
+	@echo "  serve         - Start demo server on port 8080"
+	@echo ""
+	@echo "Clang/LLVM targets (required for C parsing):"
+	@echo "  clang         - Build LLVM/Clang libraries for WASM"
+	@echo "  clang-headers - Install Clang builtin headers"
+	@echo ""
+	@echo "Other targets:"
+	@echo "  deps-full     - Build real GMP/MPFR/Apron (not stubs)"
 	@echo "  frontend-deps - Install frontend dependencies"
 	@echo "  clean         - Clean build artifacts"
-	@echo "  serve         - Start demo server on port 8080"
+	@echo "  clean-deps    - Clean native dependencies"
+	@echo "  clean-all     - Clean everything"
+	@echo "  check-env     - Check build environment"
+	@echo ""
+	@echo "Build order for C parsing support:"
+	@echo "  make clang    # Build LLVM/Clang (takes a while)"
+	@echo "  make wasm     # Build WASM modules including Clang parser"
+	@echo "  make ocaml    # Build OCaml bytecode"
+	@echo "  make ts       # Build TypeScript"
 
 #==============================================================================
 # Environment check (optional)
@@ -101,7 +119,15 @@ check-env:
 # Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
 #==============================================================================
 
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dllapron.wasm $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(LLVM_INSTALL_DIR)/lib/libLLVMCore.a
+# deps target builds ONLY stub libraries for GMP/MPFR/Apron (not the real ones)
+# Use 'make clang' separately to build LLVM/Clang for the C parser
+deps: stubs
+
+# Stub libraries for GMP/MPFR/Apron (these are minimal stubs, not real implementations)
+stubs: $(DIST_DIR)/dllgmp_caml.wasm
+
+# Full native dependencies (if you want to build real GMP/MPFR/Apron instead of stubs)
+deps-full: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dllapron.wasm
 
 #==============================================================================
 # LLVM/Clang libraries
@@ -230,8 +256,18 @@ $(LLVM_INSTALL_DIR)/lib/libclangBasic.a: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen $(
 
 $(LLVM_INSTALL_DIR)/lib/libLLVMCore.a: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
 
+# Copy Clang builtin headers to the resource directory
+# These are required by Clang to parse C code (stddef.h, stdint.h, etc.)
+clang-headers: $(CLANG_RESOURCE_DIR)/include/stddef.h
+
+$(CLANG_RESOURCE_DIR)/include/stddef.h: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
+	@echo "Copying Clang builtin headers to $(CLANG_RESOURCE_DIR)/include/..."
+	@mkdir -p $(CLANG_RESOURCE_DIR)/include
+	@cp -r $(CLANG_BUILTIN_HEADERS)/*.h $(CLANG_RESOURCE_DIR)/include/
+	@echo "Clang builtin headers installed"
+
 #==============================================================================
-# GMP, MPFR, and other dependencies
+# GMP, MPFR, and other dependencies (for deps-full target only)
 #==============================================================================
 
 # GMP library
@@ -452,9 +488,10 @@ $(DIST_DIR)/mopsa_worker.bc: backend/wasm/mopsa_worker.ml
 # WASM stubs
 #==============================================================================
 
+# WASM stubs target - builds all WASM modules needed for the runtime
+# Note: dllclang_parser.wasm is a symlink created by dllmopsa_c_parser_stubs.wasm rule
 wasm: $(DIST_DIR)/dllmopsa_utils_stubs.wasm $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp_caml.wasm \
-      $(DIST_DIR)/dllclang_parser.wasm
+      $(DIST_DIR)/dllcamlstr.wasm $(DIST_DIR)/dllzarith.wasm $(DIST_DIR)/dllgmp_caml.wasm
 
 # Copy OCaml runtime stubs from ocaml-wasm package
 $(DIST_DIR)/dllcamlstr.wasm: node_modules/ocaml-wasm/bin/dllcamlstr.wasm
@@ -539,13 +576,16 @@ $(C_PARSER_STUBS_OBJ): $(C_PARSER_STUBS_SRC)
 # Combined C parser library (includes c_parser_stubs + Clang_to_ml + all Clang/LLVM dependencies)
 # Built with wasi-sdk for WASI compatibility
 # This is what OCaml bytecode expects as dllmopsa_c_parser_stubs
-# Note: We use --export for each mlclang_* function because --export-dynamic alone
-# doesn't prevent dead code elimination for unreferenced symbols from object files.
-# Library order matters for static linking - dependencies must come after dependents.
-# Imports file lists symbols provided at runtime (OCaml runtime, JS, zarith)
+#
+# LINKAGE NOTES:
+# - --whole-archive is used BEFORE the .o files to ensure all symbols are kept
+# - Library order: Clang libs first (higher level), then LLVM libs (dependencies)
+# - --allow-undefined-file lists symbols provided at runtime (OCaml, JS, zarith)
+# - Clang builtin headers must be installed for parsing to work at runtime
 C_PARSER_IMPORTS := backend/wasm/c_parser_imports.txt
 
-$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(C_PARSER_IMPORTS)
+# Dependencies include clang-headers to ensure builtin headers are available
+$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(C_PARSER_IMPORTS) $(CLANG_RESOURCE_DIR)/include/stddef.h
 	@echo "Linking dllmopsa_c_parser_stubs.wasm with wasi-sdk..."
 	@mkdir -p $(DIST_DIR)
 	$(WASI_SDK_PATH)/bin/wasm-ld \
@@ -560,16 +600,17 @@ $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OB
 		-L$(WASI_SYSROOT)/lib/wasm32-wasi \
 		-L$(LLVM_INSTALL_DIR)/lib \
 		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
+		--whole-archive \
 		$(C_PARSER_STUBS_OBJ) \
 		$(CLANG_TO_ML_OBJ) \
-		--whole-archive \
 		-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema \
 		-lclangAnalysis -lclangEdit -lclangStaticAnalyzerCore -lclangAST -lclangLex -lclangBasic \
 		-lLLVMOption -lLLVMProfileData -lLLVMMCParser -lLLVMMC -lLLVMBitReader \
 		-lLLVMBinaryFormat -lLLVMDemangle -lLLVMCore -lLLVMSupport \
-		--no-whole-archive --error-limit=0 \
+		--no-whole-archive \
 		-lc++ -lc++abi -lc -lm
 	@echo "C parser library built successfully (WASI)"
+	@echo "Note: Clang builtin headers installed at $(CLANG_RESOURCE_DIR)/include/"
 	@# Create symlink for backward compatibility
 	@cd $(DIST_DIR) && ln -sf dllmopsa_c_parser_stubs.wasm dllclang_parser.wasm
 
@@ -626,7 +667,8 @@ share: $(DIST_DIR)/share.json
 # Summary and utilities
 #==============================================================================
 
-summary: $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp.wasm
+# summary depends on ocamlrun.wasm and the stub libraries (dllgmp_caml.wasm creates the symlinks)
+summary: $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp_caml.wasm
 	@echo ""
 	@echo "========================================="
 	@echo "Build Summary"
@@ -640,12 +682,22 @@ summary: $(DIST_DIR)/ocamlrun.wasm $(DIST_DIR)/dllgmp.wasm
 	@if [ -f "$(DIST_DIR)/ocamlrun.wasm" ]; then \
 		echo "ocamlrun.wasm: $$(du -h $(DIST_DIR)/ocamlrun.wasm | cut -f1)"; \
 	fi
+	@if [ -f "$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm" ]; then \
+		echo "dllmopsa_c_parser_stubs.wasm: $$(du -h $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm | cut -f1) (Clang parser)"; \
+	fi
 	@if [ -f "$(DIST_DIR)/index.html" ]; then \
 		echo "Frontend: Built (index.html present)"; \
 	fi
 	@echo ""
-	@echo "WASM stubs:"
+	@echo "WASM modules:"
 	@ls -lh $(DIST_DIR)/*.wasm 2>/dev/null | awk '{print "  " $$9 " (" $$5 ")"}' || echo "  (none)"
+	@echo ""
+	@echo "Clang resource directory: $(CLANG_RESOURCE_DIR)"
+	@if [ -d "$(CLANG_RESOURCE_DIR)/include" ]; then \
+		echo "  Builtin headers: installed"; \
+	else \
+		echo "  Builtin headers: NOT FOUND (run 'make clang-headers')"; \
+	fi
 	@echo ""
 	@echo "To test: make serve"
 	@echo "Then open: http://localhost:8080"
@@ -664,7 +716,6 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf $(BUILD_DIR)
 	@rm -rf $(DIST_DIR)
-	@rm -rf dist
 	@rm -f backend/wasm/mopsa_worker.bc
 	@rm -f backend/wasm/*.wasm
 
