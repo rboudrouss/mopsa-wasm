@@ -1,23 +1,22 @@
-# Makefile for MOPSA WebAssembly build
-# Replaces build-wasm.sh with proper dependency management
+# Makefile for MOPSA WebAssembly build (minimal version with stubs)
 #
 # Prerequisites:
 # - OCaml 4.12.0 or 4.13.x (opam switch 4.12.0)
 # - Node.js >= 18
 # - pnpm installed (npm install -g pnpm)
-# - Emscripten SDK sourced (source emsdk_env.sh)
+# - wasi-sdk installed (default: /opt/wasi-sdk)
 #
 # Usage:
 #   make              # Full build
-#   make deps         # Build native dependencies (GMP, MPFR, Apron)
 #   make ocaml        # Build OCaml bytecode only
 #   make wasm         # Build WASM stubs only
 #   make ts           # Build TypeScript only
 #   make clean        # Clean build artifacts
 #   make serve        # Start demo server
 
-.PHONY: all clean deps ocaml wasm ts serve check-env help
+.PHONY: all clean ocaml wasm ts serve check-env help
 .SILENT: check-env
+.DELETE_ON_ERROR:
 
 # Directories
 INSTALL_DIR := libs
@@ -25,18 +24,29 @@ LIBS_DIR := $(INSTALL_DIR)/lib
 DIST_DIR := dist
 BUILD_DIR := _build
 
+# WASI SDK configuration
+# Override WASI_SDK_PATH if installed elsewhere
+WASI_SDK_PATH ?= /opt/wasi-sdk
+WASI_CC := $(WASI_SDK_PATH)/bin/clang
+WASI_CXX := $(WASI_SDK_PATH)/bin/clang++
+WASI_AR := $(WASI_SDK_PATH)/bin/llvm-ar
+WASI_RANLIB := $(WASI_SDK_PATH)/bin/llvm-ranlib
+WASI_LD := $(WASI_SDK_PATH)/bin/wasm-ld
+WASI_SYSROOT := $(WASI_SDK_PATH)/share/wasi-sysroot
+
 # Tools
-EMCC := emcc
-EMCONFIGURE := emconfigure
-EMMAKE := emmake
 OPAM_EXEC := opam exec --
 PNPM := pnpm
 
 # OCaml paths
 OCAML_STDLIB := $(shell ocamlc -where)
 
-# Emscripten flags
-EMCC_SIDE_MODULE := -s SIDE_MODULE=1 -fPIC
+# WASI compilation flags for dynamic/relocatable modules
+# -fPIC: Position Independent Code (required for dynamic loading)
+# --target=wasm32-wasi: Target WASI
+# -fvisibility=default: Export all symbols by default
+WASI_CFLAGS := --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) -fPIC -fvisibility=default -O2
+WASI_LDFLAGS := -L$(WASI_SYSROOT)/lib/wasm32-wasi
 
 # Number of parallel jobs
 NPROC := $(shell nproc 2>/dev/null || echo 4)
@@ -45,19 +55,23 @@ NPROC := $(shell nproc 2>/dev/null || echo 4)
 # Main targets
 #==============================================================================
 
-all: deps ocaml wasm ts summary
+all: ocaml wasm ts summary
 
 help:
-	@echo "MOPSA WASM Build System"
+	@echo "MOPSA WASM Build System (WASI-SDK)"
 	@echo ""
-	@echo "Targets:"
+	@echo "Main targets:"
 	@echo "  all      - Build everything (default)"
-	@echo "  deps     - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
 	@echo "  ocaml    - Build OCaml bytecode"
 	@echo "  wasm     - Build WASM stubs"
 	@echo "  ts       - Build TypeScript"
 	@echo "  clean    - Clean build artifacts"
 	@echo "  serve    - Start demo server on port 8080"
+	@echo ""
+	@echo "Environment:"
+	@echo "  WASI_SDK_PATH - Path to wasi-sdk (default: /opt/wasi-sdk)"
+	@echo ""
+	@echo "Build order: ocaml -> wasm -> ts"
 
 #==============================================================================
 # Environment check (optional)
@@ -65,217 +79,18 @@ help:
 
 check-env:
 	@echo "Checking environment..."
-	@ocamlc -version
-	@node -v
-	@pnpm -v
-	@emcc -v | head -1
-
-#==============================================================================
-# Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
-#==============================================================================
-
-deps: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_caml.wasm $(LIBS_DIR)/dllapron_caml.wasm $(LIBS_DIR)/dllboxMPQ_caml.wasm $(LIBS_DIR)/dlloctMPQ_caml.wasm $(LIBS_DIR)/dllpolkaMPQ_caml.wasm $(LIBS_DIR)/dllapron.wasm
-
-# GMP library
-$(LIBS_DIR)/dllgmp.wasm: gmp-6.1.2/configure
-	@echo "Building GMP for WASM..."
-	@mkdir -p $(INSTALL_DIR)
-	cd gmp-6.1.2 && \
-		$(MAKE) clean 2>/dev/null || true && \
-		$(EMCONFIGURE) ./configure \
-			--disable-assembly \
-			--host=none \
-			--enable-cxx \
-			--prefix=$(CURDIR)/$(INSTALL_DIR) \
-			CFLAGS="-fPIC" \
-			CXXFLAGS="-fPIC" && \
-		$(EMMAKE) $(MAKE) -j$(NPROC) && \
-		$(EMMAKE) $(MAKE) install
-	@echo "Creating dllgmp.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dllgmp.wasm \
-		-Wl,--whole-archive $(LIBS_DIR)/libgmp.a -Wl,--no-whole-archive
-
-# MPFR library
-$(LIBS_DIR)/dllmpfr.wasm: $(LIBS_DIR)/dllgmp.wasm mpfr-4.2.2/configure
-	@echo "Building MPFR for WASM..."
-	cd mpfr-4.2.2 && \
-		$(MAKE) clean 2>/dev/null || true && \
-		touch aclocal.m4 configure && \
-		find . -name "Makefile.in" -exec touch {} \; && \
-		$(EMCONFIGURE) ./configure \
-			--host=none \
-			--with-gmp=$(CURDIR)/$(INSTALL_DIR) \
-			--prefix=$(CURDIR)/$(INSTALL_DIR) \
-			CFLAGS="-fPIC" \
-			LDFLAGS="-L$(CURDIR)/$(LIBS_DIR)" && \
-		$(EMMAKE) $(MAKE) -j$(NPROC) && \
-		$(EMMAKE) $(MAKE) install
-	@echo "Creating dllmpfr.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dllmpfr.wasm \
-		-Wl,--whole-archive $(LIBS_DIR)/libmpfr.a -Wl,--no-whole-archive \
-		-L$(LIBS_DIR) -lgmp
-
-# MLGMPIDL - OCaml bindings to GMP/MPFR (includes camlidl runtime)
-MLGMPIDL_MODULES := gmp_caml mpz_caml mpq_caml mpf_caml mpfr_caml gmp_random_caml
-MLGMPIDL_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/mlgmpidl
-
-$(LIBS_DIR)/dllgmp_caml.wasm: $(LIBS_DIR)/dllmpfr.wasm mlgmpidl/configure camlidl/runtime/camlidlruntime.h
-	@echo "Generating MLGMPIDL C stubs from IDL files..."
-	cd mlgmpidl && \
-		$(MAKE) clean 2>/dev/null || true && \
-		$(EMCONFIGURE) ./configure \
-			-prefix $(CURDIR)/$(INSTALL_DIR) \
-			-gmp-prefix $(CURDIR)/$(INSTALL_DIR) \
-			-mpfr-prefix $(CURDIR)/$(INSTALL_DIR) && \
-		$(MAKE) mpz_caml.c mpq_caml.c mpf_caml.c mpfr_caml.c gmp_random_caml.c
-	@echo "Compiling MLGMPIDL C stubs with emcc..."
-	@for module in $(MLGMPIDL_MODULES); do \
-		echo "  Compiling $$module.c..."; \
-		$(EMCC) -c $(EMCC_SIDE_MODULE) $(MLGMPIDL_CFLAGS) \
-			-o mlgmpidl/$$module.o mlgmpidl/$$module.c; \
-	done
-	@echo "Linking dllgmp_caml.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dllgmp_caml.wasm \
-		$(MLGMPIDL_CFLAGS) \
-		camlidl/runtime/idlalloc.c \
-		$(MLGMPIDL_MODULES:%=mlgmpidl/%.o) \
-		-L$(LIBS_DIR) -lgmp -lmpfr \
-		-sERROR_ON_UNDEFINED_SYMBOLS=0
-
-# Apron library and domains (C part only)
-$(LIBS_DIR)/libapron.a: $(LIBS_DIR)/dllmpfr.wasm apron/configure
-	@echo "Building Apron C libraries for WASM..."
-	cd apron && \
-		$(MAKE) clean 2>/dev/null || true && \
-		MPFR_PREFIX=$(CURDIR)/$(INSTALL_DIR) \
-		GMP_PREFIX=$(CURDIR)/$(INSTALL_DIR) \
-		$(EMCONFIGURE) ./configure \
-			-no-java -no-cxx -no-ppl -no-pplite \
-			-no-ocaml -no-strip \
-			-prefix $(CURDIR)/$(INSTALL_DIR) && \
-		$(EMMAKE) $(MAKE) -j$(NPROC) CFLAGS_EXTRA="-fPIC" CXXFLAGS_EXTRA="-fPIC" && \
-		$(EMMAKE) $(MAKE) install
-
-# MLAPRONIDL - OCaml bindings to Apron
-MLAPRONIDL_IDL := scalar interval coeff dim linexpr0 lincons0 generator0 texpr0 tcons0 manager abstract0 var environment linexpr1 lincons1 generator1 texpr1 tcons1 abstract1 policy disjunction version
-MLAPRONIDL_MODULES := $(MLAPRONIDL_IDL:%=%_caml) apron_caml
-MLAPRONIDL_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/mlgmpidl
-CAMLIDL := $(shell opam var bin)/camlidl
-PERL := /usr/bin/perl
-
-$(LIBS_DIR)/dllapron_caml.wasm: $(LIBS_DIR)/libapron.a apron/mlapronidl/Makefile
-	@echo "Generating MLAPRONIDL C stubs from IDL files..."
-	@cd apron/mlapronidl && \
-		for idl in $(MLAPRONIDL_IDL); do \
-			echo "  Generating $$idl from IDL..."; \
-			$(CAMLIDL) -no-include -prepro "$(PERL) macros.pl" $$idl.idl && \
-			$(PERL) perlscript_c.pl < $${idl}_stubs.c > $${idl}_caml.c && \
-			$(PERL) perlscript_caml.pl < $$idl.ml > $$idl.ml.tmp && mv $$idl.ml.tmp $$idl.ml && \
-			$(PERL) perlscript_caml.pl < $$idl.mli > $$idl.mli.tmp && mv $$idl.mli.tmp $$idl.mli; \
-		done
-	@echo "Compiling MLAPRONIDL C stubs with emcc..."
-	@for module in $(MLAPRONIDL_MODULES); do \
-		echo "  Compiling $$module.c..."; \
-		$(EMCC) -c $(EMCC_SIDE_MODULE) $(MLAPRONIDL_CFLAGS) \
-			-o apron/mlapronidl/$$module.o apron/mlapronidl/$$module.c; \
-	done
-	@echo "Linking dllapron_caml.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dllapron_caml.wasm \
-		$(MLAPRONIDL_CFLAGS) \
-		camlidl/runtime/idlalloc.c \
-		$(MLAPRONIDL_MODULES:%=apron/mlapronidl/%.o) \
-		-L$(LIBS_DIR) -lapron
-
-# Box domain OCaml bindings
-BOX_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/apron/box -I$(CURDIR)/mlgmpidl
-
-$(LIBS_DIR)/dllboxMPQ_caml.wasm: $(LIBS_DIR)/libboxMPQ.a $(LIBS_DIR)/dllapron_caml.wasm
-	@echo "Generating Box domain OCaml bindings..."
-	@cd apron/box && \
-		mkdir -p tmp && \
-		cp box.idl ../mlapronidl/*.idl tmp/ && \
-		cd tmp && $(CAMLIDL) -no-include -nocpp -I . box.idl && \
-		cd .. && \
-		$(PERL) ../mlapronidl/perlscript_c.pl < tmp/box_stubs.c > box_caml.c && \
-		$(PERL) perlscript_caml.pl < tmp/box.ml > box.ml && \
-		$(PERL) perlscript_caml.pl < tmp/box.mli > box.mli
-	@echo "Compiling Box domain C stubs with emcc..."
-	$(EMCC) -c $(EMCC_SIDE_MODULE) $(BOX_CFLAGS) -DNUM_MPQ \
-		-o apron/box/box_caml.o apron/box/box_caml.c
-	@echo "Linking dllboxMPQ_caml.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dllboxMPQ_caml.wasm \
-		$(BOX_CFLAGS) \
-		camlidl/runtime/idlalloc.c \
-		apron/box/box_caml.o \
-		-L$(LIBS_DIR) -l:libboxMPQ.a -l:libapron.a
-
-# Octagon domain OCaml bindings
-OCT_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/apron/octagons -I$(CURDIR)/mlgmpidl
-
-$(LIBS_DIR)/dlloctMPQ_caml.wasm: $(LIBS_DIR)/liboctMPQ.a $(LIBS_DIR)/dllapron_caml.wasm
-	@echo "Generating Octagon domain OCaml bindings..."
-	@cd apron/octagons && \
-		mkdir -p tmp && \
-		cp oct.idl ../mlapronidl/*.idl tmp/ && \
-		cd tmp && $(CAMLIDL) -no-include -nocpp -I . oct.idl && \
-		cd .. && \
-		$(PERL) perlscript_c.pl < tmp/oct_stubs.c > oct_caml.c && \
-		$(PERL) perlscript_caml.pl < tmp/oct.ml > oct.ml && \
-		$(PERL) perlscript_caml.pl < tmp/oct.mli > oct.mli
-	@echo "Compiling Octagon domain C stubs with emcc..."
-	$(EMCC) -c $(EMCC_SIDE_MODULE) $(OCT_CFLAGS) -DNUM_MPQ \
-		-o apron/octagons/oct_caml.o apron/octagons/oct_caml.c
-	@echo "Linking dlloctMPQ_caml.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dlloctMPQ_caml.wasm \
-		$(OCT_CFLAGS) \
-		camlidl/runtime/idlalloc.c \
-		apron/octagons/oct_caml.o \
-		-L$(LIBS_DIR) -l:liboctMPQ.a -l:libapron.a
-
-# Polka domain OCaml bindings
-POLKA_CFLAGS := -I$(OCAML_STDLIB) -I$(shell opam var lib)/camlidl -I$(CURDIR)/$(INSTALL_DIR)/include -I$(CURDIR)/apron/mlapronidl -I$(CURDIR)/apron/apron -I$(CURDIR)/apron/newpolka -I$(CURDIR)/mlgmpidl
-
-$(LIBS_DIR)/dllpolkaMPQ_caml.wasm: $(LIBS_DIR)/libpolkaMPQ.a $(LIBS_DIR)/dllapron_caml.wasm
-	@echo "Generating Polka domain OCaml bindings..."
-	@cd apron/newpolka && \
-		mkdir -p tmp && \
-		cp polka.idl ../mlapronidl/manager.idl tmp/ && \
-		cd tmp && $(CAMLIDL) -no-include -nocpp polka.idl && \
-		cd .. && \
-		cp tmp/polka_stubs.c polka_caml.c && \
-		$(PERL) perlscript_caml.pl < tmp/polka.ml > polka.ml && \
-		$(PERL) perlscript_caml.pl < tmp/polka.mli > polka.mli
-	@echo "Compiling Polka domain C stubs with emcc..."
-	$(EMCC) -c $(EMCC_SIDE_MODULE) $(POLKA_CFLAGS) -DNUM_MPQ \
-		-o apron/newpolka/polka_caml.o apron/newpolka/polka_caml.c
-	@echo "Linking dllpolkaMPQ_caml.wasm..."
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		-o $(LIBS_DIR)/dllpolkaMPQ_caml.wasm \
-		$(POLKA_CFLAGS) \
-		camlidl/runtime/idlalloc.c \
-		apron/newpolka/polka_caml.o \
-		-L$(LIBS_DIR) -l:libpolkaMPQ.a -l:libapron.a
-
-# Apron WASM modules for domains
-$(LIBS_DIR)/dllapron.wasm: $(LIBS_DIR)/dllapron_caml.wasm
-	@echo "Creating Apron domain WASM modules..."
-	@if [ -f "$(LIBS_DIR)/libboxMPQ.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dllboxMPQ.wasm -Wl,--whole-archive $(LIBS_DIR)/libboxMPQ.a -Wl,--no-whole-archive $(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
-	fi
-	@if [ -f "$(LIBS_DIR)/liboctMPQ.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dlloctMPQ.wasm -Wl,--whole-archive $(LIBS_DIR)/liboctMPQ.a -Wl,--no-whole-archive $(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
-	fi
-	@if [ -f "$(LIBS_DIR)/libpolkaMPQ.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dllpolkaMPQ.wasm -Wl,--whole-archive $(LIBS_DIR)/libpolkaMPQ.a -Wl,--no-whole-archive $(LIBS_DIR)/libapron.a $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
-	fi
-	@if [ -f "$(LIBS_DIR)/libapron.a" ]; then \
-		$(EMCC) $(EMCC_SIDE_MODULE) -o $(LIBS_DIR)/dllapron.wasm -Wl,--whole-archive $(LIBS_DIR)/libapron.a -Wl,--no-whole-archive $(LIBS_DIR)/libmpfr.a $(LIBS_DIR)/libgmp.a; \
+	@echo "OCaml: $$(ocamlc -version)"
+	@echo "Node.js: $$(node -v)"
+	@echo "pnpm: $$(pnpm -v)"
+	@echo ""
+	@echo "WASI SDK path: $(WASI_SDK_PATH)"
+	@if [ -d "$(WASI_SDK_PATH)" ]; then \
+		echo "  clang: $$($(WASI_CC) --version 2>&1 | head -1)"; \
+		echo "  wasm-ld: $$($(WASI_LD) --version 2>&1 | head -1)"; \
+	else \
+		echo "  WARNING: WASI SDK not found!"; \
+		echo "  Install from: https://github.com/WebAssembly/wasi-sdk/releases"; \
+		echo "  Or set WASI_SDK_PATH environment variable"; \
 	fi
 
 #==============================================================================
@@ -312,33 +127,62 @@ $(DIST_DIR)/dllzarith.wasm: node_modules/@ocaml-wasm/4.12--zarith/bin/dllzarith.
 	@mkdir -p $(DIST_DIR)
 	@cp node_modules/@ocaml-wasm/4.12--zarith/bin/dllzarith.wasm $(DIST_DIR)/
 
-# Build MOPSA-specific stubs
-$(DIST_DIR)/dllmopsa_utils_stubs.wasm: mopsa-analyzer/utils/itvUtils/floats_round.c
-	@echo "Building dllmopsa_utils_stubs.wasm..."
-	@mkdir -p $(DIST_DIR)
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		mopsa-analyzer/utils/itvUtils/floats_round.c \
-		-o $(DIST_DIR)/dllmopsa_utils_stubs.wasm \
-		-I$(OCAML_STDLIB)
+# Build MOPSA-specific stubs using WASI-SDK
+# These are built as WASM modules for dynamic loading by wasi-kernel
+#
+# LINKAGE NOTES:
+# - --no-entry: No _start function (library, not executable)
+# - --export-all: Export all defined symbols for dynamic loading
+# - --allow-undefined-file: Allow undefined symbols (resolved at runtime by OCaml/JS)
 
-$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: backend/wasm/c_parser_stubs.c
-	@echo "Building dllmopsa_c_parser_stubs.wasm..."
-	@mkdir -p $(DIST_DIR)
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		backend/wasm/c_parser_stubs.c \
+# File to list allowed undefined symbols for WASM stubs
+WASM_IMPORTS := backend/wasm/wasm_imports.txt
+
+# Use stub implementation of floats_round.c for WASI
+# (WASI doesn't support fenv.h rounding mode control)
+$(DIST_DIR)/dllmopsa_utils_stubs.wasm: backend/wasm/floats_round_stubs.c $(WASM_IMPORTS)
+	@echo "Building dllmopsa_utils_stubs.wasm with WASI-SDK (stub version)..."
+	@mkdir -p $(DIST_DIR) $(BUILD_DIR)
+	$(WASI_CC) $(WASI_CFLAGS) -c \
+		-I$(OCAML_STDLIB) \
+		-o $(BUILD_DIR)/floats_round_stubs.wasi.o \
+		backend/wasm/floats_round_stubs.c
+	$(WASI_LD) \
+		--no-entry \
+		--export-all \
+		--allow-undefined-file=$(WASM_IMPORTS) \
+		-o $(DIST_DIR)/dllmopsa_utils_stubs.wasm \
+		$(BUILD_DIR)/floats_round_stubs.wasi.o
+
+$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: backend/wasm/c_parser_stubs.c $(WASM_IMPORTS)
+	@echo "Building dllmopsa_c_parser_stubs.wasm with WASI-SDK..."
+	@mkdir -p $(DIST_DIR) $(BUILD_DIR)
+	$(WASI_CC) $(WASI_CFLAGS) -c \
+		-I$(OCAML_STDLIB) \
+		-o $(BUILD_DIR)/c_parser_stubs.wasi.o \
+		backend/wasm/c_parser_stubs.c
+	$(WASI_LD) \
+		--no-entry \
+		--export-all \
+		--allow-undefined-file=$(WASM_IMPORTS) \
 		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-		-I$(OCAML_STDLIB)
+		$(BUILD_DIR)/c_parser_stubs.wasi.o
 
 # Build stub GMP/MPFR/Apron library for minimal MOPSA
-$(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
-	@echo "Building stub GMP/MPFR/Apron library..."
-	@mkdir -p $(DIST_DIR)
-	$(EMCC) $(EMCC_SIDE_MODULE) \
-		backend/wasm/gmp_all_stubs.c \
-		-o $(DIST_DIR)/dllgmp_caml.wasm \
+$(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c $(WASM_IMPORTS)
+	@echo "Building stub GMP/MPFR/Apron library with WASI-SDK..."
+	@mkdir -p $(DIST_DIR) $(BUILD_DIR)
+	$(WASI_CC) $(WASI_CFLAGS) -c \
 		-I$(OCAML_STDLIB) \
 		-I$(shell opam var lib)/camlidl \
-		-sERROR_ON_UNDEFINED_SYMBOLS=0
+		-o $(BUILD_DIR)/gmp_all_stubs.wasi.o \
+		backend/wasm/gmp_all_stubs.c
+	$(WASI_LD) \
+		--no-entry \
+		--export-all \
+		--allow-undefined-file=$(WASM_IMPORTS) \
+		-o $(DIST_DIR)/dllgmp_caml.wasm \
+		$(BUILD_DIR)/gmp_all_stubs.wasi.o
 	@echo "Creating symlinks for other numerical libraries..."
 	@cd $(DIST_DIR) && \
 		ln -sf dllgmp_caml.wasm dllgmp.wasm && \
@@ -412,12 +256,4 @@ clean:
 	@rm -f backend/wasm/mopsa_worker.bc
 	@rm -f backend/wasm/*.wasm
 
-clean-deps:
-	@echo "Cleaning native dependencies..."
-	@cd gmp-6.1.2 && $(MAKE) clean 2>/dev/null || true
-	@cd mpfr-4.2.2 && $(MAKE) clean 2>/dev/null || true
-	@cd mlgmpidl && $(MAKE) clean 2>/dev/null || true
-	@cd apron && $(MAKE) clean 2>/dev/null || true
-	@rm -rf $(INSTALL_DIR)
 
-clean-all: clean clean-deps

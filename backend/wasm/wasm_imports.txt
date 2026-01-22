@@ -1,0 +1,69 @@
+# Symbols that will be provided at runtime for WASM stub modules
+# This file is used with wasm-ld --allow-undefined-file
+#
+# These symbols are resolved at runtime by:
+# - ocamlrun.wasm (OCaml runtime)
+# - JavaScript glue code (core.ts)
+
+# JavaScript-provided functions
+js_mopsa_emit
+js_interrupt_pending
+
+# OCaml runtime functions (provided by ocamlrun.wasm)
+# Memory allocation
+caml_alloc
+caml_alloc_string
+caml_alloc_tuple
+caml_alloc_small
+
+# Value conversion
+caml_copy_int32
+caml_copy_int64
+caml_copy_double
+caml_copy_string
+caml_string_length
+
+# Error handling
+caml_failwith
+caml_invalid_argument
+caml_raise_out_of_memory
+
+# GC roots management
+caml_modify
+caml_initialize
+
+# Runtime state
+Caml_state
+caml_atom_table
+
+# Custom blocks (for GMP/MPFR types)
+caml_alloc_custom
+caml_register_custom_operations
+
+# Math functions (may be stubbed or provided by runtime)
+fesetround
+fmod
+fmodf
+sqrt
+sqrtf
+rint
+rintf
+llrint
+lrint
+pow
+fmin
+fmax
+fminf
+fmaxf
+isinf
+
+# Standard C library (provided by WASI or stubbed)
+printf
+sprintf
+fprintf
+memcpy
+memset
+malloc
+free
+abort
+
