@@ -43,8 +43,15 @@ class ClangExecutable extends ExecCore {
         const codeBytes = this.encoder.encode(code);
         console.log('[ClangExecutable] Writing', codeBytes.length, 'bytes to stdin');
         stdinStream.write(codeBytes);
-        stdinStream.end();  // Signal end of input
-        console.log('[ClangExecutable] stdin write complete');
+
+        // SimplexStream has a bug: it uses a single 'pos' for both read and write.
+        // After writing N bytes, pos = N and after end(), length = N.
+        // Then when read() is called, pos >= length is true, so it returns 0 (EOF).
+        // We need to reset pos to 0 so reading can start from the beginning.
+        const bytesWritten = stdinStream.pos;
+        stdinStream.end();  // Signal end of input (sets length = pos)
+        stdinStream.pos = 0;  // Reset read position to beginning
+        console.log('[ClangExecutable] stdin write complete, bytes:', bytesWritten, 'length:', stdinStream.length);
     }
 
     private setupOutputCapture(): void {
