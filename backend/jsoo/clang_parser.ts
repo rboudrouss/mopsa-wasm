@@ -14,15 +14,35 @@ export interface ParseResult {
 
 /**
  * Clang executable wrapper using wasi-kernel
+ *
+ * We need to write the input file to the VFS BEFORE WASI is initialized,
+ * because WASI sets up file descriptors during init() and files written
+ * after that may not be accessible.
  */
 class ClangExecutable extends ExecCore {
     private stdoutData: string = '';
     private stderrData: string = '';
     private utf8 = new TextDecoder();
+    private inputCode: string = '';
 
-    constructor(opts: ExecCoreOptions) {
+    constructor(opts: ExecCoreOptions, inputCode: string) {
         super(opts);
+        this.inputCode = inputCode;
         console.log('[ClangExecutable] Constructor called');
+    }
+
+    /**
+     * Override populateRootFs to add our input file
+     * This is called by ExecCore constructor BEFORE init() creates the WASI instance
+     */
+    populateRootFs(): void {
+        // Call parent to create /home and /bin
+        super.populateRootFs();
+
+        // Write the input file - this happens BEFORE WASI is initialized
+        const inputPath = '/home/input.c';
+        this.wasmFs.fs.writeFileSync(inputPath, this.inputCode, { mode: 0o644 });
+        console.log('[ClangExecutable] Wrote input file during populateRootFs:', inputPath);
     }
 
     private setupOutputCapture(): void {
@@ -146,22 +166,34 @@ export class ClangParser {
         console.log('[ClangParser] Input:', code.substring(0, 100));
 
         // Create a new ClangExecutable instance for each parse
-        // Enable stdin so we can pipe the source code
+        // Pass the input code so it can be written during populateRootFs()
+        // BEFORE WASI is initialized - this is crucial for file access to work
+        const inputPath = '/home/input.c';
         const clang = new ClangExecutable({
-            stdin: true,  // Enable stdin
+            stdin: false,  // We don't need stdin - we'll use a file in the VFS
             tty: false,
             debug: true,  // Enable debug for now to see what's happening
-        });
+        }, code);
 
-        // Write the source code to stdin
-        // wasi-kernel uses /dev/stdin for stdin input
-        clang.fs.writeFileSync('/dev/stdin', code);
-        console.log('[ClangParser] Wrote code to /dev/stdin');
+        // Verify the file was written correctly
+        try {
+            const wasmFs = (clang as any).wasmFs;
+            const stats = wasmFs.fs.statSync(inputPath);
+            console.log('[ClangParser] File stats:', {
+                size: stats.size,
+                mode: stats.mode?.toString(8),
+                isFile: stats.isFile()
+            });
+            const homeContents = wasmFs.fs.readdirSync('/home');
+            console.log('[ClangParser] /home contents:', homeContents);
+        } catch (e) {
+            console.log('[ClangParser] File verification failed:', e);
+        }
 
         // Run clang with AST dump arguments
         // Use -cc1 mode directly (driver mode can't fork/exec in WASM)
-        // Use - to read from stdin
-        const args = ['clang', '-cc1', '-ast-dump', '-x', 'c', '-'];
+        const args = ['clang', '-cc1', '-ast-dump', '-x', 'c', inputPath];
+        console.log('[ClangParser] Args:', args);
         console.log('[ClangParser] Running:', args.join(' '));
 
         const result = await clang.runClang(this.wasmPath, args);
