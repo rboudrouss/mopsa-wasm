@@ -1,0 +1,30 @@
+; Build the OCaml worker as JavaScript using js_of_ocaml
+;
+; To build: dune build @mopsajs
+;
+; The js_of_ocaml compiler must be installed:
+;   opam install js_of_ocaml-compiler js_of_ocaml js_of_ocaml-ppx
+
+(executable
+ (name mopsa_worker)
+ (modes js)
+ (modules mopsa_worker)
+ (libraries mopsa.mopsa_analyzer js_of_ocaml zarith_stubs_js)
+ (preprocess (pps js_of_ocaml-ppx))
+ (js_of_ocaml
+  (javascript_files runtime.js)
+  (flags (:standard)))
+ (link_flags -linkall))
+
+; Copy index.html to build directory (it references mopsa_worker.bc.js)
+(rule
+ (target index_copy.html)
+ (deps index.html)
+ (action (copy index.html index_copy.html)))
+
+; Alias to build everything needed for the js_of_ocaml demo
+; After building, open _build/default/backend/jsoo/index.html in a browser
+(alias
+ (name mopsajs)
+ (deps mopsa_worker.bc.js index.html))
+

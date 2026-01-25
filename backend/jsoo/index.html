@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOPSA js_of_ocaml Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #252526;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #3e3e42;
+        }
+        h1 { font-size: 1.5rem; font-weight: 600; }
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        .panel {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .panel-header {
+            padding: 0.75rem 1rem;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+            font-weight: 600;
+        }
+        .panel-content { flex: 1; overflow: auto; padding: 1rem; }
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 1rem;
+            resize: none;
+            outline: none;
+        }
+        .controls {
+            padding: 1rem;
+            background: #2d2d30;
+            border-top: 1px solid #3e3e42;
+            display: flex;
+            gap: 0.5rem;
+        }
+        button {
+            padding: 0.5rem 1.5rem;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        button:hover { background: #1177bb; }
+        button:disabled { background: #3e3e42; cursor: not-allowed; }
+        #output {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .status {
+            padding: 0.5rem 1rem;
+            background: #2d2d30;
+            border-top: 1px solid #3e3e42;
+            font-size: 13px;
+            color: #858585;
+        }
+        .error { color: #f48771; }
+        .success { color: #89d185; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MOPSA js_of_ocaml Demo</h1>
+    </header>
+    <main>
+        <div class="panel">
+            <div class="panel-header">Universal Code</div>
+            <div class="panel-content">
+                <textarea id="code" placeholder="Enter Universal code here...">// Variable declarations
+int x = 10;
+int y = 0;
+int z;
+
+// Main code block
+if (y == 0) {
+    print();  // Print abstract state
+}
+
+z = x / y;  // Division by zero
+</textarea>
+            </div>
+            <div class="controls">
+                <button id="analyzeBtn" disabled>Analyze</button>
+                <button id="clearBtn">Clear</button>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Analysis Output</div>
+            <div class="panel-content">
+                <pre id="output">Loading MOPSA...</pre>
+            </div>
+        </div>
+    </main>
+    <div class="status" id="status">Initializing MOPSA js_of_ocaml...</div>
+    <script src="mopsa_worker.bc.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const codeInput = document.getElementById('code');
+        let isReady = false;
+
+        // Initialize MOPSA when the script loads
+        function initMopsa() {
+            try {
+                if (typeof MopsaWorker === 'undefined') {
+                    throw new Error('MopsaWorker not loaded');
+                }
+                const result = JSON.parse(MopsaWorker.init(''));
+                if (result.success) {
+                    isReady = true;
+                    status.textContent = 'MOPSA ready! Enter code and click Analyze.';
+                    status.className = 'status success';
+                    analyzeBtn.disabled = false;
+                    output.textContent = 'Ready. Click "Analyze" to start.';
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (e) {
+                status.textContent = 'Failed to initialize: ' + e.message;
+                status.className = 'status error';
+                output.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        // Analyze button handler
+        analyzeBtn.addEventListener('click', () => {
+            if (!isReady) return;
+            const code = codeInput.value.trim();
+            if (!code) {
+                output.textContent = 'Please enter some code to analyze.';
+                return;
+            }
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+            status.textContent = 'Running analysis...';
+            status.className = 'status';
+            output.textContent = 'Analyzing...';
+
+            try {
+                const result = JSON.parse(MopsaWorker.analyze(code));
+                if (result.success) {
+                    status.textContent = 'Analysis complete';
+                    status.className = 'status success';
+                    output.textContent = result.data ? JSON.parse(result.data) : result.message;
+                } else {
+                    status.textContent = 'Analysis failed';
+                    status.className = 'status error';
+                    output.textContent = result.data ? JSON.parse(result.data) : result.message;
+                }
+            } catch (e) {
+                status.textContent = 'Error: ' + e.message;
+                status.className = 'status error';
+                output.textContent = 'Error: ' + e.message;
+            }
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'Analyze';
+        });
+
+        // Clear button handler
+        clearBtn.addEventListener('click', () => {
+            codeInput.value = '';
+            output.textContent = 'Ready. Click "Analyze" to start.';
+            status.textContent = isReady ? 'MOPSA ready!' : 'Initializing...';
+            status.className = isReady ? 'status success' : 'status';
+        });
+
+        // Wait for script to load then initialize
+        if (document.readyState === 'complete') {
+            initMopsa();
+        } else {
+            window.addEventListener('load', initMopsa);
+        }
+    </script>
+</body>
+</html>
+

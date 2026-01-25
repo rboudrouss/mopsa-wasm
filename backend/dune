@@ -1,4 +1,4 @@
 ; Backend directory
-; Contains the WASM worker implementation
-(dirs wasm)
+; Contains the WASM and js_of_ocaml worker implementations
+(dirs wasm jsoo)
 
