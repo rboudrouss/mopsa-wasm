@@ -11,7 +11,6 @@ open Js_of_ocaml
 type command =
   | Init of string          (* Initialize with configuration *)
   | Analyze of string       (* Analyze code *)
-  | AnalyzeWithOptions of string * string list  (* Analyze with extra options *)
   | SetConfig of string     (* Set configuration JSON *)
   | SetCode of string       (* Set code to analyze *)
   | Stop                    (* Stop the worker *)
@@ -90,11 +89,11 @@ let run_mopsa_analysis _options =
   (exit_code, !mopsa_output)
 
 (* Analyze code *)
-let analyze_code ?(options=[]) code =
+let analyze_code code =
   try
     current_code := code;
     write_file code_file code;
-    let (exit_code, output) = run_mopsa_analysis options in
+    let (exit_code, output) = run_mopsa_analysis [] in
     let escaped_output = String.escaped output in
     if exit_code = 0 then
       { success = true;
@@ -157,7 +156,6 @@ let handle_request json_str =
     match parse_command json_str with
     | Some (Init config) -> serialize_response (init_mopsa config)
     | Some (Analyze code) -> serialize_response (analyze_code code)
-    | Some (AnalyzeWithOptions (code, options)) -> serialize_response (analyze_code ~options code)
     | Some (SetConfig config) ->
         current_config := config;
         write_file config_file config;

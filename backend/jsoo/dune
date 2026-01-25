@@ -12,7 +12,7 @@
  (libraries mopsa.mopsa_analyzer js_of_ocaml zarith_stubs_js)
  (preprocess (pps js_of_ocaml-ppx))
  (js_of_ocaml
-  (javascript_files runtime.js)
+  (javascript_files runtime.js floats_round.js)
   (flags (:standard)))
  (link_flags -linkall))
 
