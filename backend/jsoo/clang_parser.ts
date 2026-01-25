@@ -15,34 +15,36 @@ export interface ParseResult {
 /**
  * Clang executable wrapper using wasi-kernel
  *
- * We need to write the input file to the VFS BEFORE WASI is initialized,
- * because WASI sets up file descriptors during init() and files written
- * after that may not be accessible.
+ * We use stdin to pass source code to clang since file-based input
+ * has issues with WASI's file handling returning EINVAL.
  */
 class ClangExecutable extends ExecCore {
     private stdoutData: string = '';
     private stderrData: string = '';
     private utf8 = new TextDecoder();
-    private inputCode: string = '';
+    private encoder = new TextEncoder();
 
-    constructor(opts: ExecCoreOptions, inputCode: string) {
+    constructor(opts: ExecCoreOptions) {
         super(opts);
-        this.inputCode = inputCode;
         console.log('[ClangExecutable] Constructor called');
     }
 
     /**
-     * Override populateRootFs to add our input file
-     * This is called by ExecCore constructor BEFORE init() creates the WASI instance
+     * Write input code to stdin before starting the process
      */
-    populateRootFs(): void {
-        // Call parent to create /home and /bin
-        super.populateRootFs();
+    writeStdin(code: string): void {
+        // Access the stdin stream from ExecCore
+        const stdinStream = (this as any).stdin;
+        if (!stdinStream) {
+            throw new Error('stdin stream not available - make sure stdin: true is passed to constructor');
+        }
 
-        // Write the input file - this happens BEFORE WASI is initialized
-        const inputPath = '/home/input.c';
-        this.wasmFs.fs.writeFileSync(inputPath, this.inputCode, { mode: 0o644 });
-        console.log('[ClangExecutable] Wrote input file during populateRootFs:', inputPath);
+        // Convert code to Uint8Array and write to stdin
+        const codeBytes = this.encoder.encode(code);
+        console.log('[ClangExecutable] Writing', codeBytes.length, 'bytes to stdin');
+        stdinStream.write(codeBytes);
+        stdinStream.end();  // Signal end of input
+        console.log('[ClangExecutable] stdin write complete');
     }
 
     private setupOutputCapture(): void {
@@ -166,33 +168,20 @@ export class ClangParser {
         console.log('[ClangParser] Input:', code.substring(0, 100));
 
         // Create a new ClangExecutable instance for each parse
-        // Pass the input code so it can be written during populateRootFs()
-        // BEFORE WASI is initialized - this is crucial for file access to work
-        const inputPath = '/home/input.c';
+        // Use stdin to pass source code to avoid WASI file system issues
         const clang = new ClangExecutable({
-            stdin: false,  // We don't need stdin - we'll use a file in the VFS
+            stdin: true,   // Enable stdin so we can write code to it
             tty: false,
-            debug: true,  // Enable debug for now to see what's happening
-        }, code);
+            debug: true,   // Enable debug for now to see what's happening
+        });
 
-        // Verify the file was written correctly
-        try {
-            const wasmFs = (clang as any).wasmFs;
-            const stats = wasmFs.fs.statSync(inputPath);
-            console.log('[ClangParser] File stats:', {
-                size: stats.size,
-                mode: stats.mode?.toString(8),
-                isFile: stats.isFile()
-            });
-            const homeContents = wasmFs.fs.readdirSync('/home');
-            console.log('[ClangParser] /home contents:', homeContents);
-        } catch (e) {
-            console.log('[ClangParser] File verification failed:', e);
-        }
+        // Write the source code to stdin before starting clang
+        clang.writeStdin(code);
 
         // Run clang with AST dump arguments
         // Use -cc1 mode directly (driver mode can't fork/exec in WASM)
-        const args = ['clang', '-cc1', '-ast-dump', '-x', 'c', inputPath];
+        // Use '-' as filename to read from stdin
+        const args = ['clang', '-cc1', '-ast-dump', '-x', 'c', '-'];
         console.log('[ClangParser] Args:', args);
         console.log('[ClangParser] Running:', args.join(' '));
 
