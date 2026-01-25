@@ -22,9 +22,38 @@
  (deps index.html)
  (action (copy index.html index_copy.html)))
 
+; Note: clang_parser.js is built by esbuild.mopsajs.mjs
+; Run: node esbuild.mopsajs.mjs
+; It outputs directly to _build/default/backend/jsoo/clang_parser.js
+
+; Copy clang-ast.wasm from libs/llvm/bin to build directory
+; This file is built by 'make clang-ast' target
+; Note: We navigate from _build/default back to source root
+(rule
+ (target clang-ast.wasm)
+ (deps (universe))
+ (action
+  (with-stdout-to %{target}
+   (run bash -c "
+     # Find source root by going up from _build/default
+     BUILD_DIR=$(pwd)
+     if [[ \"$BUILD_DIR\" == */_build/default/* ]]; then
+       SRC_ROOT=${BUILD_DIR%%/_build/default/*}
+     else
+       SRC_ROOT=$(cd ../../../.. && pwd)
+     fi
+     WASM_FILE=\"$SRC_ROOT/libs/llvm/bin/clang-ast.wasm\"
+     if [ -f \"$WASM_FILE\" ]; then
+       cat \"$WASM_FILE\"
+     else
+       echo \"Warning: clang-ast.wasm not found at $WASM_FILE. Run make clang-ast first.\" >&2
+     fi
+   "))))
+
 ; Alias to build everything needed for the js_of_ocaml demo
 ; After building, open _build/default/backend/jsoo/index.html in a browser
+; Note: You must also run 'node esbuild.mopsajs.mjs' to build clang_parser.js
 (alias
  (name mopsajs)
- (deps mopsa_worker.bc.js index.html))
+ (deps mopsa_worker.bc.js index.html clang-ast.wasm))
 

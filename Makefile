@@ -51,13 +51,18 @@ help:
 	@echo "MOPSA WASM Build System"
 	@echo ""
 	@echo "Targets:"
-	@echo "  all      - Build everything (default)"
-	@echo "  deps     - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
-	@echo "  ocaml    - Build OCaml bytecode"
-	@echo "  wasm     - Build WASM stubs"
-	@echo "  ts       - Build TypeScript"
-	@echo "  clean    - Clean build artifacts"
-	@echo "  serve    - Start demo server on port 8080"
+	@echo "  all            - Build everything (default)"
+	@echo "  deps           - Build native dependencies (GMP, MPFR, MLGMPIDL, Apron)"
+	@echo "  ocaml          - Build OCaml bytecode"
+	@echo "  wasm           - Build WASM stubs"
+	@echo "  ts             - Build TypeScript"
+	@echo "  clean          - Clean build artifacts"
+	@echo "  serve          - Start demo server on port 8080"
+	@echo ""
+	@echo "LLVM/Clang targets:"
+	@echo "  clang-ast-native - Build native tablegen tools (stage 1)"
+	@echo "  clang-ast        - Build minimal clang-ast.wasm for C AST dumping"
+	@echo "  clean-clang-ast  - Clean clang-ast build artifacts"
 
 #==============================================================================
 # Environment check (optional)
@@ -421,3 +426,130 @@ clean-deps:
 	@rm -rf $(INSTALL_DIR)
 
 clean-all: clean clean-deps
+
+#==============================================================================
+# LLVM/Clang WASM build (for C AST dumping)
+#==============================================================================
+
+# WASI SDK paths
+WASI_SDK_PATH := $(HOME)/opt/wasi-sdk
+WASI_SYSROOT := $(WASI_SDK_PATH)/share/wasi-sysroot
+WASI_TOOLCHAIN := $(WASI_SDK_PATH)/share/cmake/wasi-sdk.cmake
+WASI_CC := $(WASI_SDK_PATH)/bin/clang
+WASI_CXX := $(WASI_SDK_PATH)/bin/clang++
+WASI_AR := $(WASI_SDK_PATH)/bin/llvm-ar
+WASI_RANLIB := $(WASI_SDK_PATH)/bin/llvm-ranlib
+
+# LLVM project directories
+LLVM_PROJECT_DIR := llvm-project
+LLVM_NATIVE_BUILD := $(LLVM_PROJECT_DIR)/build/native
+LLVM_AST_BUILD := $(LLVM_PROJECT_DIR)/build/clang-ast
+LLVM_INSTALL_DIR := $(INSTALL_DIR)/llvm
+
+# Native tablegen tools (built in stage 1)
+LLVM_TBLGEN := $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen
+CLANG_TBLGEN := $(LLVM_NATIVE_BUILD)/bin/clang-tblgen
+
+# Check that tablegen tools exist
+$(LLVM_TBLGEN) $(CLANG_TBLGEN):
+	@echo "Error: Native tablegen tools not found."
+	@echo "Please build them first with: make clang-ast-native"
+	@exit 1
+
+# Stage 1: Build native tablegen tools (if not already built)
+.PHONY: clang-ast-native
+clang-ast-native:
+	@echo "Building native LLVM/Clang tablegen tools..."
+	@mkdir -p $(LLVM_NATIVE_BUILD)
+	cd $(LLVM_NATIVE_BUILD) && cmake \
+		-G "Unix Makefiles" \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_ENABLE_PROJECTS="clang" \
+		-DLLVM_TARGETS_TO_BUILD="X86" \
+		-DLLVM_INCLUDE_TESTS=OFF \
+		-DLLVM_INCLUDE_EXAMPLES=OFF \
+		-DLLVM_INCLUDE_BENCHMARKS=OFF \
+		-DLLVM_INCLUDE_DOCS=OFF \
+		-DCLANG_INCLUDE_TESTS=OFF \
+		-DCLANG_INCLUDE_DOCS=OFF \
+		$(CURDIR)/$(LLVM_PROJECT_DIR)/llvm
+	cd $(LLVM_NATIVE_BUILD) && $(MAKE) -j$(NPROC) llvm-tblgen clang-tblgen
+	@echo "Native tablegen tools built successfully."
+
+# Stage 2: Build minimal clang for WASI with AST dump support
+# This builds a stripped-down clang binary optimized for:
+# - C language only (no C++, Objective-C)
+# - AST dumping only (no code generation)
+# - Minimal binary size
+.PHONY: clang-ast
+clang-ast: $(LLVM_TBLGEN) $(CLANG_TBLGEN)
+	@echo "Building minimal clang-ast for WASI..."
+	@mkdir -p $(LLVM_AST_BUILD)
+	cd $(LLVM_AST_BUILD) && cmake \
+		-G "Unix Makefiles" \
+		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+		-DCMAKE_TOOLCHAIN_FILE=$(WASI_TOOLCHAIN) \
+		-DWASI_SDK_PREFIX=$(WASI_SDK_PATH) \
+		-DCMAKE_BUILD_TYPE=MinSizeRel \
+		-DCMAKE_SYSROOT=$(WASI_SYSROOT) \
+		-DCMAKE_C_FLAGS="-fno-exceptions -D_WASI_EMULATED_SIGNAL -DBINJI_HACK" \
+		-DCMAKE_CXX_FLAGS="-fno-exceptions -fno-rtti -D_WASI_EMULATED_SIGNAL -DBINJI_HACK" \
+		-DCMAKE_EXE_LINKER_FLAGS="-lwasi-emulated-signal" \
+		-DUNIX=ON \
+		-DLLVM_ENABLE_PROJECTS="clang" \
+		-DLLVM_TARGETS_TO_BUILD="" \
+		-DLLVM_DEFAULT_TARGET_TRIPLE="wasm32-wasi" \
+		-DLLVM_TABLEGEN=$(CURDIR)/$(LLVM_TBLGEN) \
+		-DCLANG_TABLEGEN=$(CURDIR)/$(CLANG_TBLGEN) \
+		-DLLVM_BUILD_TOOLS=OFF \
+		-DLLVM_BUILD_UTILS=OFF \
+		-DLLVM_INCLUDE_TESTS=OFF \
+		-DLLVM_INCLUDE_EXAMPLES=OFF \
+		-DLLVM_INCLUDE_BENCHMARKS=OFF \
+		-DLLVM_INCLUDE_DOCS=OFF \
+		-DLLVM_ENABLE_THREADS=OFF \
+		-DLLVM_ENABLE_PIC=OFF \
+		-DLLVM_ENABLE_BACKTRACES=OFF \
+		-DLLVM_ENABLE_CRASH_OVERRIDES=OFF \
+		-DLLVM_ENABLE_TERMINFO=OFF \
+		-DLLVM_ENABLE_ZLIB=OFF \
+		-DLLVM_ENABLE_LIBXML2=OFF \
+		-DCLANG_BUILD_TOOLS=ON \
+		-DCLANG_ENABLE_ARCMT=OFF \
+		-DCLANG_ENABLE_STATIC_ANALYZER=OFF \
+		-DCLANG_INCLUDE_TESTS=OFF \
+		-DCLANG_INCLUDE_DOCS=OFF \
+		-DCLANG_TOOL_CLANG_CHECK_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_DIFF_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_FORMAT_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_FUZZER_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_IMPORT_TEST_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_OFFLOAD_BUNDLER_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_REFACTOR_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_RENAME_BUILD=OFF \
+		-DCLANG_TOOL_CLANG_SCAN_DEPS_BUILD=OFF \
+		-DCLANG_TOOL_DIAGTOOL_BUILD=OFF \
+		-DCLANG_TOOL_DRIVER_BUILD=ON \
+		$(CURDIR)/$(LLVM_PROJECT_DIR)/llvm
+	@echo "Building clang binary..."
+	cd $(LLVM_AST_BUILD) && $(MAKE) -j$(NPROC) clang
+	@echo "Installing clang-ast.wasm..."
+	@mkdir -p $(LLVM_INSTALL_DIR)/bin
+	@cp $(LLVM_AST_BUILD)/bin/clang-8 $(LLVM_INSTALL_DIR)/bin/clang-ast.wasm 2>/dev/null || \
+		cp $(LLVM_AST_BUILD)/bin/clang $(LLVM_INSTALL_DIR)/bin/clang-ast.wasm
+	@echo ""
+	@echo "========================================="
+	@echo "clang-ast.wasm built successfully!"
+	@echo "Output: $(LLVM_INSTALL_DIR)/bin/clang-ast.wasm"
+	@if [ -f "$(LLVM_INSTALL_DIR)/bin/clang-ast.wasm" ]; then \
+		echo "Size: $$(du -h $(LLVM_INSTALL_DIR)/bin/clang-ast.wasm | cut -f1)"; \
+	fi
+	@echo "========================================="
+
+# Clean clang-ast build
+.PHONY: clean-clang-ast
+clean-clang-ast:
+	@echo "Cleaning clang-ast build..."
+	@rm -rf $(LLVM_AST_BUILD)
+	@rm -f $(LLVM_INSTALL_DIR)/bin/clang-ast.wasm
