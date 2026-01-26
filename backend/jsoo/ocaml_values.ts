@@ -297,6 +297,30 @@ export function Val_variant(tag: number, ...args: OcamlValue[]): OcamlBlock {
 // ============================================================================
 
 /**
+ * Create a Z.t value from a string using the js_of_ocaml Zarith runtime.
+ * This calls ml_z_of_substring_base to create a proper Z.t representation.
+ *
+ * @param value - The string representation of the integer
+ * @param base - The base (0 for auto-detect, 10 for decimal, 16 for hex)
+ * @returns A proper Z.t value that can be used with Zarith operations
+ */
+export function Val_Z_from_string(value: string, base: number = 10): OcamlValue {
+    const g = globalThis as any;
+    const runtime = g.jsoo_runtime;
+
+    if (!runtime || !runtime.ml_z_of_substring_base) {
+        throw new Error('jsoo_runtime.ml_z_of_substring_base not available');
+    }
+
+    // Create an OCaml string from the value
+    const ocamlStr = caml_copy_string(value);
+    const strLen = value.length;
+
+    // Call ml_z_of_substring_base(base, string, offset, length)
+    return runtime.ml_z_of_substring_base(base, ocamlStr, 0, strLen);
+}
+
+/**
  * Create a Z.t value from a JavaScript bigint or number.
  * In js_of_ocaml with zarith, small integers fit in one word,
  * while larger ones use a different representation.
@@ -304,11 +328,9 @@ export function Val_variant(tag: number, ...args: OcamlValue[]): OcamlBlock {
  * For simplicity, we'll use string representation which zarith can parse.
  */
 export function Val_Z(n: bigint | number | string): OcamlValue {
-    // For js_of_ocaml with zarith, the representation depends on the library
-    // We'll use a string that can be converted later
+    // Convert to string and use the proper Zarith function
     const str = String(n);
-    // This is a placeholder - actual implementation needs to match zarith's JS representation
-    return caml_copy_string(str);
+    return Val_Z_from_string(str, 10);
 }
 
 // ============================================================================

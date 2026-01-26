@@ -34,6 +34,7 @@ import {
     Val_bool,
     Val_option,
     Val_array,
+    Val_Z_from_string,
     caml_alloc,
     caml_alloc_tuple,
     caml_copy_string,
@@ -169,8 +170,8 @@ export class ExprTranslator {
     private translateIntegerLiteral(node: ASTNode): OcamlBlock {
         const litNode = node as ASTNode & { value?: string };
         const kind = caml_alloc(1, Tags.MLTAG_IntegerLiteral);
-        // Z.t is represented as a string in JS
-        Store_field(kind, 0, caml_copy_string(litNode.value ?? '0'));
+        // Create proper Z.t value using ml_z_of_substring_base via Val_Z_from_string
+        Store_field(kind, 0, Val_Z_from_string(litNode.value ?? '0', 10));
 
         const result = this.createExprRecord(kind, node);
         this.exprCache.set(node.id, result);
