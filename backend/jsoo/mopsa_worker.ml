@@ -88,6 +88,8 @@ let init_mopsa config =
 let run_mopsa_analysis _options =
   capture_stdout ();
   Mopsa_analyzer.Framework.Params.Config.Parser.opt_config := config_file;
+  (* Set the share directory path so MOPSA can find stubs *)
+  Mopsa_analyzer.Framework.Params.Paths.opt_share_dir := "/share";
   let exit_code =
     try
       Mopsa_analyzer.Framework.Runner.analyze_files [code_file] None
