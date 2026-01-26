@@ -134,15 +134,31 @@ export class DeclTranslator {
     
     /**
      * Create OCaml name record.
-     * 
-     * OCaml type: { name_cstr: string; name_qualified: string; name_declaration: declaration_name }
+     *
+     * OCaml type:
+     * type name = {
+     *   name_print: string;
+     *   name_qualified: string;
+     *   name_declaration: declaration_name;
+     * }
+     *
+     * type declaration_name =
+     *   | Name_Identifier of string  (* Takes a string argument! *)
+     *   | Name_CXXConstructorName of type_qual
+     *   | ...
      */
     translateName(name: string | undefined, qualifiedName?: string): OcamlBlock {
         const block = caml_alloc_tuple(3);
         const nameStr = name ?? '';
-        Store_field(block, 0, caml_copy_string(nameStr));  // name_cstr
+        Store_field(block, 0, caml_copy_string(nameStr));  // name_print
         Store_field(block, 1, caml_copy_string(qualifiedName ?? nameStr));  // name_qualified
-        Store_field(block, 2, Val_int(Tags.MLTAG_Identifier));  // name_declaration: Identifier
+
+        // name_declaration: Name_Identifier of string
+        // This is a variant with an argument, so it must be [tag, string_value]
+        const declName = caml_alloc(1, Tags.MLTAG_Identifier);
+        Store_field(declName, 0, caml_copy_string(nameStr));
+        Store_field(block, 2, declName);
+
         return block;
     }
     

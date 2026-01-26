@@ -482,9 +482,15 @@ export class StmtTranslator {
 
     private translateName(name: string): OcamlBlock {
         const block = caml_alloc_tuple(3);
-        Store_field(block, 0, caml_copy_string(name));
-        Store_field(block, 1, caml_copy_string(name));
-        Store_field(block, 2, Val_int(Tags.MLTAG_Identifier));
+        Store_field(block, 0, caml_copy_string(name));  // name_print
+        Store_field(block, 1, caml_copy_string(name));  // name_qualified
+
+        // name_declaration: Name_Identifier of string
+        // This is a variant with an argument, so it must be [tag, string_value]
+        const declName = caml_alloc(1, Tags.MLTAG_Identifier);
+        Store_field(declName, 0, caml_copy_string(name));
+        Store_field(block, 2, declName);
+
         return block;
     }
 

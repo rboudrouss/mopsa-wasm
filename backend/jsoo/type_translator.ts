@@ -210,7 +210,8 @@ export class TypeTranslator {
     /**
      * Translate type_qual from QualType.
      *
-     * OCaml type: { qual_type: qual; qual: typ }
+     * OCaml type: type_qual = typ * qual
+     * The order is: (type, qualifiers) - NOT (qualifiers, type)!
      */
     translateQualType(qualType: QualType | string | undefined): OcamlBlock {
         const typeStr = typeof qualType === 'string' ? qualType : qualType?.qualType ?? 'void';
@@ -224,10 +225,10 @@ export class TypeTranslator {
         // Parse qualifiers
         const { isConst, isRestrict, isVolatile, baseType } = this.parseQualifiers(typeStr);
 
-        // Create qual_type tuple (qual * typ)
+        // Create type_qual tuple (typ * qual) - type FIRST, then qualifiers
         const block = caml_alloc_tuple(2);
-        Store_field(block, 0, this.translateQual(isConst, isRestrict, isVolatile));
-        Store_field(block, 1, this.translateType(baseType));
+        Store_field(block, 0, this.translateType(baseType));  // typ first
+        Store_field(block, 1, this.translateQual(isConst, isRestrict, isVolatile));  // qual second
 
         this.qualTypeCache.set(typeStr, block);
         return block;
@@ -407,12 +408,22 @@ export class TypeTranslator {
 
     /**
      * Create a placeholder name record.
+     *
+     * OCaml type:
+     * type name = { name_print; name_qualified; name_declaration }
+     * type declaration_name = Name_Identifier of string | ...
      */
     private createPlaceholderName(name: string): OcamlBlock {
         const block = caml_alloc_tuple(3);
-        Store_field(block, 0, caml_copy_string(name));  // name_cstr
+        Store_field(block, 0, caml_copy_string(name));  // name_print
         Store_field(block, 1, caml_copy_string(name));  // name_qualified
-        Store_field(block, 2, Val_int(Tags.MLTAG_Identifier));  // name_declaration: Identifier
+
+        // name_declaration: Name_Identifier of string
+        // This is a variant with an argument, so it must be [tag, string_value]
+        const declName = caml_alloc(1, Tags.MLTAG_Identifier);
+        Store_field(declName, 0, caml_copy_string(name));
+        Store_field(block, 2, declName);
+
         return block;
     }
 
