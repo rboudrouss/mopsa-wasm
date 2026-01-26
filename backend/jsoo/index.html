@@ -93,23 +93,27 @@
 </head>
 <body>
     <header>
-        <h1>MOPSA js_of_ocaml Demo</h1>
+        <h1>MOPSA C Analyzer - js_of_ocaml Demo</h1>
     </header>
     <main>
         <div class="panel">
-            <div class="panel-header">Universal Code</div>
+            <div class="panel-header">C Code</div>
             <div class="panel-content">
-                <textarea id="code" placeholder="Enter Universal code here...">// Variable declarations
-int x = 10;
-int y = 0;
-int z;
+                <textarea id="code" placeholder="Enter C code here...">#include &lt;stdio.h&gt;
 
-// Main code block
-if (y == 0) {
-    print();  // Print abstract state
+int main() {
+    int x = 10;
+    int y = 0;
+    int z;
+
+    if (y == 0) {
+        printf("y is zero\\n");
+    }
+
+    z = x / y;  // Division by zero!
+
+    return 0;
 }
-
-z = x / y;  // Division by zero
 </textarea>
             </div>
             <div class="controls">
@@ -127,6 +131,7 @@ z = x / y;  // Division by zero
     <div class="status" id="status">Initializing MOPSA js_of_ocaml...</div>
     <script src="mopsa_worker.bc.js"></script>
     <script src="clang_parser.js"></script>
+    <script src="clang_parser_ml.js"></script>
     <script>
         const output = document.getElementById('output');
         const status = document.getElementById('status');

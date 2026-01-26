@@ -41,12 +41,12 @@ let mopsa_output = ref ""
 (* Enable backtrace recording *)
 let () = Printexc.record_backtrace true
 
-(* Default configuration for Universal language *)
+(* Default configuration for C language *)
 let default_config =
-  "{\"language\": \"universal\",\"domain\": {\"switch\": [\"universal.iterators.program\",\"universal.iterators.intraproc\",\"universal.iterators.loops\",\"universal.iterators.interproc.inlining\",\"universal.iterators.unittest\",{\"nonrel\": {\"union\": [\"universal.numeric.values.intervals.float\",\"universal.strings.powerset\"]}},\"universal.numeric.collecting\"]}}"
+  "{\"language\": \"c\", \"domain\": {\"compose\": [{\"semantic\": \"C\", \"switch\": [\"c.iterators.program\", \"c.iterators.interproc\", \"c.iterators.goto\", \"c.iterators.switch\", \"c.iterators.loops\", \"c.iterators.intraproc\", \"stubs.iterators.body\", \"c.libs.compiler\", \"c.libs.mopsalib\", \"c.libs.clib.file_descriptor\", \"c.libs.clib.formatted_io.fprint\", \"c.libs.clib.formatted_io.fscanf\", \"c.libs.variadic\", \"c.cstubs.assigns\", \"c.cstubs.builtins\", \"c.cstubs.resources\", \"c.memory.variable_length_array\", \"c.memory.aggregates\", \"c.memory.protection\", \"universal.heap.recency\", {\"compose\": [\"c.memory.lowlevel.cells\", {\"semantic\": \"C/Scalar\", \"switch\": [\"c.memory.scalars.pointer\", \"c.memory.scalars.machine_numbers\"]}]}, \"stubs.iterators.fallback\"]}, {\"semantic\": \"Universal\", \"switch\": [\"universal.iterators.intraproc\", \"universal.iterators.loops\", \"universal.iterators.interproc.inlining\", \"universal.iterators.unittest\", {\"nonrel\": {\"union\": [\"universal.numeric.values.intervals.float\", \"universal.numeric.values.intervals.integer\"]}}]}]}}"
 
 (* File paths in virtual filesystem *)
-let code_file = "/code.u"
+let code_file = "/code.c"
 let config_file = "/config.json"
 
 (* Write file to virtual filesystem *)

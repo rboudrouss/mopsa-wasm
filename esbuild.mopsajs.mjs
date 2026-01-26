@@ -26,8 +26,8 @@ const commonOptions = {
     logLevel: 'info',
 };
 
-// Build the Clang parser for browser
-console.log('Building Clang parser for mopsajs...');
+// Build the Clang WASM parser for browser
+console.log('Building Clang WASM parser for mopsajs...');
 
 await buildOrWatch({
     ...commonOptions,
@@ -48,6 +48,23 @@ await buildOrWatch({
 
     // External dependencies that should not be bundled
     // (none - we want everything bundled for browser use)
+});
+
+// Build the Clang JSON to OCaml AST translator for browser
+// This translates Clang's JSON AST into OCaml values for MOPSA
+console.log('Building Clang JSON to OCaml AST translator...');
+
+await buildOrWatch({
+    ...commonOptions,
+    entryPoints: ['./backend/jsoo/clang_parser_ml.ts'],
+    outfile: '_build/default/backend/jsoo/clang_parser_ml.js',
+    globalName: 'ClangParserMLModule',
+
+    // No shims needed - this is pure JavaScript/TypeScript
+    // Define global as window for browser
+    define: {
+        global: 'window'
+    },
 });
 
 console.log('Build complete!');

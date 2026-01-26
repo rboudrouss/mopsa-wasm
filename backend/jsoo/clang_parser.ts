@@ -188,7 +188,7 @@ export class ClangParser {
         // Run clang with AST dump arguments
         // Use -cc1 mode directly (driver mode can't fork/exec in WASM)
         // Use '-' as filename to read from stdin
-        const args = ['clang', '-cc1', '-ast-dump', '-x', 'c', '-'];
+        const args = ['clang', '-cc1', '-ast-dump=json', '-x', 'c', '-'];
         console.log('[ClangParser] Args:', args);
         console.log('[ClangParser] Running:', args.join(' '));
 

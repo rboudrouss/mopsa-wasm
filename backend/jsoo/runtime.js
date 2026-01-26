@@ -78,5 +78,38 @@ function mlclang_get_target_info() { return 0; }
 //Provides: mlclang_get_default_target_options
 function mlclang_get_default_target_options() { return 0; }
 
+//Provides: mlclang_parse
+//Requires: caml_jsstring_of_string
+/**
+ * mlclang_parse - Parse a C file and return OCaml AST
+ *
+ * Signature: command:string -> target:target_options -> filename:string -> args:string array -> parse_result
+ *
+ * This is the JavaScript replacement for the native mlclang_parse function.
+ * The parse result must be pre-computed and cached before MOPSA calls this function,
+ * because ClangParser (WASM) is async but this function must be synchronous.
+ */
+function mlclang_parse(command, target, filename, args) {
+    var js_filename = caml_jsstring_of_string(filename);
+
+    console.log('[mlclang_parse] Called for file:', js_filename);
+
+    // Look up the cached parse result
+    if (typeof globalThis.mlclang_parse_cache === 'undefined') {
+        globalThis.mlclang_parse_cache = {};
+    }
+
+    var cached = globalThis.mlclang_parse_cache[js_filename];
+    if (cached) {
+        console.log('[mlclang_parse] Returning cached parse result for:', js_filename);
+        return cached;
+    }
+
+    // No cached result - this is an error
+    console.error('[mlclang_parse] No cached parse result for:', js_filename);
+    console.error('[mlclang_parse] Available cached files:', Object.keys(globalThis.mlclang_parse_cache));
+    throw new Error('No cached parse result for ' + js_filename + '. Call parseAndCacheC() before analyze().');
+}
+
 //Provides: exit
 function exit() { return 0; }
