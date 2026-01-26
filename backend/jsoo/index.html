@@ -138,6 +138,16 @@
         // Initialize ClangParser and MOPSA when the page loads
         async function init() {
             try {
+                // Load share.json for MOPSA stubs and configs
+                status.textContent = 'Loading share data...';
+                console.log('[init] Loading share.json...');
+                const shareResponse = await fetch('share.json');
+                if (!shareResponse.ok) {
+                    throw new Error('Failed to load share.json: ' + shareResponse.statusText);
+                }
+                globalThis.shareData = await shareResponse.json();
+                console.log('[init] share.json loaded successfully');
+
                 // Initialize ClangParser first
                 status.textContent = 'Initializing Clang parser...';
                 if (typeof ClangParser === 'undefined') {

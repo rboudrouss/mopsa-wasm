@@ -8,6 +8,49 @@
 // Virtual filesystem for file operations
 // js_of_ocaml provides a basic filesystem, but we may need to extend it
 
+//Provides: shareDataHandler
+//Requires: caml_jsstring_of_string, caml_string_of_jsstring
+/**
+ * shareDataHandler - Read file content from the share directory JSON data
+ *
+ * This function is called from OCaml via Sys_js.mount to provide file content
+ * for the /share virtual filesystem. The share data is loaded from share.json
+ * and stored in globalThis.shareData before MOPSA is initialized.
+ *
+ * @param path - OCaml string representing the path (relative to /share)
+ * @returns OCaml string containing the file content
+ */
+function shareDataHandler(path) {
+    var jsPath = caml_jsstring_of_string(path);
+
+    // Remove leading slash if present
+    if (jsPath.startsWith('/')) {
+        jsPath = jsPath.substring(1);
+    }
+
+    // Get the share data from global scope
+    if (typeof globalThis.shareData === 'undefined') {
+        throw new Error('shareData not loaded. Load share.json before initializing MOPSA.');
+    }
+
+    // Navigate the JSON structure to find the file
+    var pathParts = jsPath.split('/').filter(function(p) { return p.length > 0; });
+    var data = globalThis.shareData;
+
+    for (var i = 0; i < pathParts.length; i++) {
+        if (data === undefined || data === null) {
+            throw new Error('Path not found in share data: ' + jsPath);
+        }
+        data = data[pathParts[i]];
+    }
+
+    if (typeof data !== 'string') {
+        throw new Error('Path does not point to a file: ' + jsPath);
+    }
+
+    return caml_string_of_jsstring(data);
+}
+
 //Provides: mopsa_emit
 //Requires: caml_jsstring_of_string
 function mopsa_emit(s) {

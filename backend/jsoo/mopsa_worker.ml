@@ -7,6 +7,19 @@
 
 open Js_of_ocaml
 
+(*
+ * External function to read file content from the share directory.
+ * Written in runtime.js, returns the content of the file in the share directory.
+ * The string is the path to the file (relative to /share).
+ *)
+external share_data_handler : string -> string = "shareDataHandler"
+
+(*
+ * Mount the share directory to the shareDataHandler function written in runtime.js.
+ * This allows MOPSA to read stub files from /share synchronously.
+ *)
+let () = Sys_js.mount ~path:"/share" (fun ~prefix:_ ~path -> Some (share_data_handler path))
+
 (* Command types for communication with JavaScript *)
 type command =
   | Init of string          (* Initialize with configuration *)
