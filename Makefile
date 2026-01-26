@@ -432,7 +432,7 @@ clean-all: clean clean-deps
 #==============================================================================
 
 # WASI SDK paths
-WASI_SDK_PATH := $(HOME)/opt/wasi-sdk
+WASI_SDK_PATH := /opt/wasi-sdk
 WASI_SYSROOT := $(WASI_SDK_PATH)/share/wasi-sysroot
 WASI_TOOLCHAIN := $(WASI_SDK_PATH)/share/cmake/wasi-sdk.cmake
 WASI_CC := $(WASI_SDK_PATH)/bin/clang
