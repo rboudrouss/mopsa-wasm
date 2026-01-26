@@ -136,7 +136,25 @@ export function resetParser(): void {
  * This function is called from the OCaml runtime.
  */
 export function mlclang_parse_json(jsonString: string, filename: string): OcamlValue {
+    console.log('[mlclang_parse_json] Starting parse for:', filename);
+    console.log('[mlclang_parse_json] JSON length:', jsonString.length);
+
     const parser = getParser();
-    return parser.parseJsonString(jsonString, filename);
+    const result = parser.parseJsonString(jsonString, filename);
+
+    console.log('[mlclang_parse_json] Parse result:', result);
+    console.log('[mlclang_parse_json] Result type:', typeof result);
+    console.log('[mlclang_parse_json] Result is array:', Array.isArray(result));
+    if (Array.isArray(result)) {
+        console.log('[mlclang_parse_json] Result length:', result.length);
+        console.log('[mlclang_parse_json] Result[0] (tag):', result[0]);
+        console.log('[mlclang_parse_json] Result[1] (parse_decl):', result[1]);
+        console.log('[mlclang_parse_json] Result[2] (parse_diag):', result[2]);
+        console.log('[mlclang_parse_json] Result[3] (parse_comments):', result[3]);
+        console.log('[mlclang_parse_json] Result[4] (parse_macros):', result[4]);
+        console.log('[mlclang_parse_json] Result[5] (parse_files):', result[5]);
+    }
+
+    return result;
 }
 

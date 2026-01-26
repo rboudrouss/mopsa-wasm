@@ -99,16 +99,10 @@
         <div class="panel">
             <div class="panel-header">C Code</div>
             <div class="panel-content">
-                <textarea id="code" placeholder="Enter C code here...">#include &lt;stdio.h&gt;
-
-int main() {
+                <textarea id="code" placeholder="Enter C code here...">int main() {
     int x = 10;
     int y = 0;
     int z;
-
-    if (y == 0) {
-        printf("y is zero\\n");
-    }
 
     z = x / y;  // Division by zero!
 
@@ -139,17 +133,29 @@ int main() {
         const clearBtn = document.getElementById('clearBtn');
         const codeInput = document.getElementById('code');
         let isReady = false;
+        let clangReady = false;
 
-        // Initialize MOPSA when the script loads
-        function initMopsa() {
+        // Initialize ClangParser and MOPSA when the page loads
+        async function init() {
             try {
+                // Initialize ClangParser first
+                status.textContent = 'Initializing Clang parser...';
+                if (typeof ClangParser === 'undefined') {
+                    throw new Error('ClangParser not loaded');
+                }
+                await ClangParser.init();
+                clangReady = true;
+                console.log('[init] ClangParser initialized');
+
+                // Initialize MOPSA
+                status.textContent = 'Initializing MOPSA...';
                 if (typeof MopsaWorker === 'undefined') {
                     throw new Error('MopsaWorker not loaded');
                 }
                 const result = JSON.parse(MopsaWorker.init(''));
                 if (result.success) {
                     isReady = true;
-                    status.textContent = 'MOPSA ready! Enter code and click Analyze.';
+                    status.textContent = 'MOPSA ready! Enter C code and click Analyze.';
                     status.className = 'status success';
                     analyzeBtn.disabled = false;
                     output.textContent = 'Ready. Click "Analyze" to start.';
@@ -160,12 +166,38 @@ int main() {
                 status.textContent = 'Failed to initialize: ' + e.message;
                 status.className = 'status error';
                 output.textContent = 'Error: ' + e.message;
+                console.error('[init] Error:', e);
             }
         }
 
+        // Parse C code and cache the result for mlclang_parse
+        async function parseAndCacheC(code, filename) {
+            console.log('[parseAndCacheC] Parsing C code for:', filename);
+
+            // Parse with Clang WASM to get JSON AST
+            const parseResult = await ClangParser.parseC(code);
+            if (parseResult.status !== 'success') {
+                throw new Error('Clang parsing failed: ' + (parseResult.message || parseResult.stderr));
+            }
+
+            console.log('[parseAndCacheC] Got JSON AST, converting to OCaml AST...');
+
+            // Convert JSON to OCaml AST
+            const ocamlAst = ClangParserMLModule.mlclang_parse_json(parseResult.ast, filename);
+
+            // Cache it for mlclang_parse to find
+            if (!globalThis.mlclang_parse_cache) {
+                globalThis.mlclang_parse_cache = {};
+            }
+            globalThis.mlclang_parse_cache[filename] = ocamlAst;
+
+            console.log('[parseAndCacheC] Cached OCaml AST for:', filename);
+            return ocamlAst;
+        }
+
         // Analyze button handler
-        analyzeBtn.addEventListener('click', () => {
-            if (!isReady) return;
+        analyzeBtn.addEventListener('click', async () => {
+            if (!isReady || !clangReady) return;
             const code = codeInput.value.trim();
             if (!code) {
                 output.textContent = 'Please enter some code to analyze.';
@@ -173,11 +205,18 @@ int main() {
             }
             analyzeBtn.disabled = true;
             analyzeBtn.textContent = 'Analyzing...';
-            status.textContent = 'Running analysis...';
+            status.textContent = 'Parsing C code...';
             status.className = 'status';
-            output.textContent = 'Analyzing...';
+            output.textContent = 'Parsing C code with Clang...';
 
             try {
+                // Parse C code and cache it (MOPSA will use /code.c)
+                await parseAndCacheC(code, '/code.c');
+
+                status.textContent = 'Running MOPSA analysis...';
+                output.textContent = 'Running MOPSA analysis...';
+
+                // Now run MOPSA analysis - it will call mlclang_parse which finds the cached AST
                 const result = JSON.parse(MopsaWorker.analyze(code));
                 if (result.success) {
                     status.textContent = 'Analysis complete';
@@ -192,6 +231,7 @@ int main() {
                 status.textContent = 'Error: ' + e.message;
                 status.className = 'status error';
                 output.textContent = 'Error: ' + e.message;
+                console.error('[analyze] Error:', e);
             }
             analyzeBtn.disabled = false;
             analyzeBtn.textContent = 'Analyze';
@@ -205,11 +245,11 @@ int main() {
             status.className = isReady ? 'status success' : 'status';
         });
 
-        // Wait for script to load then initialize
+        // Wait for page to load then initialize
         if (document.readyState === 'complete') {
-            initMopsa();
+            init();
         } else {
-            window.addEventListener('load', initMopsa);
+            window.addEventListener('load', init);
         }
     </script>
 </body>

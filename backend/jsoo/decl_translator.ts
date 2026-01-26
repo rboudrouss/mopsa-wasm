@@ -308,8 +308,24 @@ export class DeclTranslator {
             storageClass?: string;
         };
 
-        // Create function_decl record (13 fields for C, more for C++)
-        const funcDecl = caml_alloc_tuple(13);
+        // Create function_decl record (15 fields - includes C++ fields)
+        // OCaml type:
+        //   0: function_uid: uid
+        //   1: function_name: name
+        //   2: function_body: stmt option
+        //   3: function_is_variadic: bool
+        //   4: function_is_main: bool
+        //   5: function_is_global: bool
+        //   6: function_storage_class: storage_class
+        //   7: function_return_type: type_qual
+        //   8: function_params: param_var_decl array
+        //   9: function_range: range
+        //  10: function_name_range: range
+        //  11: function_com: comment list
+        //  12: function_template: function_template_specialization option
+        //  13: function_overloaded_operator: overloaded_operator option
+        //  14: function_method: cxx_method_decl option
+        const funcDecl = caml_alloc_tuple(15);
 
         // function_uid
         Store_field(funcDecl, 0, Val_int(generateUid()));
@@ -357,6 +373,12 @@ export class DeclTranslator {
 
         // function_template (None for C)
         Store_field(funcDecl, 12, Val_int(0));  // None
+
+        // function_overloaded_operator (None for C)
+        Store_field(funcDecl, 13, Val_int(0));  // None
+
+        // function_method (None for C - this is for C++ methods)
+        Store_field(funcDecl, 14, Val_int(0));  // None
 
         // Wrap in FunctionDecl variant
         const kind = caml_alloc(1, Tags.MLTAG_FunctionDecl);

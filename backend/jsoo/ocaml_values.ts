@@ -119,14 +119,27 @@ export function Wosize_val(block: OcamlBlock): number {
 // String Allocation
 // ============================================================================
 
-/** 
+/**
  * Create an OCaml string from JavaScript string.
- * In js_of_ocaml, strings are represented specially.
+ * In js_of_ocaml, strings are represented using MlBytes or the runtime's string functions.
+ * We use the js_of_ocaml runtime's caml_string_of_jsstring if available.
  */
 export function caml_copy_string(s: string): OcamlValue {
-    // In js_of_ocaml, strings can be represented as MlBytes or JavaScript strings
-    // For simplicity, we use a special marker
-    // The actual implementation depends on how js_of_ocaml handles strings
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const g = globalThis as any;
+
+    // Try jsoo_runtime first (js_of_ocaml exports functions here)
+    if (g.jsoo_runtime?.caml_string_of_jsstring) {
+        return g.jsoo_runtime.caml_string_of_jsstring(s);
+    }
+
+    // Fallback to direct global
+    if (g.caml_string_of_jsstring) {
+        return g.caml_string_of_jsstring(s);
+    }
+
+    // Last resort: return as-is (may not work correctly)
+    console.warn('[caml_copy_string] jsoo_runtime not found, returning JS string directly');
     return s as unknown as OcamlValue;
 }
 
