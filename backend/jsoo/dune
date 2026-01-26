@@ -50,13 +50,6 @@
      fi
    "))))
 
-; Copy share.json to build directory
-; This file contains MOPSA stubs and configs for the virtual filesystem
-(rule
- (target share.json)
- (deps share.json)
- (action (copy share.json share.json)))
-
 ; Alias to build everything needed for the js_of_ocaml demo
 ; After building, open _build/default/backend/jsoo/index.html in a browser
 ; Note: You must also run 'node esbuild.mopsajs.mjs' to build clang_parser.js
