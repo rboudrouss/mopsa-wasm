@@ -6,8 +6,12 @@
  * For "up"/"down" rounding, we use nextafter-style adjustments where needed.
  */
 
+//Provides: BigUint64Array const (const)
+var BigUint64Array = globalThis.BigUint64Array;
+
 // Helper: get next representable float up/down
 //Provides: nextUp
+//Requires: BigUint64Array
 function nextUp(x) {
     if (x !== x) return x; // NaN
     if (x === Infinity) return Infinity;
@@ -26,6 +30,7 @@ function nextUp(x) {
 }
 
 //Provides: nextDown
+//Requires: BigUint64Array
 function nextDown(x) {
     if (x !== x) return x; // NaN
     if (x === -Infinity) return -Infinity;

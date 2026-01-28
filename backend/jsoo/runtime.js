@@ -67,16 +67,16 @@ function mopsa_emit(s) {
     }
 }
 
-//Provides: caml_sys_getcwd
-function caml_sys_getcwd() {
-    return "/";
-}
+// //Provides: caml_sys_getcwd
+// function caml_sys_getcwd() {
+//     return "/";
+// }
 
-//Provides: caml_sys_chdir
-function caml_sys_chdir(dir) {
-    // No-op in browser environment
-    return 0;
-}
+// //Provides: caml_sys_chdir
+// function caml_sys_chdir(dir) {
+//     // No-op in browser environment
+//     return 0;
+// }
 
 
 //Provides: caml_unix_tcgetattr
