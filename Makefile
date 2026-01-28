@@ -6,7 +6,6 @@
 # - Node.js >= 18
 # - pnpm installed (npm install -g pnpm)
 # - Emscripten SDK sourced (source emsdk_env.sh)
-# - wasi-sdk installed (for Clang/LLVM build)
 #
 # Usage:
 #   make              # Full build
@@ -32,18 +31,10 @@ LLVM_INSTALL_DIR := $(INSTALL_DIR)/llvm
 # Tools
 EMCC := emcc
 EMCONFIGURE := emconfigure
+EMCMAKE := emcmake
 EMMAKE := emmake
 OPAM_EXEC := opam exec --
 PNPM := pnpm
-
-# WASI SDK configuration (for Clang/LLVM build)
-# Override WASI_SDK_PATH if installed elsewhere
-WASI_SDK_PATH ?= /opt/wasi-sdk
-WASI_CC := $(WASI_SDK_PATH)/bin/clang
-WASI_CXX := $(WASI_SDK_PATH)/bin/clang++
-WASI_AR := $(WASI_SDK_PATH)/bin/llvm-ar
-WASI_RANLIB := $(WASI_SDK_PATH)/bin/llvm-ranlib
-WASI_SYSROOT := $(WASI_SDK_PATH)/share/wasi-sysroot
 
 # OCaml paths
 OCAML_STDLIB := $(shell ocamlc -where)
@@ -105,15 +96,6 @@ check-env:
 	@echo "Node.js: $$(node -v)"
 	@echo "pnpm: $$(pnpm -v)"
 	@echo "Emscripten: $$(emcc -v 2>&1 | head -1)"
-	@echo "WASI SDK path: $(WASI_SDK_PATH)"
-	@if [ -d "$(WASI_SDK_PATH)" ]; then \
-		echo "WASI SDK: found"; \
-		echo "  clang: $$($(WASI_CC) --version 2>&1 | head -1)"; \
-	else \
-		echo "WASI SDK: NOT FOUND (required for Clang build)"; \
-		echo "  Install from: https://github.com/WebAssembly/wasi-sdk/releases"; \
-		echo "  Or set WASI_SDK_PATH environment variable"; \
-	fi
 
 #==============================================================================
 # Native dependencies (GMP, MPFR, MLGMPIDL, Apron)
@@ -137,16 +119,13 @@ deps-full: $(LIBS_DIR)/dllgmp.wasm $(LIBS_DIR)/dllmpfr.wasm $(LIBS_DIR)/dllgmp_c
 clang: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(LLVM_INSTALL_DIR)/lib/libLLVMCore.a
 	@echo "Clang/LLVM libraries built successfully"
 
-# Build LLVM and Clang libraries for WebAssembly using WASI-SDK
+# Build LLVM and Clang libraries for WebAssembly using Emscripten
 # Two-stage build:
 # 1. Native build for llvm-tblgen and clang-tblgen
-# 2. Cross-compile with wasi-sdk using native tools
-#
-# Note: binji's llvm-project fork already contains WASI compatibility patches
-# (BINJI_HACK) that stub out unavailable POSIX functions
+# 2. Cross-compile with Emscripten using native tools
 
 LLVM_NATIVE_BUILD := $(LLVM_BUILD_DIR)/native
-LLVM_WASI_BUILD := $(LLVM_BUILD_DIR)/wasi
+LLVM_WASM_BUILD := $(LLVM_BUILD_DIR)/wasm
 # Clang libraries needed by Clang_to_ml.cc
 # Order matters for static linking - dependencies must come after dependents
 # Note: We include clangStaticAnalyzerCore because clang::ento symbols are referenced
@@ -179,37 +158,32 @@ $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen: llvm-project/llvm/CMakeLists.txt
 		$(MAKE) -j$(NPROC) llvm-tblgen clang-tblgen
 	@echo "Native tools built successfully"
 
-# We also need native llvm-ar and llvm-ranlib for the WASI build
+# We also need native llvm-ar and llvm-ranlib
 $(LLVM_NATIVE_BUILD)/bin/llvm-ar: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen
 	@echo "Building native llvm-ar and llvm-ranlib..."
 	cd $(LLVM_NATIVE_BUILD) && \
 		$(MAKE) -j$(NPROC) llvm-ar llvm-ranlib
 	@echo "Native archive tools built successfully"
 
-# Stage 2: Cross-compile LLVM/Clang with wasi-sdk
-# Following binji's approach from notes.md
+# Stage 2: Cross-compile LLVM/Clang with Emscripten
 $(LLVM_INSTALL_DIR)/lib/libclangBasic.a: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen $(LLVM_NATIVE_BUILD)/bin/llvm-ar llvm-project/llvm/CMakeLists.txt
-	@echo "Building LLVM/Clang for WebAssembly using wasi-sdk..."
-	@echo "WASI SDK path: $(WASI_SDK_PATH)"
-	@test -d "$(WASI_SDK_PATH)" || (echo "ERROR: wasi-sdk not found at $(WASI_SDK_PATH). Install it or set WASI_SDK_PATH." && exit 1)
-	@mkdir -p $(LLVM_WASI_BUILD)
-	cd $(LLVM_WASI_BUILD) && \
-		cmake ../../llvm \
+	@echo "Building LLVM/Clang for WebAssembly using Emscripten..."
+	@mkdir -p $(LLVM_WASM_BUILD)
+	cd $(LLVM_WASM_BUILD) && \
+		$(EMCMAKE) cmake ../../llvm \
 			-DCMAKE_BUILD_TYPE=MinSizeRel \
 			-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 			-DCMAKE_INSTALL_PREFIX=$(CURDIR)/$(LLVM_INSTALL_DIR) \
-			-DCMAKE_C_COMPILER=$(WASI_CC) \
-			-DCMAKE_CXX_COMPILER=$(WASI_CXX) \
-			-DCMAKE_C_FLAGS="-DBINJI_HACK" \
-			-DCMAKE_CXX_FLAGS="-DBINJI_HACK" \
 			-DCMAKE_AR=$(CURDIR)/$(LLVM_NATIVE_BUILD)/bin/llvm-ar \
 			-DCMAKE_RANLIB=$(CURDIR)/$(LLVM_NATIVE_BUILD)/bin/llvm-ranlib \
+			-DCMAKE_CXX_FLAGS="-fPIC -fno-inline" \
+			-DCMAKE_C_FLAGS="-fPIC" \
 			-DCMAKE_CROSSCOMPILING=True \
 			-DLLVM_TABLEGEN=$(CURDIR)/$(LLVM_NATIVE_BUILD)/bin/llvm-tblgen \
 			-DCLANG_TABLEGEN=$(CURDIR)/$(LLVM_NATIVE_BUILD)/bin/clang-tblgen \
 			-DLLVM_ENABLE_PROJECTS="clang" \
 			-DLLVM_TARGETS_TO_BUILD="WebAssembly" \
-			-DLLVM_DEFAULT_TARGET_TRIPLE=wasm32-wasi \
+			-DLLVM_DEFAULT_TARGET_TRIPLE=wasm32-unknown-emscripten \
 			-DLLVM_BUILD_TOOLS=OFF \
 			-DLLVM_INCLUDE_TESTS=OFF \
 			-DLLVM_INCLUDE_EXAMPLES=OFF \
@@ -228,7 +202,7 @@ $(LLVM_INSTALL_DIR)/lib/libclangBasic.a: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen $(
 			-DLLVM_ENABLE_LIBEDIT=OFF \
 			-DLLVM_ENABLE_LIBPFM=OFF \
 			-DLLVM_BUILD_STATIC=ON \
-			-DLLVM_ENABLE_PIC=OFF \
+			-DLLVM_ENABLE_PIC=ON \
 			-DBUILD_SHARED_LIBS=OFF \
 			-DCMAKE_SKIP_RPATH=ON \
 			-DCMAKE_SKIP_INSTALL_RPATH=ON \
@@ -237,22 +211,22 @@ $(LLVM_INSTALL_DIR)/lib/libclangBasic.a: $(LLVM_NATIVE_BUILD)/bin/llvm-tblgen $(
 			-DCLANG_BUILD_TOOLS=OFF \
 			-DCLANG_INCLUDE_TESTS=OFF
 	@echo "CMake configuration complete. Building libraries..."
-	cd $(LLVM_WASI_BUILD) && \
-		$(MAKE) -j$(NPROC) $(CLANG_LIBS) $(LLVM_LIBS)
+	cd $(LLVM_WASM_BUILD) && \
+		$(EMMAKE) $(MAKE) -j$(NPROC) $(CLANG_LIBS) $(LLVM_LIBS)
 	@echo "Copying libraries and headers to install directory..."
 	@mkdir -p $(LLVM_INSTALL_DIR)/lib
 	@mkdir -p $(LLVM_INSTALL_DIR)/include
 	@echo "  - Copying libraries..."
-	@cp -r $(LLVM_WASI_BUILD)/lib/*.a $(LLVM_INSTALL_DIR)/lib/ 2>/dev/null || true
+	@cp -r $(LLVM_WASM_BUILD)/lib/*.a $(LLVM_INSTALL_DIR)/lib/ 2>/dev/null || true
 	@echo "  - Copying LLVM headers..."
 	@cp -r llvm-project/llvm/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
 	@echo "  - Copying Clang headers..."
 	@cp -r llvm-project/clang/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
 	@echo "  - Copying generated headers (LLVM)..."
-	@cp -r $(LLVM_WASI_BUILD)/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
+	@cp -r $(LLVM_WASM_BUILD)/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
 	@echo "  - Copying generated headers (Clang)..."
-	@cp -r $(LLVM_WASI_BUILD)/tools/clang/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
-	@echo "LLVM/Clang WASI build complete"
+	@cp -r $(LLVM_WASM_BUILD)/tools/clang/include/* $(LLVM_INSTALL_DIR)/include/ 2>/dev/null || true
+	@echo "LLVM/Clang Emscripten build complete"
 
 $(LLVM_INSTALL_DIR)/lib/libLLVMCore.a: $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
 
@@ -537,16 +511,15 @@ $(DIST_DIR)/dllgmp_caml.wasm: backend/wasm/gmp_all_stubs.c
 
 # Clang parser library sources
 CLANG_TO_ML_SRC := mopsa-analyzer/parsers/c/lib/parser/Clang_to_ml.cc
-CLANG_TO_ML_OBJ := $(BUILD_DIR)/Clang_to_ml.wasi.o
+CLANG_TO_ML_OBJ := $(BUILD_DIR)/Clang_to_ml.o
 C_PARSER_STUBS_SRC := backend/wasm/c_parser_stubs.c
-C_PARSER_STUBS_OBJ := $(BUILD_DIR)/c_parser_stubs.wasi.o
+C_PARSER_STUBS_OBJ := $(BUILD_DIR)/c_parser_stubs.o
 
-# WASI C++ flags for Clang_to_ml compilation
+# Emscripten C++ flags for Clang_to_ml compilation
 # Note: We use -fno-inline to force inline functions from Clang headers to be
 # emitted in the object file. Without this, linking fails because
 # inline methods like SourceLocation::getRawEncoding() are not found.
-WASI_CLANG_CXXFLAGS := --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) \
-	-std=c++17 -fno-exceptions -fno-rtti -fno-inline -O2 \
+EMCC_CLANG_CXXFLAGS := -std=c++17 -fno-exceptions -fno-inline -O2 -fPIC \
 	-I$(LLVM_INSTALL_DIR)/include \
 	-I$(OCAML_STDLIB) \
 	-I$(shell opam var lib)/zarith \
@@ -555,61 +528,51 @@ WASI_CLANG_CXXFLAGS := --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) \
 	-D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS \
 	-Wno-strict-aliasing -Wall -Wno-comment
 
-WASI_CLANG_CFLAGS := --target=wasm32-wasi --sysroot=$(WASI_SYSROOT) \
-	-O2 \
+EMCC_CLANG_CFLAGS := -O2 -fPIC \
 	-I$(OCAML_STDLIB)
 
-# Compile Clang_to_ml.cc with wasi-sdk
+# Compile Clang_to_ml.cc with Emscripten
 $(CLANG_TO_ML_OBJ): $(CLANG_TO_ML_SRC) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a
-	@echo "Compiling Clang_to_ml.cc with wasi-sdk..."
+	@echo "Compiling Clang_to_ml.cc with Emscripten..."
 	@mkdir -p $(BUILD_DIR)
-	$(WASI_CXX) -c $(WASI_CLANG_CXXFLAGS) \
+	em++ -c $(EMCC_CLANG_CXXFLAGS) \
 		-o $(CLANG_TO_ML_OBJ) $(CLANG_TO_ML_SRC)
 
-# Compile c_parser_stubs.c with wasi-sdk
+# Compile c_parser_stubs.c with Emscripten
 $(C_PARSER_STUBS_OBJ): $(C_PARSER_STUBS_SRC)
-	@echo "Compiling c_parser_stubs.c with wasi-sdk..."
+	@echo "Compiling c_parser_stubs.c with Emscripten..."
 	@mkdir -p $(BUILD_DIR)
-	$(WASI_CC) -c $(WASI_CLANG_CFLAGS) \
+	$(EMCC) -c $(EMCC_CLANG_CFLAGS) \
 		-o $(C_PARSER_STUBS_OBJ) $(C_PARSER_STUBS_SRC)
 
 # Combined C parser library (includes c_parser_stubs + Clang_to_ml + all Clang/LLVM dependencies)
-# Built with wasi-sdk for WASI compatibility
+# Built with Emscripten
 # This is what OCaml bytecode expects as dllmopsa_c_parser_stubs
 #
 # LINKAGE NOTES:
-# - --whole-archive is used BEFORE the .o files to ensure all symbols are kept
+# - SIDE_MODULE=1 creates a dynamic library that can be loaded by OCaml runtime
 # - Library order: Clang libs first (higher level), then LLVM libs (dependencies)
-# - --allow-undefined-file lists symbols provided at runtime (OCaml, JS, zarith)
+# - Exported functions are the C parser API functions
 # - Clang builtin headers must be installed for parsing to work at runtime
-C_PARSER_IMPORTS := backend/wasm/c_parser_imports.txt
 
 # Dependencies include clang-headers to ensure builtin headers are available
-$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(C_PARSER_IMPORTS) $(CLANG_RESOURCE_DIR)/include/stddef.h
-	@echo "Linking dllmopsa_c_parser_stubs.wasm with wasi-sdk..."
+$(DIST_DIR)/dllmopsa_c_parser_stubs.wasm: $(C_PARSER_STUBS_OBJ) $(CLANG_TO_ML_OBJ) $(LLVM_INSTALL_DIR)/lib/libclangBasic.a $(CLANG_RESOURCE_DIR)/include/stddef.h
+	@echo "Linking dllmopsa_c_parser_stubs.wasm with Emscripten..."
 	@mkdir -p $(DIST_DIR)
-	$(WASI_SDK_PATH)/bin/wasm-ld \
-		--no-entry \
-		--export-dynamic \
-		--allow-undefined-file=$(C_PARSER_IMPORTS) \
-		--export=mlclang_parse \
-		--export=mlclang_get_target_info \
-		--export=mlclang_get_default_target_options \
-		--export=mlclang_dump_block \
-		--export=mopsa_emit \
-		-L$(WASI_SYSROOT)/lib/wasm32-wasi \
-		-L$(LLVM_INSTALL_DIR)/lib \
+	$(EMCC) $(EMCC_SIDE_MODULE) \
 		-o $(DIST_DIR)/dllmopsa_c_parser_stubs.wasm \
-		--whole-archive \
 		$(C_PARSER_STUBS_OBJ) \
 		$(CLANG_TO_ML_OBJ) \
+		-L$(LLVM_INSTALL_DIR)/lib \
+		-Wl,--whole-archive \
 		-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema \
 		-lclangAnalysis -lclangEdit -lclangStaticAnalyzerCore -lclangAST -lclangLex -lclangBasic \
 		-lLLVMOption -lLLVMProfileData -lLLVMMCParser -lLLVMMC -lLLVMBitReader \
 		-lLLVMBinaryFormat -lLLVMDemangle -lLLVMCore -lLLVMSupport \
-		--no-whole-archive \
-		-lc++ -lc++abi -lc -lm
-	@echo "C parser library built successfully (WASI)"
+		-Wl,--no-whole-archive \
+		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+		-s EXPORTED_FUNCTIONS="['_mlclang_parse','_mlclang_get_target_info','_mlclang_get_default_target_options','_mlclang_dump_block','_mopsa_emit']"
+	@echo "C parser library built successfully (Emscripten)"
 	@echo "Note: Clang builtin headers installed at $(CLANG_RESOURCE_DIR)/include/"
 	@# Create symlink for backward compatibility
 	@cd $(DIST_DIR) && ln -sf dllmopsa_c_parser_stubs.wasm dllclang_parser.wasm

@@ -438,7 +438,7 @@ export class MopsaPod extends EventEmitter {
         console.log('Loading mopsa_c_parser_stubs (includes Clang parser)...');
         // Load mopsa_c_parser_stubs with JavaScript functions
         // This library now includes both mopsa_emit and the Clang parser (mlclang_*)
-        // Since this module is compiled with WASI-SDK, it needs WASI imports
+        // Compiled with Emscripten, so no WASI imports needed
         //
         // IMPORTANT: dllmopsa_c_parser_stubs.wasm imports ml_z_of_substring_base from zarith.
         // The dyld doesn't automatically resolve symbols from previously loaded libraries,
@@ -490,9 +490,7 @@ export class MopsaPod extends EventEmitter {
                     const fn = getZarithExport('ml_z_of_substring_base') as Function;
                     return fn(b, v, offset, length);
                 },
-            },
-            // Provide WASI imports for modules compiled with WASI-SDK
-            wasi_snapshot_preview1: this.core.wasi.wasiImport
+            }
         };
         try {
             await this.core.proc.dyld.preload(
