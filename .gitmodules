@@ -13,3 +13,6 @@
 [submodule "llvm-project"]
 	path = llvm-project
 	url = git@github.com:rboudrouss/llvm-project-wasm.git
+[submodule "ocaml-wasm"]
+	path = ocaml-wasm
+	url = git@github.com:rboudrouss/ocaml.git
