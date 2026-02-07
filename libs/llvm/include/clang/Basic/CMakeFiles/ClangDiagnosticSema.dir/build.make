@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/llvm
+CMAKE_SOURCE_DIR = /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi
+CMAKE_BINARY_DIR = /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm
 
 # Utility rule file for ClangDiagnosticSema.
 
@@ -68,65 +68,65 @@ include tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/progr
 
 tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema: tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc
 
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/clang-tblgen
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/clang-tblgen
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Attr.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/AttrDocs.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/CommentNodes.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DeclNodes.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Diagnostic.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticASTKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticAnalysisKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCategories.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCommentKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCommonKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCrossTUKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticDocs.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticDriverKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticFrontendKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticGroups.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticLexKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticParseKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticRefactoringKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticSemaKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticSerializationKinds.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/StmtNodes.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/arm_fp16.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/arm_neon.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/arm_neon_incl.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
-tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Diagnostic.td
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building DiagnosticSemaKinds.inc..."
-	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Basic && /home/rboud/Documents/mopsa-wasm/llvm-project/build/native/bin/clang-tblgen -gen-clang-diags-defs -clang-component=Sema -I /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic -I /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Diagnostic.td -o /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/native/bin/clang-tblgen
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/native/bin/clang-tblgen
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Attr.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/AttrDocs.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/CommentNodes.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DeclNodes.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Diagnostic.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticASTKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticAnalysisKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCategories.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCommentKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCommonKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticCrossTUKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticDocs.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticDriverKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticFrontendKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticGroups.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticLexKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticParseKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticRefactoringKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticSemaKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/DiagnosticSerializationKinds.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/StmtNodes.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/arm_fp16.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/arm_neon.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/arm_neon_incl.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/SDNodeProperties.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/CodeGen/ValueTypes.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Attributes.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/Intrinsics.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAArch64.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsAMDGPU.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsARM.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsBPF.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsHexagon.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsMips.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsNVVM.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsPowerPC.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsRISCV.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsSystemZ.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsWebAssembly.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsX86.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/IR/IntrinsicsXCore.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Option/OptParser.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/TableGen/SearchableTable.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GenericOpcodes.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/RegisterBank.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/SelectionDAGCompat.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/GlobalISel/Target.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/Target.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetCallingConv.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetInstrPredicate.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetItinerary.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetPfmCounters.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSchedule.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Target/TargetSelectionDAG.td
+tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Diagnostic.td
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building DiagnosticSemaKinds.inc..."
+	cd /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/tools/clang/include/clang/Basic && /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/native/bin/clang-tblgen -gen-clang-diags-defs -clang-component=Sema -I /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic -I /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic/Diagnostic.td -o /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/tools/clang/include/clang/Basic/DiagnosticSemaKinds.inc
 
 tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/codegen:
 .PHONY : tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/codegen
@@ -141,10 +141,10 @@ tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/build: ClangD
 .PHONY : tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/build
 
 tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/clean:
-	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Basic && $(CMAKE_COMMAND) -P CMakeFiles/ClangDiagnosticSema.dir/cmake_clean.cmake
+	cd /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/tools/clang/include/clang/Basic && $(CMAKE_COMMAND) -P CMakeFiles/ClangDiagnosticSema.dir/cmake_clean.cmake
 .PHONY : tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/clean
 
 tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/depend:
-	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboud/Documents/mopsa-wasm/llvm-project/llvm /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Basic /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/DependInfo.cmake "--color=$(COLOR)" ClangDiagnosticSema
+	cd /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/tools/clang/include/clang/Basic /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/DependInfo.cmake "--color=$(COLOR)" ClangDiagnosticSema
 .PHONY : tools/clang/include/clang/Basic/CMakeFiles/ClangDiagnosticSema.dir/depend
 

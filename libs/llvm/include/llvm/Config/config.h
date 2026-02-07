@@ -19,7 +19,7 @@
 /* Define to 1 if you have the `backtrace' function. */
 /* #undef HAVE_BACKTRACE */
 
-#define BACKTRACE_HEADER <execinfo.h>
+#define BACKTRACE_HEADER <backtrace.h>
 
 /* Define to 1 if you have the <CrashReporterClient.h> header file. */
 /* #undef HAVE_CRASHREPORTERCLIENT_H */
@@ -29,7 +29,7 @@
 
 /* Define to 1 if you have the declaration of `arc4random', and to 0 if you
    don't. */
-#define HAVE_DECL_ARC4RANDOM 1
+#define HAVE_DECL_ARC4RANDOM 0
 
 /* Define to 1 if you have the declaration of `FE_ALL_EXCEPT', and to 0 if you
    don't. */
@@ -53,7 +53,7 @@
 #define HAVE_DLOPEN 1
 
 /* Define if dladdr() is available on this platform. */
-/* #undef HAVE_DLADDR */
+#define HAVE_DLADDR 1
 
 /* Define to 1 if you have the <errno.h> header file. */
 #define HAVE_ERRNO_H 1
@@ -83,10 +83,10 @@
 #define HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `getrlimit' function. */
-/* #undef HAVE_GETRLIMIT */
+#define HAVE_GETRLIMIT 1
 
 /* Define to 1 if you have the `getrusage' function. */
-/* #undef HAVE_GETRUSAGE */
+#define HAVE_GETRUSAGE 1
 
 /* Define to 1 if you have the `isatty' function. */
 #define HAVE_ISATTY 1
@@ -113,7 +113,7 @@
 /* #undef HAVE_LIBZ */
 
 /* Define to 1 if you have the <link.h> header file. */
-/* #undef HAVE_LINK_H */
+#define HAVE_LINK_H 1
 
 /* Define to 1 if you have the `lseek64' function. */
 #define HAVE_LSEEK64 1
@@ -125,10 +125,7 @@
 /* #undef HAVE_MALLCTL */
 
 /* Define to 1 if you have the `mallinfo' function. */
-/* #undef HAVE_MALLINFO */
-
-/* Define to 1 if you have the <malloc.h> header file. */
-#define HAVE_MALLOC_H 1
+#define HAVE_MALLINFO 1
 
 /* Define to 1 if you have the <malloc/malloc.h> header file. */
 /* #undef HAVE_MALLOC_MALLOC_H */
@@ -140,7 +137,7 @@
 #define HAVE_POSIX_FALLOCATE 1
 
 /* Define to 1 if you have the `posix_spawn' function. */
-/* #undef HAVE_POSIX_SPAWN */
+#define HAVE_POSIX_SPAWN 1
 
 /* Define to 1 if you have the `pread' function. */
 #define HAVE_PREAD 1
@@ -157,9 +154,6 @@
 /* Have pthread_rwlock_init */
 #define HAVE_PTHREAD_RWLOCK_INIT 1
 
-/* Define to 1 if you have the `realpath' function. */
-#define HAVE_REALPATH 1
-
 /* Define to 1 if you have the `sbrk' function. */
 #define HAVE_SBRK 1
 
@@ -173,13 +167,13 @@
 /* #undef HAVE_CPU_COUNT */
 
 /* Define to 1 if you have the `setrlimit' function. */
-/* #undef HAVE_SETRLIMIT */
+#define HAVE_SETRLIMIT 1
 
 /* Define to 1 if you have the `sigaltstack' function. */
-/* #undef HAVE_SIGALTSTACK */
+#define HAVE_SIGALTSTACK 1
 
 /* Define to 1 if you have the <signal.h> header file. */
-/* #undef HAVE_SIGNAL_H */
+#define HAVE_SIGNAL_H 1
 
 /* Define to 1 if you have the `strerror' function. */
 #define HAVE_STRERROR 1
@@ -194,13 +188,13 @@
 #define HAVE_SYS_IOCTL_H 1
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
-/* #undef HAVE_SYS_MMAN_H */
+#define HAVE_SYS_MMAN_H 1
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #define HAVE_SYS_PARAM_H 1
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
-/* #undef HAVE_SYS_RESOURCE_H */
+#define HAVE_SYS_RESOURCE_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -224,7 +218,7 @@
 /* #undef HAVE_LIBXAR */
 
 /* Define to 1 if you have the <termios.h> header file. */
-/* #undef HAVE_TERMIOS_H */
+#define HAVE_TERMIOS_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
@@ -242,7 +236,7 @@
 /* #undef HAVE__CHSIZE_S */
 
 /* Define to 1 if you have the `_Unwind_Backtrace' function. */
-/* #undef HAVE__UNWIND_BACKTRACE */
+#define HAVE__UNWIND_BACKTRACE 1
 
 /* Have host's __alloca */
 /* #undef HAVE___ALLOCA */
@@ -300,7 +294,7 @@
 
 /* Target triple LLVM will generate code for by default */
 /* Doesn't use `cmakedefine` because it is allowed to be empty. */
-#define LLVM_DEFAULT_TARGET_TRIPLE "wasm32-wasi"
+#define LLVM_DEFAULT_TARGET_TRIPLE "wasm32-unknown-emscripten"
 
 /* Define if zlib compression is available */
 #define LLVM_ENABLE_ZLIB 0
@@ -327,16 +321,19 @@
 #define PACKAGE_NAME "LLVM"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "LLVM 8.0.1"
+#define PACKAGE_STRING "LLVM 9.0.1"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "8.0.1"
+#define PACKAGE_VERSION "9.0.1"
 
 /* Define to the vendor of this package. */
 /* #undef PACKAGE_VENDOR */
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
+
+/* Define if std::is_trivially_copyable is supported */
+#define HAVE_STD_IS_TRIVIALLY_COPYABLE 1
 
 /* Define to a function implementing stricmp */
 /* #undef stricmp */
@@ -347,7 +344,13 @@
 /* Whether GlobalISel rule coverage is being collected */
 #define LLVM_GISEL_COV_ENABLED 0
 
+/* Define if we have z3 and want to build it */
+/* #undef LLVM_WITH_Z3 */
+
 /* Define to the default GlobalISel coverage file prefix */
 /* #undef LLVM_GISEL_COV_PREFIX */
+
+/* Whether Timers signpost passes in Xcode Instruments */
+#define LLVM_SUPPORT_XCODE_SIGNPOSTS 0
 
 #endif

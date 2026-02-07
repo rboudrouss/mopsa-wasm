@@ -1,8 +1,8 @@
-# Install script for directory: /home/rboud/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic
+# Install script for directory: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/clang/include/clang/Basic
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/rboud/Documents/mopsa-wasm/libs/llvm")
+  set(CMAKE_INSTALL_PREFIX "/home/rboudrouss/Documents/mopsa-wasm/libs/llvm")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -27,24 +27,19 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   endif()
 endif()
 
-# Install shared libraries without execute permission?
-if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
-  set(CMAKE_INSTALL_SO_NO_EXE "0")
-endif()
-
 # Is this installation the result of a crosscompile?
 if(NOT DEFINED CMAKE_CROSSCOMPILING)
-  set(CMAKE_CROSSCOMPILING "FALSE")
+  set(CMAKE_CROSSCOMPILING "TRUE")
 endif()
 
 # Set path to fallback-tool for dependency-resolution.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/home/rboud/opt/wasi-sdk/bin/llvm-objdump")
+  set(CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/tools/clang/include/clang/Basic/install_local_manifest.txt"
+  file(WRITE "/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/tools/clang/include/clang/Basic/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

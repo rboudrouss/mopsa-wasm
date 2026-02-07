@@ -77,7 +77,12 @@
 #if defined(CLANG_ATTR_VARIADIC_IDENTIFIER_ARG_LIST)
 .Case("cpu_dispatch", true)
 .Case("cpu_specific", true)
+.Case("callback", true)
 #endif // CLANG_ATTR_VARIADIC_IDENTIFIER_ARG_LIST
+
+#if defined(CLANG_ATTR_THIS_ISA_IDENTIFIER_ARG_LIST)
+.Case("callback", true)
+#endif // CLANG_ATTR_THIS_ISA_IDENTIFIER_ARG_LIST
 
 #if defined(CLANG_ATTR_TYPE_ARG_LIST)
 .Case("iboutletcollection", true)

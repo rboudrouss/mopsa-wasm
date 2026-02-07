@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/llvm
+CMAKE_SOURCE_DIR = /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi
+CMAKE_BINARY_DIR = /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm
 
 # Utility rule file for llvm_vcsrevision_h.
 
@@ -68,10 +68,10 @@ include include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/progress.make
 
 include/llvm/Support/CMakeFiles/llvm_vcsrevision_h: include/llvm/Support/VCSRevision.h
 
-include/llvm/Support/VCSRevision.h: /home/rboud/Documents/mopsa-wasm/.git/modules/llvm-project/logs/HEAD
-include/llvm/Support/VCSRevision.h: /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/cmake/modules/GenerateVersionFromCVS.cmake
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating VCSRevision.h"
-	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/Support && /usr/bin/cmake -DSOURCE_DIR=/home/rboud/Documents/mopsa-wasm/llvm-project/llvm -DNAME=LLVM_REVISION -DHEADER_FILE=/home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/Support/VCSRevision.h -P /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/cmake/modules/GenerateVersionFromCVS.cmake
+include/llvm/Support/VCSRevision.h: /home/rboudrouss/Documents/mopsa-wasm/.git/modules/llvm-project/logs/HEAD
+include/llvm/Support/VCSRevision.h: /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/cmake/modules/GenerateVersionFromVCS.cmake
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating VCSRevision.h"
+	cd /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/include/llvm/Support && /usr/bin/cmake -DNAMES=LLVM -DLLVM_SOURCE_DIR=/home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm -DHEADER_FILE=/home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/include/llvm/Support/VCSRevision.h -P /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/cmake/modules/GenerateVersionFromVCS.cmake
 
 include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/codegen:
 .PHONY : include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/codegen
@@ -86,10 +86,10 @@ include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/build: llvm_vcsrevision_h
 .PHONY : include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/build
 
 include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/clean:
-	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/Support && $(CMAKE_COMMAND) -P CMakeFiles/llvm_vcsrevision_h.dir/cmake_clean.cmake
+	cd /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/include/llvm/Support && $(CMAKE_COMMAND) -P CMakeFiles/llvm_vcsrevision_h.dir/cmake_clean.cmake
 .PHONY : include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/clean
 
 include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/depend:
-	cd /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboud/Documents/mopsa-wasm/llvm-project/llvm /home/rboud/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Support /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/Support /home/rboud/Documents/mopsa-wasm/llvm-project/build/wasi/include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/DependInfo.cmake "--color=$(COLOR)" llvm_vcsrevision_h
+	cd /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm /home/rboudrouss/Documents/mopsa-wasm/llvm-project/llvm/include/llvm/Support /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/include/llvm/Support /home/rboudrouss/Documents/mopsa-wasm/llvm-project/build/wasm/include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/DependInfo.cmake "--color=$(COLOR)" llvm_vcsrevision_h
 .PHONY : include/llvm/Support/CMakeFiles/llvm_vcsrevision_h.dir/depend
 

@@ -394,6 +394,15 @@
         return 1;
     break;
   }
+  case AT_Callback: {
+    if (Name == "callback" && SyntaxUsed == 0 && Scope == "")
+        return 0;
+    if (Name == "callback" && SyntaxUsed == 1 && Scope == "clang")
+        return 1;
+    if (Name == "callback" && SyntaxUsed == 2 && Scope == "clang")
+        return 2;
+    break;
+  }
   case AT_Capability: {
     if (Name == "capability" && SyntaxUsed == 0 && Scope == "")
         return 0;
@@ -660,6 +669,13 @@
         return 1;
     break;
   }
+  case AT_HIPPinnedShadow: {
+    if (Name == "hip_pinned_shadow" && SyntaxUsed == 0 && Scope == "")
+        return 0;
+    if (Name == "__hip_pinned_shadow__" && SyntaxUsed == 3 && Scope == "")
+        return 1;
+    break;
+  }
   case AT_Hot: {
     if (Name == "hot" && SyntaxUsed == 0 && Scope == "")
         return 0;
@@ -773,11 +789,25 @@
         return 4;
     break;
   }
+  case AT_MIGServerRoutine: {
+    if (Name == "mig_server_routine" && SyntaxUsed == 0 && Scope == "")
+        return 0;
+    if (Name == "mig_server_routine" && SyntaxUsed == 1 && Scope == "clang")
+        return 1;
+    if (Name == "mig_server_routine" && SyntaxUsed == 2 && Scope == "clang")
+        return 2;
+    break;
+  }
   case AT_MSABI: {
     if (Name == "ms_abi" && SyntaxUsed == 0 && Scope == "")
         return 0;
     if (Name == "ms_abi" && SyntaxUsed == 1 && Scope == "gnu")
         return 1;
+    break;
+  }
+  case AT_MSAllocator: {
+    if (Name == "allocator" && SyntaxUsed == 3 && Scope == "")
+        return 0;
     break;
   }
   case AT_MSInheritance: {
@@ -1065,6 +1095,15 @@
         return 8;
     break;
   }
+  case AT_NoSpeculativeLoadHardening: {
+    if (Name == "no_speculative_load_hardening" && SyntaxUsed == 0 && Scope == "")
+        return 0;
+    if (Name == "no_speculative_load_hardening" && SyntaxUsed == 1 && Scope == "clang")
+        return 1;
+    if (Name == "no_speculative_load_hardening" && SyntaxUsed == 2 && Scope == "clang")
+        return 2;
+    break;
+  }
   case AT_NoSplitStack: {
     if (Name == "no_split_stack" && SyntaxUsed == 0 && Scope == "")
         return 0;
@@ -1097,6 +1136,11 @@
         return 1;
     if (Name == "nothrow" && SyntaxUsed == 3 && Scope == "")
         return 2;
+    break;
+  }
+  case AT_NoUniqueAddress: {
+    if (Name == "no_unique_address" && SyntaxUsed == 1 && Scope == "")
+        return 0;
     break;
   }
   case AT_NonNull: {
@@ -1205,6 +1249,15 @@
         return 2;
     break;
   }
+  case AT_ObjCClassStub: {
+    if (Name == "objc_class_stub" && SyntaxUsed == 0 && Scope == "")
+        return 0;
+    if (Name == "objc_class_stub" && SyntaxUsed == 1 && Scope == "clang")
+        return 1;
+    if (Name == "objc_class_stub" && SyntaxUsed == 2 && Scope == "clang")
+        return 2;
+    break;
+  }
   case AT_ObjCDesignatedInitializer: {
     if (Name == "objc_designated_initializer" && SyntaxUsed == 0 && Scope == "")
         return 0;
@@ -1284,6 +1337,15 @@
     if (Name == "NSObject" && SyntaxUsed == 1 && Scope == "clang")
         return 1;
     if (Name == "NSObject" && SyntaxUsed == 2 && Scope == "clang")
+        return 2;
+    break;
+  }
+  case AT_ObjCNonLazyClass: {
+    if (Name == "objc_nonlazy_class" && SyntaxUsed == 0 && Scope == "")
+        return 0;
+    if (Name == "objc_nonlazy_class" && SyntaxUsed == 1 && Scope == "clang")
+        return 1;
+    if (Name == "objc_nonlazy_class" && SyntaxUsed == 2 && Scope == "clang")
         return 2;
     break;
   }
@@ -1513,6 +1575,12 @@
         return 1;
     if (Name == "pass_object_size" && SyntaxUsed == 2 && Scope == "clang")
         return 2;
+    if (Name == "pass_dynamic_object_size" && SyntaxUsed == 0 && Scope == "")
+        return 3;
+    if (Name == "pass_dynamic_object_size" && SyntaxUsed == 1 && Scope == "clang")
+        return 4;
+    if (Name == "pass_dynamic_object_size" && SyntaxUsed == 2 && Scope == "clang")
+        return 5;
     break;
   }
   case AT_Pcs: {

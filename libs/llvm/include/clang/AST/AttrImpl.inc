@@ -1509,7 +1509,7 @@ const char *AssumeAlignedAttr::getSpelling() const {
 }
 
 AvailabilityAttr *AvailabilityAttr::clone(ASTContext &C) const {
-  auto *A = new (C) AvailabilityAttr(getLocation(), C, platform, getIntroduced(), getDeprecated(), getObsoleted(), unavailable, getMessage(), strict, getReplacement(), getSpellingListIndex());
+  auto *A = new (C) AvailabilityAttr(getLocation(), C, platform, getIntroduced(), getDeprecated(), getObsoleted(), unavailable, getMessage(), strict, getReplacement(), priority, getSpellingListIndex());
   A->Inherited = Inherited;
   A->IsPackExpansion = IsPackExpansion;
   A->Implicit = Implicit;
@@ -1532,11 +1532,11 @@ void AvailabilityAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy
     break;
   }
   case 1 : {
-    OS << " [[clang::availability(" << (getPlatform() ? getPlatform()->getName() : "") << ", introduced=" << getIntroduced() << ", deprecated=" << getDeprecated() << ", obsoleted=" << getObsoleted() << ", " << getUnavailable() << ", \"" << getMessage() << "\", " << getStrict() << ", \"" << getReplacement() << "\")]]";
+    OS << " [[clang::availability(" << (getPlatform() ? getPlatform()->getName() : "") << ", introduced=" << getIntroduced() << ", deprecated=" << getDeprecated() << ", obsoleted=" << getObsoleted() << ", " << getUnavailable() << ", \"" << getMessage() << "\", " << getStrict() << ", \"" << getReplacement() << "\", " << getPriority() << ")]]";
     break;
   }
   case 2 : {
-    OS << " [[clang::availability(" << (getPlatform() ? getPlatform()->getName() : "") << ", introduced=" << getIntroduced() << ", deprecated=" << getDeprecated() << ", obsoleted=" << getObsoleted() << ", " << getUnavailable() << ", \"" << getMessage() << "\", " << getStrict() << ", \"" << getReplacement() << "\")]]";
+    OS << " [[clang::availability(" << (getPlatform() ? getPlatform()->getName() : "") << ", introduced=" << getIntroduced() << ", deprecated=" << getDeprecated() << ", obsoleted=" << getObsoleted() << ", " << getUnavailable() << ", \"" << getMessage() << "\", " << getStrict() << ", \"" << getReplacement() << "\", " << getPriority() << ")]]";
     break;
   }
 }
@@ -2346,6 +2346,69 @@ const char *CallableWhenAttr::getSpelling() const {
     return "callable_when";
   case 1:
     return "callable_when";
+  }
+}
+
+CallbackAttr *CallbackAttr::clone(ASTContext &C) const {
+  auto *A = new (C) CallbackAttr(getLocation(), C, encoding_, encoding_Size, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void CallbackAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __attribute__((callback(";
+  bool isFirst = true;
+  for (const auto &Val : encoding()) {
+    if (isFirst) isFirst = false;
+    else OS << ", ";
+    OS << Val;
+  }
+  OS << ")))";
+    break;
+  }
+  case 1 : {
+    OS << " [[clang::callback(";
+  bool isFirst = true;
+  for (const auto &Val : encoding()) {
+    if (isFirst) isFirst = false;
+    else OS << ", ";
+    OS << Val;
+  }
+  OS << ")]]";
+    break;
+  }
+  case 2 : {
+    OS << " [[clang::callback(";
+  bool isFirst = true;
+  for (const auto &Val : encoding()) {
+    if (isFirst) isFirst = false;
+    else OS << ", ";
+    OS << Val;
+  }
+  OS << ")]]";
+    break;
+  }
+}
+}
+
+const char *CallbackAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "callback";
+  case 1:
+    return "callback";
+  case 2:
+    return "callback";
   }
 }
 
@@ -3703,6 +3766,42 @@ const char *GuardedVarAttr::getSpelling() const {
   }
 }
 
+HIPPinnedShadowAttr *HIPPinnedShadowAttr::clone(ASTContext &C) const {
+  auto *A = new (C) HIPPinnedShadowAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void HIPPinnedShadowAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __attribute__((hip_pinned_shadow))";
+    break;
+  }
+  case 1 : {
+    OS << " __declspec(__hip_pinned_shadow__)";
+    break;
+  }
+}
+}
+
+const char *HIPPinnedShadowAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "hip_pinned_shadow";
+  case 1:
+    return "__hip_pinned_shadow__";
+  }
+}
+
 HotAttr *HotAttr::clone(ASTContext &C) const {
   auto *A = new (C) HotAttr(getLocation(), C, getSpellingListIndex());
   A->Inherited = Inherited;
@@ -4280,6 +4379,48 @@ const char *LoopHintAttr::getSpelling() const {
   }
 }
 
+MIGServerRoutineAttr *MIGServerRoutineAttr::clone(ASTContext &C) const {
+  auto *A = new (C) MIGServerRoutineAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void MIGServerRoutineAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __attribute__((mig_server_routine))";
+    break;
+  }
+  case 1 : {
+    OS << " [[clang::mig_server_routine]]";
+    break;
+  }
+  case 2 : {
+    OS << " [[clang::mig_server_routine]]";
+    break;
+  }
+}
+}
+
+const char *MIGServerRoutineAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "mig_server_routine";
+  case 1:
+    return "mig_server_routine";
+  case 2:
+    return "mig_server_routine";
+  }
+}
+
 MSABIAttr *MSABIAttr::clone(ASTContext &C) const {
   auto *A = new (C) MSABIAttr(getLocation(), C, getSpellingListIndex());
   A->Inherited = Inherited;
@@ -4313,6 +4454,36 @@ const char *MSABIAttr::getSpelling() const {
     return "ms_abi";
   case 1:
     return "ms_abi";
+  }
+}
+
+MSAllocatorAttr *MSAllocatorAttr::clone(ASTContext &C) const {
+  auto *A = new (C) MSAllocatorAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void MSAllocatorAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __declspec(allocator)";
+    break;
+  }
+}
+}
+
+const char *MSAllocatorAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "allocator";
   }
 }
 
@@ -5627,6 +5798,48 @@ const char *NoSanitizeAttr::getSpelling() const {
   }
 }
 
+NoSpeculativeLoadHardeningAttr *NoSpeculativeLoadHardeningAttr::clone(ASTContext &C) const {
+  auto *A = new (C) NoSpeculativeLoadHardeningAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void NoSpeculativeLoadHardeningAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __attribute__((no_speculative_load_hardening))";
+    break;
+  }
+  case 1 : {
+    OS << " [[clang::no_speculative_load_hardening]]";
+    break;
+  }
+  case 2 : {
+    OS << " [[clang::no_speculative_load_hardening]]";
+    break;
+  }
+}
+}
+
+const char *NoSpeculativeLoadHardeningAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "no_speculative_load_hardening";
+  case 1:
+    return "no_speculative_load_hardening";
+  case 2:
+    return "no_speculative_load_hardening";
+  }
+}
+
 NoSplitStackAttr *NoSplitStackAttr::clone(ASTContext &C) const {
   auto *A = new (C) NoSplitStackAttr(getLocation(), C, getSpellingListIndex());
   A->Inherited = Inherited;
@@ -5789,6 +6002,36 @@ const char *NoThrowAttr::getSpelling() const {
   }
 }
 
+NoUniqueAddressAttr *NoUniqueAddressAttr::clone(ASTContext &C) const {
+  auto *A = new (C) NoUniqueAddressAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void NoUniqueAddressAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " [[no_unique_address]]";
+    break;
+  }
+}
+}
+
+const char *NoUniqueAddressAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "no_unique_address";
+  }
+}
+
 NonNullAttr *NonNullAttr::clone(ASTContext &C) const {
   auto *A = new (C) NonNullAttr(getLocation(), C, args_, args_Size, getSpellingListIndex());
   A->Inherited = Inherited;
@@ -5879,6 +6122,21 @@ const char *NotTailCalledAttr::getSpelling() const {
   case 2:
     return "not_tail_called";
   }
+}
+
+OMPAllocateDeclAttr *OMPAllocateDeclAttr::clone(ASTContext &C) const {
+  auto *A = new (C) OMPAllocateDeclAttr(getLocation(), C, allocatorType, allocator, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void OMPAllocateDeclAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+}
+
+const char *OMPAllocateDeclAttr::getSpelling() const {
+  return "(No spelling)";
 }
 
 OMPCaptureKindAttr *OMPCaptureKindAttr::clone(ASTContext &C) const {
@@ -6423,6 +6681,48 @@ const char *ObjCBridgeRelatedAttr::getSpelling() const {
   }
 }
 
+ObjCClassStubAttr *ObjCClassStubAttr::clone(ASTContext &C) const {
+  auto *A = new (C) ObjCClassStubAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void ObjCClassStubAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __attribute__((objc_class_stub))";
+    break;
+  }
+  case 1 : {
+    OS << " [[clang::objc_class_stub]]";
+    break;
+  }
+  case 2 : {
+    OS << " [[clang::objc_class_stub]]";
+    break;
+  }
+}
+}
+
+const char *ObjCClassStubAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "objc_class_stub";
+  case 1:
+    return "objc_class_stub";
+  case 2:
+    return "objc_class_stub";
+  }
+}
+
 ObjCDesignatedInitializerAttr *ObjCDesignatedInitializerAttr::clone(ASTContext &C) const {
   auto *A = new (C) ObjCDesignatedInitializerAttr(getLocation(), C, getSpellingListIndex());
   A->Inherited = Inherited;
@@ -6816,6 +7116,48 @@ const char *ObjCNSObjectAttr::getSpelling() const {
     return "NSObject";
   case 2:
     return "NSObject";
+  }
+}
+
+ObjCNonLazyClassAttr *ObjCNonLazyClassAttr::clone(ASTContext &C) const {
+  auto *A = new (C) ObjCNonLazyClassAttr(getLocation(), C, getSpellingListIndex());
+  A->Inherited = Inherited;
+  A->IsPackExpansion = IsPackExpansion;
+  A->Implicit = Implicit;
+  return A;
+}
+
+void ObjCNonLazyClassAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    break;
+  case 0 : {
+    OS << " __attribute__((objc_nonlazy_class))";
+    break;
+  }
+  case 1 : {
+    OS << " [[clang::objc_nonlazy_class]]";
+    break;
+  }
+  case 2 : {
+    OS << " [[clang::objc_nonlazy_class]]";
+    break;
+  }
+}
+}
+
+const char *ObjCNonLazyClassAttr::getSpelling() const {
+  switch (SpellingListIndex) {
+  default:
+    llvm_unreachable("Unknown attribute spelling!");
+    return "(No spelling)";
+  case 0:
+    return "objc_nonlazy_class";
+  case 1:
+    return "objc_nonlazy_class";
+  case 2:
+    return "objc_nonlazy_class";
   }
 }
 
@@ -7939,6 +8281,18 @@ void PassObjectSizeAttr::printPretty(raw_ostream &OS, const PrintingPolicy &Poli
     OS << " [[clang::pass_object_size(" << getType() << ")]]";
     break;
   }
+  case 3 : {
+    OS << " __attribute__((pass_dynamic_object_size(" << getType() << ")))";
+    break;
+  }
+  case 4 : {
+    OS << " [[clang::pass_dynamic_object_size(" << getType() << ")]]";
+    break;
+  }
+  case 5 : {
+    OS << " [[clang::pass_dynamic_object_size(" << getType() << ")]]";
+    break;
+  }
 }
 }
 
@@ -7953,6 +8307,12 @@ const char *PassObjectSizeAttr::getSpelling() const {
     return "pass_object_size";
   case 2:
     return "pass_object_size";
+  case 3:
+    return "pass_dynamic_object_size";
+  case 4:
+    return "pass_dynamic_object_size";
+  case 5:
+    return "pass_dynamic_object_size";
   }
 }
 
@@ -10962,6 +11322,8 @@ const char *Attr::getSpelling() const {
     return cast<CXX11NoReturnAttr>(this)->getSpelling();
   case attr::CallableWhen:
     return cast<CallableWhenAttr>(this)->getSpelling();
+  case attr::Callback:
+    return cast<CallbackAttr>(this)->getSpelling();
   case attr::Capability:
     return cast<CapabilityAttr>(this)->getSpelling();
   case attr::CapturedRecord:
@@ -11036,6 +11398,8 @@ const char *Attr::getSpelling() const {
     return cast<GuardedByAttr>(this)->getSpelling();
   case attr::GuardedVar:
     return cast<GuardedVarAttr>(this)->getSpelling();
+  case attr::HIPPinnedShadow:
+    return cast<HIPPinnedShadowAttr>(this)->getSpelling();
   case attr::Hot:
     return cast<HotAttr>(this)->getSpelling();
   case attr::IBAction:
@@ -11066,8 +11430,12 @@ const char *Attr::getSpelling() const {
     return cast<LocksExcludedAttr>(this)->getSpelling();
   case attr::LoopHint:
     return cast<LoopHintAttr>(this)->getSpelling();
+  case attr::MIGServerRoutine:
+    return cast<MIGServerRoutineAttr>(this)->getSpelling();
   case attr::MSABI:
     return cast<MSABIAttr>(this)->getSpelling();
+  case attr::MSAllocator:
+    return cast<MSAllocatorAttr>(this)->getSpelling();
   case attr::MSInheritance:
     return cast<MSInheritanceAttr>(this)->getSpelling();
   case attr::MSNoVTable:
@@ -11136,6 +11504,8 @@ const char *Attr::getSpelling() const {
     return cast<NoReturnAttr>(this)->getSpelling();
   case attr::NoSanitize:
     return cast<NoSanitizeAttr>(this)->getSpelling();
+  case attr::NoSpeculativeLoadHardening:
+    return cast<NoSpeculativeLoadHardeningAttr>(this)->getSpelling();
   case attr::NoSplitStack:
     return cast<NoSplitStackAttr>(this)->getSpelling();
   case attr::NoStackProtector:
@@ -11144,10 +11514,14 @@ const char *Attr::getSpelling() const {
     return cast<NoThreadSafetyAnalysisAttr>(this)->getSpelling();
   case attr::NoThrow:
     return cast<NoThrowAttr>(this)->getSpelling();
+  case attr::NoUniqueAddress:
+    return cast<NoUniqueAddressAttr>(this)->getSpelling();
   case attr::NonNull:
     return cast<NonNullAttr>(this)->getSpelling();
   case attr::NotTailCalled:
     return cast<NotTailCalledAttr>(this)->getSpelling();
+  case attr::OMPAllocateDecl:
+    return cast<OMPAllocateDeclAttr>(this)->getSpelling();
   case attr::OMPCaptureKind:
     return cast<OMPCaptureKindAttr>(this)->getSpelling();
   case attr::OMPCaptureNoInit:
@@ -11180,6 +11554,8 @@ const char *Attr::getSpelling() const {
     return cast<ObjCBridgeMutableAttr>(this)->getSpelling();
   case attr::ObjCBridgeRelated:
     return cast<ObjCBridgeRelatedAttr>(this)->getSpelling();
+  case attr::ObjCClassStub:
+    return cast<ObjCClassStubAttr>(this)->getSpelling();
   case attr::ObjCDesignatedInitializer:
     return cast<ObjCDesignatedInitializerAttr>(this)->getSpelling();
   case attr::ObjCException:
@@ -11200,6 +11576,8 @@ const char *Attr::getSpelling() const {
     return cast<ObjCMethodFamilyAttr>(this)->getSpelling();
   case attr::ObjCNSObject:
     return cast<ObjCNSObjectAttr>(this)->getSpelling();
+  case attr::ObjCNonLazyClass:
+    return cast<ObjCNonLazyClassAttr>(this)->getSpelling();
   case attr::ObjCOwnership:
     return cast<ObjCOwnershipAttr>(this)->getSpelling();
   case attr::ObjCPreciseLifetime:
@@ -11512,6 +11890,8 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<CXX11NoReturnAttr>(this)->clone(C);
   case attr::CallableWhen:
     return cast<CallableWhenAttr>(this)->clone(C);
+  case attr::Callback:
+    return cast<CallbackAttr>(this)->clone(C);
   case attr::Capability:
     return cast<CapabilityAttr>(this)->clone(C);
   case attr::CapturedRecord:
@@ -11586,6 +11966,8 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<GuardedByAttr>(this)->clone(C);
   case attr::GuardedVar:
     return cast<GuardedVarAttr>(this)->clone(C);
+  case attr::HIPPinnedShadow:
+    return cast<HIPPinnedShadowAttr>(this)->clone(C);
   case attr::Hot:
     return cast<HotAttr>(this)->clone(C);
   case attr::IBAction:
@@ -11616,8 +11998,12 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<LocksExcludedAttr>(this)->clone(C);
   case attr::LoopHint:
     return cast<LoopHintAttr>(this)->clone(C);
+  case attr::MIGServerRoutine:
+    return cast<MIGServerRoutineAttr>(this)->clone(C);
   case attr::MSABI:
     return cast<MSABIAttr>(this)->clone(C);
+  case attr::MSAllocator:
+    return cast<MSAllocatorAttr>(this)->clone(C);
   case attr::MSInheritance:
     return cast<MSInheritanceAttr>(this)->clone(C);
   case attr::MSNoVTable:
@@ -11686,6 +12072,8 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<NoReturnAttr>(this)->clone(C);
   case attr::NoSanitize:
     return cast<NoSanitizeAttr>(this)->clone(C);
+  case attr::NoSpeculativeLoadHardening:
+    return cast<NoSpeculativeLoadHardeningAttr>(this)->clone(C);
   case attr::NoSplitStack:
     return cast<NoSplitStackAttr>(this)->clone(C);
   case attr::NoStackProtector:
@@ -11694,10 +12082,14 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<NoThreadSafetyAnalysisAttr>(this)->clone(C);
   case attr::NoThrow:
     return cast<NoThrowAttr>(this)->clone(C);
+  case attr::NoUniqueAddress:
+    return cast<NoUniqueAddressAttr>(this)->clone(C);
   case attr::NonNull:
     return cast<NonNullAttr>(this)->clone(C);
   case attr::NotTailCalled:
     return cast<NotTailCalledAttr>(this)->clone(C);
+  case attr::OMPAllocateDecl:
+    return cast<OMPAllocateDeclAttr>(this)->clone(C);
   case attr::OMPCaptureKind:
     return cast<OMPCaptureKindAttr>(this)->clone(C);
   case attr::OMPCaptureNoInit:
@@ -11730,6 +12122,8 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<ObjCBridgeMutableAttr>(this)->clone(C);
   case attr::ObjCBridgeRelated:
     return cast<ObjCBridgeRelatedAttr>(this)->clone(C);
+  case attr::ObjCClassStub:
+    return cast<ObjCClassStubAttr>(this)->clone(C);
   case attr::ObjCDesignatedInitializer:
     return cast<ObjCDesignatedInitializerAttr>(this)->clone(C);
   case attr::ObjCException:
@@ -11750,6 +12144,8 @@ Attr *Attr::clone(ASTContext &C) const {
     return cast<ObjCMethodFamilyAttr>(this)->clone(C);
   case attr::ObjCNSObject:
     return cast<ObjCNSObjectAttr>(this)->clone(C);
+  case attr::ObjCNonLazyClass:
+    return cast<ObjCNonLazyClassAttr>(this)->clone(C);
   case attr::ObjCOwnership:
     return cast<ObjCOwnershipAttr>(this)->clone(C);
   case attr::ObjCPreciseLifetime:
@@ -12062,6 +12458,8 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<CXX11NoReturnAttr>(this)->printPretty(OS, Policy);
   case attr::CallableWhen:
     return cast<CallableWhenAttr>(this)->printPretty(OS, Policy);
+  case attr::Callback:
+    return cast<CallbackAttr>(this)->printPretty(OS, Policy);
   case attr::Capability:
     return cast<CapabilityAttr>(this)->printPretty(OS, Policy);
   case attr::CapturedRecord:
@@ -12136,6 +12534,8 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<GuardedByAttr>(this)->printPretty(OS, Policy);
   case attr::GuardedVar:
     return cast<GuardedVarAttr>(this)->printPretty(OS, Policy);
+  case attr::HIPPinnedShadow:
+    return cast<HIPPinnedShadowAttr>(this)->printPretty(OS, Policy);
   case attr::Hot:
     return cast<HotAttr>(this)->printPretty(OS, Policy);
   case attr::IBAction:
@@ -12166,8 +12566,12 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<LocksExcludedAttr>(this)->printPretty(OS, Policy);
   case attr::LoopHint:
     return cast<LoopHintAttr>(this)->printPretty(OS, Policy);
+  case attr::MIGServerRoutine:
+    return cast<MIGServerRoutineAttr>(this)->printPretty(OS, Policy);
   case attr::MSABI:
     return cast<MSABIAttr>(this)->printPretty(OS, Policy);
+  case attr::MSAllocator:
+    return cast<MSAllocatorAttr>(this)->printPretty(OS, Policy);
   case attr::MSInheritance:
     return cast<MSInheritanceAttr>(this)->printPretty(OS, Policy);
   case attr::MSNoVTable:
@@ -12236,6 +12640,8 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<NoReturnAttr>(this)->printPretty(OS, Policy);
   case attr::NoSanitize:
     return cast<NoSanitizeAttr>(this)->printPretty(OS, Policy);
+  case attr::NoSpeculativeLoadHardening:
+    return cast<NoSpeculativeLoadHardeningAttr>(this)->printPretty(OS, Policy);
   case attr::NoSplitStack:
     return cast<NoSplitStackAttr>(this)->printPretty(OS, Policy);
   case attr::NoStackProtector:
@@ -12244,10 +12650,14 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<NoThreadSafetyAnalysisAttr>(this)->printPretty(OS, Policy);
   case attr::NoThrow:
     return cast<NoThrowAttr>(this)->printPretty(OS, Policy);
+  case attr::NoUniqueAddress:
+    return cast<NoUniqueAddressAttr>(this)->printPretty(OS, Policy);
   case attr::NonNull:
     return cast<NonNullAttr>(this)->printPretty(OS, Policy);
   case attr::NotTailCalled:
     return cast<NotTailCalledAttr>(this)->printPretty(OS, Policy);
+  case attr::OMPAllocateDecl:
+    return cast<OMPAllocateDeclAttr>(this)->printPretty(OS, Policy);
   case attr::OMPCaptureKind:
     return cast<OMPCaptureKindAttr>(this)->printPretty(OS, Policy);
   case attr::OMPCaptureNoInit:
@@ -12280,6 +12690,8 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<ObjCBridgeMutableAttr>(this)->printPretty(OS, Policy);
   case attr::ObjCBridgeRelated:
     return cast<ObjCBridgeRelatedAttr>(this)->printPretty(OS, Policy);
+  case attr::ObjCClassStub:
+    return cast<ObjCClassStubAttr>(this)->printPretty(OS, Policy);
   case attr::ObjCDesignatedInitializer:
     return cast<ObjCDesignatedInitializerAttr>(this)->printPretty(OS, Policy);
   case attr::ObjCException:
@@ -12300,6 +12712,8 @@ void Attr::printPretty(raw_ostream &OS, const PrintingPolicy &Policy) const {
     return cast<ObjCMethodFamilyAttr>(this)->printPretty(OS, Policy);
   case attr::ObjCNSObject:
     return cast<ObjCNSObjectAttr>(this)->printPretty(OS, Policy);
+  case attr::ObjCNonLazyClass:
+    return cast<ObjCNonLazyClassAttr>(this)->printPretty(OS, Policy);
   case attr::ObjCOwnership:
     return cast<ObjCOwnershipAttr>(this)->printPretty(OS, Policy);
   case attr::ObjCPreciseLifetime:

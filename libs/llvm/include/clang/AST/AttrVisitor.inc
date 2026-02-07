@@ -224,6 +224,10 @@
   bool VisitCallableWhenAttr(CallableWhenAttr *A) {
     return true; 
   }
+  bool TraverseCallbackAttr(CallbackAttr *A);
+  bool VisitCallbackAttr(CallbackAttr *A) {
+    return true; 
+  }
   bool TraverseCapabilityAttr(CapabilityAttr *A);
   bool VisitCapabilityAttr(CapabilityAttr *A) {
     return true; 
@@ -372,6 +376,10 @@
   bool VisitGuardedVarAttr(GuardedVarAttr *A) {
     return true; 
   }
+  bool TraverseHIPPinnedShadowAttr(HIPPinnedShadowAttr *A);
+  bool VisitHIPPinnedShadowAttr(HIPPinnedShadowAttr *A) {
+    return true; 
+  }
   bool TraverseHotAttr(HotAttr *A);
   bool VisitHotAttr(HotAttr *A) {
     return true; 
@@ -432,8 +440,16 @@
   bool VisitLoopHintAttr(LoopHintAttr *A) {
     return true; 
   }
+  bool TraverseMIGServerRoutineAttr(MIGServerRoutineAttr *A);
+  bool VisitMIGServerRoutineAttr(MIGServerRoutineAttr *A) {
+    return true; 
+  }
   bool TraverseMSABIAttr(MSABIAttr *A);
   bool VisitMSABIAttr(MSABIAttr *A) {
+    return true; 
+  }
+  bool TraverseMSAllocatorAttr(MSAllocatorAttr *A);
+  bool VisitMSAllocatorAttr(MSAllocatorAttr *A) {
     return true; 
   }
   bool TraverseMSInheritanceAttr(MSInheritanceAttr *A);
@@ -572,6 +588,10 @@
   bool VisitNoSanitizeAttr(NoSanitizeAttr *A) {
     return true; 
   }
+  bool TraverseNoSpeculativeLoadHardeningAttr(NoSpeculativeLoadHardeningAttr *A);
+  bool VisitNoSpeculativeLoadHardeningAttr(NoSpeculativeLoadHardeningAttr *A) {
+    return true; 
+  }
   bool TraverseNoSplitStackAttr(NoSplitStackAttr *A);
   bool VisitNoSplitStackAttr(NoSplitStackAttr *A) {
     return true; 
@@ -588,12 +608,20 @@
   bool VisitNoThrowAttr(NoThrowAttr *A) {
     return true; 
   }
+  bool TraverseNoUniqueAddressAttr(NoUniqueAddressAttr *A);
+  bool VisitNoUniqueAddressAttr(NoUniqueAddressAttr *A) {
+    return true; 
+  }
   bool TraverseNonNullAttr(NonNullAttr *A);
   bool VisitNonNullAttr(NonNullAttr *A) {
     return true; 
   }
   bool TraverseNotTailCalledAttr(NotTailCalledAttr *A);
   bool VisitNotTailCalledAttr(NotTailCalledAttr *A) {
+    return true; 
+  }
+  bool TraverseOMPAllocateDeclAttr(OMPAllocateDeclAttr *A);
+  bool VisitOMPAllocateDeclAttr(OMPAllocateDeclAttr *A) {
     return true; 
   }
   bool TraverseOMPCaptureKindAttr(OMPCaptureKindAttr *A);
@@ -660,6 +688,10 @@
   bool VisitObjCBridgeRelatedAttr(ObjCBridgeRelatedAttr *A) {
     return true; 
   }
+  bool TraverseObjCClassStubAttr(ObjCClassStubAttr *A);
+  bool VisitObjCClassStubAttr(ObjCClassStubAttr *A) {
+    return true; 
+  }
   bool TraverseObjCDesignatedInitializerAttr(ObjCDesignatedInitializerAttr *A);
   bool VisitObjCDesignatedInitializerAttr(ObjCDesignatedInitializerAttr *A) {
     return true; 
@@ -698,6 +730,10 @@
   }
   bool TraverseObjCNSObjectAttr(ObjCNSObjectAttr *A);
   bool VisitObjCNSObjectAttr(ObjCNSObjectAttr *A) {
+    return true; 
+  }
+  bool TraverseObjCNonLazyClassAttr(ObjCNonLazyClassAttr *A);
+  bool VisitObjCNonLazyClassAttr(ObjCNonLazyClassAttr *A) {
     return true; 
   }
   bool TraverseObjCOwnershipAttr(ObjCOwnershipAttr *A);
@@ -1114,6 +1150,10 @@ bool VISITORCLASS<Derived>::TraverseAMDGPUFlatWorkGroupSizeAttr(AMDGPUFlatWorkGr
     return false;
   if (!getDerived().VisitAMDGPUFlatWorkGroupSizeAttr(A))
     return false;
+  if (!getDerived().TraverseStmt(A->getMin()))
+    return false;
+  if (!getDerived().TraverseStmt(A->getMax()))
+    return false;
   return true;
 }
 
@@ -1140,6 +1180,10 @@ bool VISITORCLASS<Derived>::TraverseAMDGPUWavesPerEUAttr(AMDGPUWavesPerEUAttr *A
   if (!getDerived().VisitAttr(A))
     return false;
   if (!getDerived().VisitAMDGPUWavesPerEUAttr(A))
+    return false;
+  if (!getDerived().TraverseStmt(A->getMin()))
+    return false;
+  if (!getDerived().TraverseStmt(A->getMax()))
     return false;
   return true;
 }
@@ -1651,6 +1695,15 @@ bool VISITORCLASS<Derived>::TraverseCallableWhenAttr(CallableWhenAttr *A) {
 }
 
 template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseCallbackAttr(CallbackAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitCallbackAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
 bool VISITORCLASS<Derived>::TraverseCapabilityAttr(CapabilityAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
@@ -2000,6 +2053,15 @@ bool VISITORCLASS<Derived>::TraverseGuardedVarAttr(GuardedVarAttr *A) {
 }
 
 template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseHIPPinnedShadowAttr(HIPPinnedShadowAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitHIPPinnedShadowAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
 bool VISITORCLASS<Derived>::TraverseHotAttr(HotAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
@@ -2150,10 +2212,28 @@ bool VISITORCLASS<Derived>::TraverseLoopHintAttr(LoopHintAttr *A) {
 }
 
 template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseMIGServerRoutineAttr(MIGServerRoutineAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitMIGServerRoutineAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
 bool VISITORCLASS<Derived>::TraverseMSABIAttr(MSABIAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
   if (!getDerived().VisitMSABIAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseMSAllocatorAttr(MSAllocatorAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitMSAllocatorAttr(A))
     return false;
   return true;
 }
@@ -2465,6 +2545,15 @@ bool VISITORCLASS<Derived>::TraverseNoSanitizeAttr(NoSanitizeAttr *A) {
 }
 
 template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseNoSpeculativeLoadHardeningAttr(NoSpeculativeLoadHardeningAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitNoSpeculativeLoadHardeningAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
 bool VISITORCLASS<Derived>::TraverseNoSplitStackAttr(NoSplitStackAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
@@ -2501,6 +2590,15 @@ bool VISITORCLASS<Derived>::TraverseNoThrowAttr(NoThrowAttr *A) {
 }
 
 template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseNoUniqueAddressAttr(NoUniqueAddressAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitNoUniqueAddressAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
 bool VISITORCLASS<Derived>::TraverseNonNullAttr(NonNullAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
@@ -2514,6 +2612,17 @@ bool VISITORCLASS<Derived>::TraverseNotTailCalledAttr(NotTailCalledAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
   if (!getDerived().VisitNotTailCalledAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseOMPAllocateDeclAttr(OMPAllocateDeclAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitOMPAllocateDeclAttr(A))
+    return false;
+  if (!getDerived().TraverseStmt(A->getAllocator()))
     return false;
   return true;
 }
@@ -2707,6 +2816,15 @@ bool VISITORCLASS<Derived>::TraverseObjCBridgeRelatedAttr(ObjCBridgeRelatedAttr 
 }
 
 template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseObjCClassStubAttr(ObjCClassStubAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitObjCClassStubAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
 bool VISITORCLASS<Derived>::TraverseObjCDesignatedInitializerAttr(ObjCDesignatedInitializerAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
@@ -2792,6 +2910,15 @@ bool VISITORCLASS<Derived>::TraverseObjCNSObjectAttr(ObjCNSObjectAttr *A) {
   if (!getDerived().VisitAttr(A))
     return false;
   if (!getDerived().VisitObjCNSObjectAttr(A))
+    return false;
+  return true;
+}
+
+template <typename Derived>
+bool VISITORCLASS<Derived>::TraverseObjCNonLazyClassAttr(ObjCNonLazyClassAttr *A) {
+  if (!getDerived().VisitAttr(A))
+    return false;
+  if (!getDerived().VisitObjCNonLazyClassAttr(A))
     return false;
   return true;
 }
@@ -3845,6 +3972,8 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseCXX11NoReturnAttr(cast<CXX11NoReturnAttr>(A));
     case attr::CallableWhen:
       return getDerived().TraverseCallableWhenAttr(cast<CallableWhenAttr>(A));
+    case attr::Callback:
+      return getDerived().TraverseCallbackAttr(cast<CallbackAttr>(A));
     case attr::Capability:
       return getDerived().TraverseCapabilityAttr(cast<CapabilityAttr>(A));
     case attr::CapturedRecord:
@@ -3919,6 +4048,8 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseGuardedByAttr(cast<GuardedByAttr>(A));
     case attr::GuardedVar:
       return getDerived().TraverseGuardedVarAttr(cast<GuardedVarAttr>(A));
+    case attr::HIPPinnedShadow:
+      return getDerived().TraverseHIPPinnedShadowAttr(cast<HIPPinnedShadowAttr>(A));
     case attr::Hot:
       return getDerived().TraverseHotAttr(cast<HotAttr>(A));
     case attr::IBAction:
@@ -3949,8 +4080,12 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseLocksExcludedAttr(cast<LocksExcludedAttr>(A));
     case attr::LoopHint:
       return getDerived().TraverseLoopHintAttr(cast<LoopHintAttr>(A));
+    case attr::MIGServerRoutine:
+      return getDerived().TraverseMIGServerRoutineAttr(cast<MIGServerRoutineAttr>(A));
     case attr::MSABI:
       return getDerived().TraverseMSABIAttr(cast<MSABIAttr>(A));
+    case attr::MSAllocator:
+      return getDerived().TraverseMSAllocatorAttr(cast<MSAllocatorAttr>(A));
     case attr::MSInheritance:
       return getDerived().TraverseMSInheritanceAttr(cast<MSInheritanceAttr>(A));
     case attr::MSNoVTable:
@@ -4019,6 +4154,8 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseNoReturnAttr(cast<NoReturnAttr>(A));
     case attr::NoSanitize:
       return getDerived().TraverseNoSanitizeAttr(cast<NoSanitizeAttr>(A));
+    case attr::NoSpeculativeLoadHardening:
+      return getDerived().TraverseNoSpeculativeLoadHardeningAttr(cast<NoSpeculativeLoadHardeningAttr>(A));
     case attr::NoSplitStack:
       return getDerived().TraverseNoSplitStackAttr(cast<NoSplitStackAttr>(A));
     case attr::NoStackProtector:
@@ -4027,10 +4164,14 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseNoThreadSafetyAnalysisAttr(cast<NoThreadSafetyAnalysisAttr>(A));
     case attr::NoThrow:
       return getDerived().TraverseNoThrowAttr(cast<NoThrowAttr>(A));
+    case attr::NoUniqueAddress:
+      return getDerived().TraverseNoUniqueAddressAttr(cast<NoUniqueAddressAttr>(A));
     case attr::NonNull:
       return getDerived().TraverseNonNullAttr(cast<NonNullAttr>(A));
     case attr::NotTailCalled:
       return getDerived().TraverseNotTailCalledAttr(cast<NotTailCalledAttr>(A));
+    case attr::OMPAllocateDecl:
+      return getDerived().TraverseOMPAllocateDeclAttr(cast<OMPAllocateDeclAttr>(A));
     case attr::OMPCaptureKind:
       return getDerived().TraverseOMPCaptureKindAttr(cast<OMPCaptureKindAttr>(A));
     case attr::OMPCaptureNoInit:
@@ -4063,6 +4204,8 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseObjCBridgeMutableAttr(cast<ObjCBridgeMutableAttr>(A));
     case attr::ObjCBridgeRelated:
       return getDerived().TraverseObjCBridgeRelatedAttr(cast<ObjCBridgeRelatedAttr>(A));
+    case attr::ObjCClassStub:
+      return getDerived().TraverseObjCClassStubAttr(cast<ObjCClassStubAttr>(A));
     case attr::ObjCDesignatedInitializer:
       return getDerived().TraverseObjCDesignatedInitializerAttr(cast<ObjCDesignatedInitializerAttr>(A));
     case attr::ObjCException:
@@ -4083,6 +4226,8 @@ bool VISITORCLASS<Derived>::TraverseAttr(Attr *A) {
       return getDerived().TraverseObjCMethodFamilyAttr(cast<ObjCMethodFamilyAttr>(A));
     case attr::ObjCNSObject:
       return getDerived().TraverseObjCNSObjectAttr(cast<ObjCNSObjectAttr>(A));
+    case attr::ObjCNonLazyClass:
+      return getDerived().TraverseObjCNonLazyClassAttr(cast<ObjCNonLazyClassAttr>(A));
     case attr::ObjCOwnership:
       return getDerived().TraverseObjCOwnershipAttr(cast<ObjCOwnershipAttr>(A));
     case attr::ObjCPreciseLifetime:
