@@ -1,4 +1,6 @@
+# <!> This is a test/exploration repo ! 
 
-how to build dllcamlstr, dllthreads, dllunix come from https://github.com/corwin-of-amber/ocaml-wasm/tree/wasm-4.12
+Most branches are essentially not working.
 
-compiling gmp and mpfr come from https://stackoverflow.com/questions/41080815/compiling-gmp-mpfr-with-emscripten
+The final working procedure can found in https://github.com/rboudrouss/mopsa-emcc
+and a live project in https://mopsawasm.rboud.com/
